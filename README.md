@@ -62,14 +62,14 @@ docker-compose up
 6. Wait until your CMD or terminal displays that it is starting development server at `http://0.0.0.0:8000/`
 <br/>
 
-![Initialization](initialization.png)
+![Initialization](initialization.svg)
 
 7. Open up your browser and type `localhost:8000` in the search tab
 
 8. Make sure you see the local API documentation
 <br/>
 
-![Local API Documentation](local_api_documentation.png)
+![Local API Documentation](local_api_documentation.svg)
 
 9. Open a new CMD or terminal and change directory to CC Catalog API
 
@@ -86,7 +86,7 @@ curl localhost:8000/v1/images?q=honey
 12. Make sure you see the following response from the API
 <br/>
 
-![Sample API_Request](localhost_request.png)
+![Sample API_Request](localhost_request.svg)
 
 Congratulations! You just run the server locally.
 
