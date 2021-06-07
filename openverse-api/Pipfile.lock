@@ -41,10 +41,10 @@
         },
         "botocore": {
             "hashes": [
-                "sha256:04a5594ae1886233cb15ab636b51aeecf6b5412231f72744405f11a54a8cda58",
-                "sha256:3dcc84855349073e0cb706e90a9e1180899deded4b8555698fb4a5a5b3357202"
+                "sha256:bc989edab52d4788aadd8d1aff925f5c6a7cbc68900bfdb8e379965aeac17317",
+                "sha256:be3cb73fab60a2349e2932bd0cbbe7e7736e3a2cd8c05b539d362ff3e406be76"
             ],
-            "version": "==1.20.87"
+            "version": "==1.20.88"
         },
         "certifi": {
             "hashes": [
@@ -374,11 +374,11 @@
         },
         "hvac": {
             "hashes": [
-                "sha256:3de83513893dd0b1bde4ac344a4e5dd595a53b7fcd79d1548760e74e9c41ef91",
-                "sha256:80888c009c7e310a34d480ce45fb33a44b479cb9b8a3f3c467b6ffcfff0569f4"
+                "sha256:0c616f29d6642adaabcd408a04469374ed83be12b24501bb337e8f37badfef22",
+                "sha256:31b1884546e88c1fe0d6a827c464b9544ac186e06e01e45d16fe3e7275dd0e0f"
             ],
             "index": "pypi",
-            "version": "==0.10.10"
+            "version": "==0.10.14"
         },
         "idna": {
             "hashes": [
