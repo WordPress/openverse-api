@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "cf70dc87bac3e4b92559887f90924a51e8366cf93544c65859681a7a9af3fc8b"
+            "sha256": "f158e17644ec947fe369a134c63e9175dd3a9bd9ae62e06b7d6bfd516cb6a29c"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,14 @@
         ]
     },
     "default": {
+        "asgiref": {
+            "hashes": [
+                "sha256:92906c611ce6c967347bbfea733f13d6313901d54dcca88195eaeb52b2a8e8ee",
+                "sha256:d1216dfbdfb63826470995d31caed36225dcaf34f182e0fa257a4dd9e86f1b78"
+            ],
+            "markers": "python_version >= '3.6'",
+            "version": "==3.3.4"
+        },
         "attrs": {
             "hashes": [
                 "sha256:149e90d6d8ac20db7a955ad60cf0e6881a3f20d37096140088356da6c716b0b1",
@@ -42,11 +50,11 @@
         },
         "botocore": {
             "hashes": [
-                "sha256:5adb6679e3bf7b5ea0ca3363118a0111d087dce18a94fc7a5a542fcc5cba0ddc",
-                "sha256:950ff7d4985427f8dfbb90aa1a8b48da98506d25319f1af1fe20341be3365633"
+                "sha256:204f7403bfe1ab837784421ddd069fd880be99d946cb59cbf31c72296ea9507a",
+                "sha256:b18d2d016b371b769a88cb080088ce75582748b4a7efa5748e9ced4f23bdbc99"
             ],
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5'",
-            "version": "==1.20.92"
+            "version": "==1.20.96"
         },
         "certifi": {
             "hashes": [
@@ -175,11 +183,11 @@
         },
         "django": {
             "hashes": [
-                "sha256:3339ff0e03dee13045aef6ae7b523edff75b6d726adf7a7a48f53d5a501f7db7",
-                "sha256:f2084ceecff86b1e631c2cd4107d435daf4e12f1efcdf11061a73bf0b5e95f92"
+                "sha256:66c9d8db8cc6fe938a28b7887c1596e42d522e27618562517cc8929eb7e7f296",
+                "sha256:ea735cbbbb3b2fba6d4da4784a0043d84c67c92f1fdf15ad6db69900e792c10f"
             ],
             "index": "pypi",
-            "version": "==2.2.24"
+            "version": "==3.2.4"
         },
         "django-braces": {
             "hashes": [
