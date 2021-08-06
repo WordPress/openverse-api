@@ -99,10 +99,10 @@ class CleanupFunctions:
             return None
         for tag in tags:
             below_threshold = False
-            if 'accuracy' in tag and tag['accuracy'] < TAG_MIN_CONFIDENCE:
+            if 'accuracy' in tag and float(tag['accuracy']) < TAG_MIN_CONFIDENCE:
                 below_threshold = True
-            if 'name' in tag:
-                lower_tag = tag['name'].lower()
+            if 'name' in tag and tag['name'] == str(tag['name']):
+                lower_tag = str(tag['name']).lower()
                 should_filter = _tag_denylisted(lower_tag) or below_threshold
             else:
                 log.warning(f'Filtering malformed tag "{tag}" in "{tags}"')
@@ -236,8 +236,6 @@ def clean_image_data(table):
     Clean it up before we go live with the new data.
 
     :param table: The staging table for the new data
-    :param upstream_db: A dict specifying the connection details of the upstream
-    database.
     :return: None
     """
     # Map each table to the fields that need to be cleaned up. Then, map each

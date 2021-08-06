@@ -207,59 +207,59 @@ def reload_upstream(table, progress=None, finish_time=None):
     :return:
     """
     downstream_db = database_connect()
-    upstream_db = psycopg2.connect(
-        dbname='openledger',
-        user='deploy',
-        port=UPSTREAM_DB_PORT,
-        password=UPSTREAM_DB_PASSWORD,
-        host=UPSTREAM_DB_HOST,
-        connect_timeout=5
-    )
-    cols = _get_shared_cols(downstream_db, upstream_db, table)
-    query_cols = ','.join(cols)
-    upstream_db.close()
+    # upstream_db = psycopg2.connect(
+    #     dbname='openledger',
+    #     user='deploy',
+    #     port=UPSTREAM_DB_PORT,
+    #     password=UPSTREAM_DB_PASSWORD,
+    #     host=UPSTREAM_DB_HOST,
+    #     connect_timeout=5
+    # )
+    # cols = _get_shared_cols(downstream_db, upstream_db, table)
+    # query_cols = ','.join(cols)
+    # upstream_db.close()
     # Connect to upstream database and create references to foreign tables.
-    log.info('(Re)initializing foreign data wrapper')
-    init_fdw = '''
-        CREATE EXTENSION IF NOT EXISTS postgres_fdw;
-        DROP SERVER IF EXISTS upstream CASCADE;
-        CREATE SERVER upstream FOREIGN DATA WRAPPER postgres_fdw
-        OPTIONS (host '{host}', dbname 'openledger', port '{port}');
+    # log.info('(Re)initializing foreign data wrapper')
+    # init_fdw = '''
+    #     CREATE EXTENSION IF NOT EXISTS postgres_fdw;
+    #     DROP SERVER IF EXISTS upstream CASCADE;
+    #     CREATE SERVER upstream FOREIGN DATA WRAPPER postgres_fdw
+    #     OPTIONS (host '{host}', dbname 'openledger', port '{port}');
 
-        CREATE USER MAPPING IF NOT EXISTS FOR deploy SERVER upstream
-        OPTIONS (user 'deploy', password '{passwd}');
-        DROP SCHEMA IF EXISTS upstream_schema CASCADE;
-        CREATE SCHEMA upstream_schema AUTHORIZATION deploy;
+    #     CREATE USER MAPPING IF NOT EXISTS FOR deploy SERVER upstream
+    #     OPTIONS (user 'deploy', password '{passwd}');
+    #     DROP SCHEMA IF EXISTS upstream_schema CASCADE;
+    #     CREATE SCHEMA upstream_schema AUTHORIZATION deploy;
 
-        IMPORT FOREIGN SCHEMA public LIMIT TO ({table}_view)
-          FROM SERVER upstream INTO upstream_schema;
-    '''.format(host=UPSTREAM_DB_HOST, passwd=UPSTREAM_DB_PASSWORD, table=table,
-               port=UPSTREAM_DB_PORT)
+    #     IMPORT FOREIGN SCHEMA public LIMIT TO ({table}_view)
+    #       FROM SERVER upstream INTO upstream_schema;
+    # '''.format(host=UPSTREAM_DB_HOST, passwd=UPSTREAM_DB_PASSWORD, table=table,
+    #            port=UPSTREAM_DB_PORT)
     # 1. Import data into a temporary table
     # 2. Recreate indices from the original table
     # 3. Recreate constraints from the original table.
     # 4. Delete orphaned foreign key references.
     # 5. Clean the data.
     # 6. Promote the temporary table and delete the original.
-    copy_data = '''
-        DROP TABLE IF EXISTS temp_import_{table};
-        CREATE TABLE temp_import_{table} (LIKE {table} INCLUDING CONSTRAINTS);
-        ALTER TABLE temp_import_{table} ADD COLUMN IF NOT EXISTS
-          standardized_popularity double precision;
-        CREATE TEMP SEQUENCE IF NOT EXISTS image_id_temp_seq;
-        ALTER TABLE temp_import_{table} ADD COLUMN IF NOT EXISTS id serial;
-        ALTER TABLE temp_import_{table} ALTER COLUMN id
-          SET DEFAULT nextval('image_id_temp_seq'::regclass);
-        ALTER TABLE temp_import_{table} ALTER COLUMN view_count
-          SET DEFAULT 0;
-        INSERT INTO temp_import_{table} ({cols})
-        SELECT {cols} from upstream_schema.{table}_view img
-          WHERE NOT EXISTS(
-            SELECT FROM api_deletedimage WHERE identifier = img.identifier
-          );
-        ALTER TABLE temp_import_{table} ADD PRIMARY KEY (id);
-        DROP SERVER upstream CASCADE;
-    '''.format(table=table, cols=query_cols)
+    # copy_data = '''
+    #     DROP TABLE IF EXISTS temp_import_{table};
+    #     CREATE TABLE temp_import_{table} (LIKE {table} INCLUDING CONSTRAINTS);
+    #     ALTER TABLE temp_import_{table} ADD COLUMN IF NOT EXISTS
+    #       standardized_popularity double precision;
+    #     CREATE TEMP SEQUENCE IF NOT EXISTS image_id_temp_seq;
+    #     ALTER TABLE temp_import_{table} ADD COLUMN IF NOT EXISTS id serial;
+    #     ALTER TABLE temp_import_{table} ALTER COLUMN id
+    #       SET DEFAULT nextval('image_id_temp_seq'::regclass);
+    #     ALTER TABLE temp_import_{table} ALTER COLUMN view_count
+    #       SET DEFAULT 0;
+    #     INSERT INTO temp_import_{table} ({cols})
+    #     SELECT {cols} from upstream_schema.{table}_view img
+    #       WHERE NOT EXISTS(
+    #         SELECT FROM api_deletedimage WHERE identifier = img.identifier
+    #       );
+    #     ALTER TABLE temp_import_{table} ADD PRIMARY KEY (id);
+    #     DROP SERVER upstream CASCADE;
+    # '''.format(table=table, cols=query_cols)
     create_indices = ';\n'.join(_generate_indices(downstream_db, table))
     remap_constraints = ';\n'.join(_generate_constraints(downstream_db, table))
     go_live = '''
@@ -267,12 +267,14 @@ def reload_upstream(table, progress=None, finish_time=None):
         ALTER TABLE temp_import_{table} RENAME TO {table};
     '''.format(table=table)
 
-    with downstream_db.cursor() as downstream_cur:
-        log.info('Copying upstream data...')
-        downstream_cur.execute(init_fdw)
-        downstream_cur.execute(copy_data)
-    downstream_db.commit()
-    downstream_db.close()
+    # with downstream_db.cursor() as downstream_cur:
+        # log.info('Copying upstream data...')
+        # downstream_cur.execute(init_fdw)
+        # downstream_cur.execute(copy_data)
+    # downstream_db.commit()
+    # downstream_db.close()
+    log.info('Skipping normal behavior and starting cleanup.')
+    log.info('Unless you are Zack and its 21-08-07, you should not be seeing this.')
     clean_image_data(table)
     log.info('Cleaning step finished.')
     downstream_db = database_connect()
