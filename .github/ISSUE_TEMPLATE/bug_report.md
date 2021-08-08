@@ -1,37 +1,29 @@
 ---
-name: Bug report
+name: 🐛 Bug report
 about: Create a report to help us improve
-labels: "🛠 goal: fix, 🚦 status: awaiting triage, 💻 aspect: code, 🟧 priority: high"
-title: "[Bug] <Replace this with actual title>"
+labels: bug
+
 ---
 
-## Description
-<!-- Concisely describe the bug. -->
+**🐞 Describe the bug**
 
-## Reproduction
-<!-- Provide detailed steps to reproduce the bug. -->
-1. <!-- Step 1 ... -->
-2. <!-- Step 2 ... -->
-3. <!-- Step 3 ... -->
-4. See error.
+A clear and concise description of what the bug is.
 
-## Expectation
-<!-- Concisely describe what you expected to happen. -->
+**📚 To Reproduce**
 
-## Screenshots
-<!-- Add screenshots to show the problem; or delete the section entirely. -->
+Steps to reproduce the behavior.
 
-## Environment
-<!-- Please complete this, unless you are certain the problem is not environment specific. -->
- - Device: <!-- (_eg._ iPhone Xs; laptop) -->
- - OS: <!-- (_eg._ iOS 13.5; Fedora 32) -->
- - Browser: <!-- (_eg._ Safari; Firefox) -->
- - Version: <!-- (_eg._ 13; 73) -->
- - Other info: <!-- (_eg._ display resolution, ease-of-access settings) -->
+**💡 Expected behavior**
 
-## Additional context
-<!-- Add any other context about the problem here; or delete the section entirely. -->
+A clear and concise description of what you expected to happen.
 
-## Resolution
-<!-- Replace the [ ] with [x] to check the box. -->
-- [ ] 🙋 I would be interested in resolving this bug.
+**🖼️ Screenshots**
+
+If applicable, add screenshots to help explain your problem.
+
+**⚙️ Environment**
+- Action version: [e.g. v1.0.0]
+
+**📋 Additional context**
+
+Add any other context about the problem here.
