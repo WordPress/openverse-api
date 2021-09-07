@@ -9,6 +9,21 @@ on:
   workflow_dispatch:
 
 jobs:
+  Linting:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.9
+    - name: Lint
+      run: |
+        pip install --upgrade pipenv
+        pipenv install --dev
+        pipenv run pre-commit run --all-files
+
   Style:
     runs-on: ubuntu-latest
     steps:
