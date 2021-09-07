@@ -30,7 +30,7 @@ git clone https://github.com/WordPress/openverse-api.git
 5. Start Openverse API locally by running the docker containers
 
 ```
-docker-compose up
+just up
 ```
 
 6. Wait until your CMD or terminal displays that it is starting development server at `http://0.0.0.0:8000/`
@@ -42,13 +42,13 @@ docker-compose up
 10. Still in the new CMD or terminal, load the sample data. This script requires a local postgres installation to connect to and alter our database.
 
 ```
-./load_sample_data.sh
+just init
 ```
 
 11. Still in the new CMD or terminal, hit the API with a request
 
 ```
-curl localhost:8000/v1/images?q=honey
+just healthcheck
 ```
 
 12. Make sure you see the following response from the API
@@ -58,7 +58,7 @@ Congratulations! You just ran the server locally.
 
 ### What Happens In the Background
 
-After executing `docker-compose up` (in Step 5), you will be running:
+After executing `just up` (in Step 5), you will be running:
 
 - A Django API server
 - Two PostgreSQL instances (one simulates the upstream data source, the other serves as the application database)
@@ -104,34 +104,24 @@ Every week, the latest version of the data is automatically bulk copied ("ingest
 
 You can check the health of a live deployment of the API by running the live integration tests.
 
-1. Change directory to the `openverse-api`
+1. Run the install recipe:
 
 ```
-cd openverse-api
+just install
 ```
 
 #### On the host
 
-1. Install all dependencies for Openverse API.
+1. Run the tests in a Pipenv subshell.
 ```
-pipenv install
-```
-
-2. Run the tests in a Pipenv subshell.
-```
-pipenv run bash ./test/run_test.sh
+just testlocal
 ```
 
 #### Inside the container
 
-1. Ensure that Docker containers are up. See the section above for instructions.
+1. Run the tests in an interactive TTY connected to a `web` container.
 ```
-docker-compose ps
-```
-
-2. Run the tests in an interactive TTY connected to a `web` container.
-```
-docker-compose exec web bash ./test/run_test.sh
+just test
 ```
 
 ### How to Run Ingestion Server tests
