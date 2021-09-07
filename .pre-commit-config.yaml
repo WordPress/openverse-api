@@ -1,11 +1,10 @@
-exclude: Pipfile\.lock
+exclude: Pipfile\.lock|migrations|\.idea
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.0.1
     hooks:
       - id: trailing-whitespace
-      - id: check-docstring-first
       - id: check-executables-have-shebangs
       - id: check-json
       - id: check-case-conflict
@@ -45,7 +44,7 @@ repos:
     hooks:
         - id: flake8
           args:
-            - --per-file-ignores=test_*:E501
+            - --per-file-ignores=*test*:E501,*__init__*:F401,*wsgi.py:E402
             - --max-line-length=88
             - --ignore=E203,W503
 

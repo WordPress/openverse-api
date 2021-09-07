@@ -14,6 +14,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 import rest_framework.permissions
+from catalog.api.utils.status_code_view import get_status_code_view
+from catalog.api.views.image_views import OembedView, Watermark
+from catalog.api.views.site_views import CheckRates, HealthCheck
+from catalog.urls.audio import urlpatterns as audio_patterns
+from catalog.urls.auth_tokens import urlpatterns as auth_tokens_patterns
+from catalog.urls.images import urlpatterns as images_patterns
 from django.conf import settings
 from django.conf.urls import include
 from django.contrib import admin
@@ -22,13 +28,6 @@ from django.views.generic import RedirectView
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 
-from catalog.api.views.image_views import Watermark, OembedView
-from catalog.api.views.site_views import HealthCheck, CheckRates
-from catalog.api.utils.status_code_view import get_status_code_view
-
-from catalog.urls.auth_tokens import urlpatterns as auth_tokens_patterns
-from catalog.urls.audio import urlpatterns as audio_patterns
-from catalog.urls.images import urlpatterns as images_patterns
 
 description = """
 # Introduction
@@ -165,10 +164,10 @@ We love pull requests! If you’re interested in [contributing on Github](https:
 
 # @todo: Reimplement logo once Openverse logomark is finalized
 tos_url = "https://api.openverse.engineering/terms_of_service.html"
-license_url = "https://github.com/" \
-              "WordPress/openverse-api/blob/master/LICENSE"
-logo_url = "https://raw.githubusercontent.com/" \
-           "WordPress/openverse/master/brand/logo.svg"
+license_url = "https://github.com/" "WordPress/openverse-api/blob/master/LICENSE"
+logo_url = (
+    "https://raw.githubusercontent.com/" "WordPress/openverse/master/brand/logo.svg"
+)
 schema_view = get_schema_view(
     openapi.Info(
         title="Openverse API",
@@ -177,10 +176,7 @@ schema_view = get_schema_view(
         contact=openapi.Contact(email="zack.krida@automattic.com"),
         license=openapi.License(name="MIT License", url=license_url),
         terms_of_service=tos_url,
-        x_logo={
-            "url": logo_url,
-            "backgroundColor": "#fafafa"
-        }
+        x_logo={"url": logo_url, "backgroundColor": "#fafafa"},
     ),
     public=True,
     permission_classes=(rest_framework.permissions.AllowAny,),
@@ -189,85 +185,73 @@ schema_view = get_schema_view(
 cache_timeout = 0 if settings.DEBUG else 15
 
 discontinuation_message = {
-    'error': 'Gone',
-    'reason': 'This API endpoint has been discontinued.'
+    "error": "Gone",
+    "reason": "This API endpoint has been discontinued.",
 }
 
 versioned_paths = [
-    path('rate_limit', CheckRates.as_view(), name='key_info'),
-    path('auth_tokens/', include(auth_tokens_patterns)),
-
+    path("rate_limit", CheckRates.as_view(), name="key_info"),
+    path("auth_tokens/", include(auth_tokens_patterns)),
     # Audio
-    path('audio/', include(audio_patterns)),
-
+    path("audio/", include(audio_patterns)),
     # Images
-    path('images/', include(images_patterns)),
-
+    path("images/", include(images_patterns)),
     # Deprecated
     path(
-        'sources',
-        RedirectView.as_view(pattern_name='image-stats', permanent=True),
-        name='about-image'
+        "sources",
+        RedirectView.as_view(pattern_name="image-stats", permanent=True),
+        name="about-image",
     ),
     path(
-        'recommendations/images/<str:identifier>',
-        RedirectView.as_view(pattern_name='image-related', permanent=True),
-        name='related-images',
+        "recommendations/images/<str:identifier>",
+        RedirectView.as_view(pattern_name="image-related", permanent=True),
+        name="related-images",
     ),
     path(
-        'oembed',
+        "oembed",
         RedirectView.as_view(
-            pattern_name='image-oembed',
-            query_string=True,
-            permanent=True
+            pattern_name="image-oembed", query_string=True, permanent=True
         ),
-        name='oembed'
+        name="oembed",
     ),
     path(
-        'thumbs/<str:identifier>',
-        RedirectView.as_view(pattern_name='image-thumb', permanent=True),
-        name='thumbs'
+        "thumbs/<str:identifier>",
+        RedirectView.as_view(pattern_name="image-thumb", permanent=True),
+        name="thumbs",
     ),
-
     # Discontinued
     re_path(
-        r'^link/',
+        r"^link/",
         get_status_code_view(discontinuation_message, 410).as_view(),
-        name='make-link'
+        name="make-link",
     ),
 ]
 if settings.WATERMARK_ENABLED:
-    versioned_paths.append(
-        path('watermark/<str:identifier>', Watermark.as_view())
-    )
+    versioned_paths.append(path("watermark/<str:identifier>", Watermark.as_view()))
 
 urlpatterns = [
-    path('', RedirectView.as_view(pattern_name='root')),
-    path('admin/', admin.site.urls),
-    path('healthcheck', HealthCheck.as_view()),
-
+    path("", RedirectView.as_view(pattern_name="root")),
+    path("admin/", admin.site.urls),
+    path("healthcheck", HealthCheck.as_view()),
     # Swagger documentation
     re_path(
-        r'^swagger(?P<format>\.json|\.yaml)$',
+        r"^swagger(?P<format>\.json|\.yaml)$",
         schema_view.without_ui(cache_timeout=None),
-        name='schema-json'
+        name="schema-json",
     ),
     re_path(
-        r'^swagger/$',
-        schema_view.with_ui('swagger', cache_timeout=cache_timeout),
-        name='schema-swagger-ui'
+        r"^swagger/$",
+        schema_view.with_ui("swagger", cache_timeout=cache_timeout),
+        name="schema-swagger-ui",
     ),
     re_path(
-        r'^redoc/$',
-        schema_view.with_ui('redoc', cache_timeout=cache_timeout),
-        name='schema-redoc'
+        r"^redoc/$",
+        schema_view.with_ui("redoc", cache_timeout=cache_timeout),
+        name="schema-redoc",
     ),
     re_path(
-        r'^v1/$',
-        schema_view.with_ui('redoc', cache_timeout=cache_timeout),
-        name='root'
+        r"^v1/$", schema_view.with_ui("redoc", cache_timeout=cache_timeout), name="root"
     ),
-
     # API
-    path('v1/', include(versioned_paths)),
+    path("v1/", include(versioned_paths)),
 ]

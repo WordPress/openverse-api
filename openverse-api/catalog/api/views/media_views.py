@@ -1,13 +1,4 @@
 import logging
-
-from django.conf import settings
-from django.http.response import HttpResponse
-from rest_framework.authentication import BasicAuthentication
-from rest_framework.generics import GenericAPIView
-from rest_framework.mixins import RetrieveModelMixin
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from urllib.error import HTTPError
 from urllib.request import urlopen
 
@@ -17,20 +8,29 @@ from catalog.api.models import ContentProvider, SourceLogo
 from catalog.api.utils.exceptions import input_error_response
 from catalog.api.utils.throttle import OneThousandPerMinute
 from catalog.custom_auto_schema import CustomAutoSchema
+from django.conf import settings
+from django.http.response import HttpResponse
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.generics import GenericAPIView
+from rest_framework.mixins import RetrieveModelMixin
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 
 log = logging.getLogger(__name__)
 
-FOREIGN_LANDING_URL = 'foreign_landing_url'
-CREATOR_URL = 'creator_url'
-RESULTS = 'results'
-PAGE = 'page'
-PAGESIZE = 'page_size'
-FILTER_DEAD = 'filter_dead'
-QA = 'qa'
-SUGGESTIONS = 'suggestions'
-RESULT_COUNT = 'result_count'
-PAGE_COUNT = 'page_count'
-PAGE_SIZE = 'page_size'
+FOREIGN_LANDING_URL = "foreign_landing_url"
+CREATOR_URL = "creator_url"
+RESULTS = "results"
+PAGE = "page"
+PAGESIZE = "page_size"
+FILTER_DEAD = "filter_dead"
+QA = "qa"
+SUGGESTIONS = "suggestions"
+RESULT_COUNT = "result_count"
+PAGE_COUNT = "page_count"
+PAGE_SIZE = "page_size"
 
 refer_sample = """
 You can refer to the cURL request samples for examples on how to consume this
@@ -48,8 +48,8 @@ def fields_to_md(field_names):
     """
 
     *all_but_last, last = field_names
-    all_but_last = ', '.join([f'`{name}`' for name in all_but_last])
-    return f'{all_but_last} and `{last}`'
+    all_but_last = ", ".join([f"`{name}`" for name in all_but_last])
+    return f"{all_but_last} and `{last}`"
 
 
 def _get_user_ip(request):
@@ -60,11 +60,11 @@ def _get_user_ip(request):
     :param request: A Django request object.
     :return: An IP address.
     """
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
     if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
+        ip = x_forwarded_for.split(",")[0]
     else:
-        ip = request.META.get('REMOTE_ADDR')
+        ip = request.META.get("REMOTE_ADDR")
     return ip
 
 
@@ -85,13 +85,18 @@ for information about creating queries and
 [Apache Lucene Syntax Guide](https://lucene.apache.org/core/2_9_4/queryparsersyntax.html)
 for information on structuring advanced searches.
 """  # noqa
-        f'{refer_sample}'
+        f"{refer_sample}"
     )
 
-    def _get(self,
-             request,
-             default_index, qa_index,
-             query_serializer, media_serializer, result_serializer):
+    def _get(
+        self,
+        request,
+        default_index,
+        qa_index,
+        query_serializer,
+        media_serializer,
+        result_serializer,
+    ):
         params = query_serializer(data=request.query_params)
         if not params.is_valid():
             return input_error_response(params.errors)
@@ -111,17 +116,13 @@ for information on structuring advanced searches.
                 hashed_ip,
                 request,
                 filter_dead,
-                page=page_param
+                page=page_param,
             )
         except ValueError as value_error:
             return input_error_response(value_error)
 
-        context = {'request': request}
-        serialized_results = media_serializer(
-            results,
-            many=True,
-            context=context
-        ).data
+        context = {"request": request}
+        serialized_results = media_serializer(results, many=True, context=context).data
 
         if len(results) < page_size and num_pages == 0:
             num_results = len(results)
@@ -129,7 +130,7 @@ for information on structuring advanced searches.
             RESULT_COUNT: num_results,
             PAGE_COUNT: num_pages,
             PAGE_SIZE: len(results),
-            RESULTS: serialized_results
+            RESULTS: serialized_results,
         }
         serialized_response = result_serializer(data=response_data)
         return Response(status=200, data=serialized_response.initial_data)
@@ -142,7 +143,7 @@ class RelatedMedia(APIView):
 
 class MediaDetail(GenericAPIView, RetrieveModelMixin):
     swagger_schema = CustomAutoSchema
-    lookup_field = 'identifier'
+    lookup_field = "identifier"
     authentication_classes = [BasicAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]
     detail_description = refer_sample
@@ -152,24 +153,23 @@ class MediaStats(APIView):
     swagger_schema = CustomAutoSchema
     media_stats_description = (
         """
-You can use this endpoint to get details about content providers such as 
+You can use this endpoint to get details about content providers such as
 `source_name`, `display_name`, and `source_url` along with a count of the number
 of individual items indexed from them.
 """  # noqa
-        f'{refer_sample}'
+        f"{refer_sample}"
     )
 
     def _get(self, request, index_name):
-        CODENAME = 'provider_identifier'
-        NAME = 'provider_name'
-        FILTER = 'filter_content'
-        URL = 'domain_name'
-        ID = 'id'
+        CODENAME = "provider_identifier"
+        NAME = "provider_name"
+        FILTER = "filter_content"
+        URL = "domain_name"
+        ID = "id"
 
-        source_data = ContentProvider \
-            .objects \
-            .filter(media_type=index_name) \
-            .values(ID, CODENAME, NAME, FILTER, URL)
+        source_data = ContentProvider.objects.filter(media_type=index_name).values(
+            ID, CODENAME, NAME, FILTER, URL
+        )
         source_counts = get_sources(index_name)
 
         response = []
@@ -189,11 +189,11 @@ of individual items indexed from them.
             if not filtered and source_codename in source_counts:
                 response.append(
                     {
-                        'source_name': source_codename,
-                        f'{index_name}_count': count,
-                        'display_name': display_name,
-                        'source_url': source_url,
-                        'logo_url': full_logo_url
+                        "source_name": source_codename,
+                        f"{index_name}_count": count,
+                        "display_name": display_name,
+                        "source_url": source_url,
+                        "logo_url": full_logo_url,
                     }
                 )
         return Response(status=200, data=response)
@@ -202,28 +202,28 @@ of individual items indexed from them.
 class ImageProxy(APIView):
     swagger_schema = None
 
-    lookup_field = 'identifier'
+    lookup_field = "identifier"
     throttle_classes = [OneThousandPerMinute]
 
     def _get(self, media_url, width=settings.THUMBNAIL_WIDTH_PX):
         if width is None:  # full size
-            proxy_upstream = f'{settings.THUMBNAIL_PROXY_URL}/{media_url}'
+            proxy_upstream = f"{settings.THUMBNAIL_PROXY_URL}/{media_url}"
         else:
-            proxy_upstream = f'{settings.THUMBNAIL_PROXY_URL}/' \
-                             f'{settings.THUMBNAIL_WIDTH_PX},fit/' \
-                             f'{media_url}'
+            proxy_upstream = (
+                f"{settings.THUMBNAIL_PROXY_URL}/"
+                f"{settings.THUMBNAIL_WIDTH_PX},fit/"
+                f"{media_url}"
+            )
         try:
             upstream_response = urlopen(proxy_upstream)
             status = upstream_response.status
-            content_type = upstream_response.headers.get('Content-Type')
+            content_type = upstream_response.headers.get("Content-Type")
         except HTTPError:
-            log.info('Failed to render thumbnail: ', exc_info=True)
+            log.info("Failed to render thumbnail: ", exc_info=True)
             return HttpResponse(status=500)
 
         response = HttpResponse(
-            upstream_response.read(),
-            status=status,
-            content_type=content_type
+            upstream_response.read(), status=status, content_type=content_type
         )
 
         return response

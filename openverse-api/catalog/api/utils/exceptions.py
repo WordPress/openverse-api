@@ -1,5 +1,7 @@
 from rest_framework import status
 from rest_framework.response import Response
+
+
 """
 Override the presentation of ValidationErrors, which are deeply nested and
 difficult to parse.
@@ -10,8 +12,8 @@ production web server configuration, and not reproducible locally.
 
 
 def parse_value_errors(errors):
-    fields = ['q']
-    messages = [errors.args[0].info['error']['root_cause'][0]['reason']]
+    fields = ["q"]
+    messages = [errors.args[0].info["error"]["root_cause"][0]["reason"]]
     return fields, messages
 
 
@@ -25,10 +27,10 @@ def parse_non_value_errors(errors):
 
     # Don't return "non field errors" in deprecation exceptions. There is no
     # other way to recover the affected fields other than parsing the error.
-    if fields == ['non_field_errors']:
+    if fields == ["non_field_errors"]:
         split_error = list(messages)
-        field_idx = ' '.join(messages).index('Parameter') + 1
-        fields = [split_error[field_idx].replace("'", '')][0]
+        field_idx = " ".join(messages).index("Parameter") + 1
+        fields = [split_error[field_idx].replace("'", "")][0]
 
     return fields, messages
 
@@ -45,9 +47,5 @@ def input_error_response(errors):
 
     return Response(
         status=status.HTTP_400_BAD_REQUEST,
-        data={
-            'error': 'InputError',
-            'detail': detail,
-            'fields': fields
-        }
+        data={"error": "InputError", "detail": detail, "fields": fields},
     )

@@ -18,12 +18,9 @@ audio_search_200_example = {
                 "foreign_landing_url": "https://commons.wikimedia.org/w/index.php?curid=3536953",  # noqa
                 "detail_url": "http://api.openverse.engineering/v1/audio/36537842-b067-4ca0-ad67-e00ff2e06b2e",  # noqa
                 "related_url": "http://api.openverse.engineering/v1/recommendations/audio/36537842-b067-4ca0-ad67-e00ff2e06b2e",  # noqa
-                "fields_matched": [
-                    "description",
-                    "title"
-                ]
+                "fields_matched": ["description", "title"],
             }
-        ]
+        ],
     },
 }
 
@@ -31,9 +28,7 @@ audio_search_400_example = {
     "application/json": {
         "error": "InputError",
         "detail": "Invalid input given for fields. 'license' -> License 'PDMNBCG' does not exist.",  # noqa
-        "fields": [
-            "license"
-        ]
+        "fields": ["license"],
     }
 }
 
@@ -56,27 +51,15 @@ recommendations_audio_read_200_example = {
                 "foreign_landing_url": "https://commons.wikimedia.org/w/index.php?curid=3536953",  # noqa
                 "detail_url": "http://api.openverse.engineering/v1/audio/36537842-b067-4ca0-ad67-e00ff2e06b2e",  # noqa
                 "related_url": "http://api.openverse.engineering/v1/recommendations/audio/36537842-b067-4ca0-ad67-e00ff2e06b2e",  # noqa
-                "fields_matched": [
-                    "description",
-                    "title"
-                ],
-                "tags": [
-                    {
-                        "name": "exam"
-                    },
-                    {
-                        "name": "tactics"
-                    }
-                ],
+                "fields_matched": ["description", "title"],
+                "tags": [{"name": "exam"}, {"name": "tactics"}],
             }
-        ]
+        ],
     }
 }
 
 recommendations_audio_read_404_example = {
-    "application/json": {
-        "detail": "An internal server error occurred."
-    }
+    "application/json": {"detail": "An internal server error occurred."}
 }
 
 audio_detail_200_example = {
@@ -85,11 +68,7 @@ audio_detail_200_example = {
     }
 }
 
-audio_detail_404_example = {
-    "application/json": {
-        "detail": "Not found."
-    }
-}
+audio_detail_404_example = {"application/json": {"detail": "Not found."}}
 
 audio_stats_200_example = {
     "application/json": [
@@ -97,7 +76,7 @@ audio_stats_200_example = {
             "source_name": "jamendo",
             "audio_count": 123456789,
             "display_name": "Jamendo",
-            "source_url": "https://www.jamendo.com"
+            "source_url": "https://www.jamendo.com",
         }
     ]
 }
