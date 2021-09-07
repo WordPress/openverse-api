@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#! /usr/bin/env sh
 
 # Usage: ./public_release.sh [VERSION]
 docker build -t openverse/ingestion_server:$1 .
