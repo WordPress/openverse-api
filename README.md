@@ -27,7 +27,7 @@ git clone https://github.com/WordPress/openverse-api.git
 ```
 
 4. Change directories with `cd openverse-api`
-5. Start Openverse API locally by running the docker containers
+5. Start Openverse API locally by running the docker containers. You can use usual `docker-compose` commands or the simplified `just` command. You will need the [just](https://github.com/casey/just#installation) command runner installed to follow the next steps.
 
 ```
 just up
