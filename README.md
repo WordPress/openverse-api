@@ -56,6 +56,18 @@ just healthcheck
 
 Congratulations! You just ran the server locally.
 
+To access the logs run:
+
+```
+just logs
+```
+
+That will follow all the logs for all the services. To isolate a service, simply pass the service name, for example:
+
+```
+just logs web
+```
+
 ### What Happens In the Background
 
 After executing `just up` (in Step 5), you will be running:

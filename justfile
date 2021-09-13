@@ -1,7 +1,6 @@
 set dotenv-load := false
 
 DOCKER_FILE := "-f docker-compose.yml"
-SERVICE_NAME := ""
 
 
 install:
@@ -29,9 +28,5 @@ down args="":
     docker-compose {{ DOCKER_FILE }} down {{ args }}
 
 
-logsweb:
-    docker-compose {{ DOCKER_FILE }} logs -f web
-
-
-logsall:
-    docker-compose {{ DOCKER_FILE }} logs -f
+logs service="":
+    docker-compose {{ DOCKER_FILE }} logs -f {{ service }}
