@@ -28,6 +28,12 @@ test: up
     docker-compose exec web bash ./test/run_test.sh
 
 
+testlocal:
+    #! /usr/bin/env sh
+    cd openverse-api
+    pipenv run bash ./test/run_test.sh
+
+
 up:
     docker-compose {{ DOCKER_FILE }} up -d
 
