@@ -10,6 +10,12 @@ install:
     pipenv run pre-commit install
 
 
+lint:
+    #! /usr/bin/env sh
+    cd openverse-api
+    pipenv run pre-commit run --all-files
+
+
 init: up
     ./load_sample_data.sh
 
