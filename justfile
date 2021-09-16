@@ -4,6 +4,8 @@ DOCKER_FILE := "-f docker-compose.yml"
 
 
 install:
+    #! /usr/bin/env sh
+    cd openverse-api
     pipenv install --dev
     pipenv run pre-commit install
 
