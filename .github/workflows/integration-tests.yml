@@ -19,8 +19,8 @@ jobs:
       with:
         python-version: 3.9
     - name: Lint
+      working-directory: ./openverse-api
       run: |
-        cd openverse-api
         pip install --upgrade pipenv
         pipenv install --dev
         pipenv run pre-commit run --all-files
