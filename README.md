@@ -14,7 +14,7 @@ In the [API documentation](https://api.openverse.engineering), you can find more
 
 ### Prerequisites
 
-You need to install [Docker](https://docs.docker.com/install/) (with [Docker Compose](https://docs.docker.com/compose/install/)), [Git](https://git-scm.com/downloads), and [PostgreSQL client tools](https://www.postgresql.org/download/). On Debian, the package is called `postgresql-client-common`.
+You need to install [Docker](https://docs.docker.com/install/) (with [Docker Compose](https://docs.docker.com/compose/install/)), [Git](https://git-scm.com/downloads), and [PostgreSQL client tools](https://www.postgresql.org/download/). On Debian, the package is called `postgresql-client-common`. You'll also want to install the [just](https://github.com/casey/just) command runner.
 
 ### Running locally
 
