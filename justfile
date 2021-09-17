@@ -21,7 +21,7 @@ init: up
 
 
 healthcheck:
-    curl localhost:8000/v1/images?q=honey
+    curl localhost:8000/v1/images/?q=honey
 
 
 test: up
