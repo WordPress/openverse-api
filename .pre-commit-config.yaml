@@ -27,7 +27,6 @@ repos:
     rev: 5.9.1
     hooks:
       - id: isort
-        name: Run isort to sort imports
         files: \.py$
         exclude: ^build/.*$|^.tox/.*$|^venv/.*$
         args:
@@ -39,18 +38,18 @@ repos:
           - --ensure-newline-before-comments
           - --line-length=88
 
-  - repo: https://gitlab.com/pycqa/flake8
+  - repo: https://github.com/PyCQA/flake8
     rev: 3.9.2
     hooks:
-        - id: flake8
-          args:
-            - --per-file-ignores=*test*:E501,*__init__*:F401,*wsgi.py:E402
-            - --max-line-length=88
-            - --ignore=E203,W503
+      - id: flake8
+        args:
+          - --per-file-ignores=*test*:E501,*__init__*:F401,*wsgi.py:E402
+          - --max-line-length=88
+          - --ignore=E203,W503
 
   - repo: https://github.com/ambv/black
     rev: 21.6b0
     hooks:
-        - id: black
-          args:
-            - --safe
+      - id: black
+        args:
+          - --safe
