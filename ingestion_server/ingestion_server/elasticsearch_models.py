@@ -328,6 +328,7 @@ class Audio(Media):
         popularity = attrs['standardized_popularity']
 
         return Audio(
+            duration=row[schema['duration']],
             bit_rate=row[schema['bit_rate']],
             sample_rate=row[schema['sample_rate']],
             genres=row[schema['genres']],

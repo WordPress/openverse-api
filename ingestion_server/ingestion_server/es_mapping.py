@@ -230,6 +230,9 @@ def index_settings(table_name):
             },
         },
         "audio": {
+            "duration": {
+                "type": "integer",
+            },
             "bit_rate": {
                 "type": "integer"
             },
@@ -239,6 +242,15 @@ def index_settings(table_name):
             "genres": {
                 "fields": {
                     "keyword": {
+                        "type": "keyword"
+                    }
+                },
+                "type": "text"
+            },
+            "category": {
+                "fields": {
+                    "keyword": {
+                        "ignore_above": 100,
                         "type": "keyword"
                     }
                 },

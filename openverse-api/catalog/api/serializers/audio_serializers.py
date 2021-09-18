@@ -90,6 +90,7 @@ class AudioSerializer(MediaSerializer):
         'alt_files',
         'detail_url',
         'related_url',
+        'category',
     ]
     """
     Keep the fields names in sync with the actual fields below as this list is
@@ -114,6 +115,13 @@ class AudioSerializer(MediaSerializer):
         help_text='An array of audio genres such as '
                   '`rock`, `electronic` for `music` category, or '
                   '`politics`, `sport`, `education` for `podcast` category'
+    )
+    category = serializers.CharField(
+        label="category",
+        help_text="Audio category; available categories "
+                  "include `music`, `sound_effect`, and "
+                  "`podcast`.",
+        required=False
     )
 
     duration = serializers.IntegerField(
