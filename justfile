@@ -16,6 +16,14 @@ lint:
     pipenv run pre-commit run --all-files
 
 
+up:
+    docker-compose {{ DOCKER_FILE }} up -d
+
+
+down args="":
+    docker-compose {{ DOCKER_FILE }} down {{ args }}
+
+
 init: up
     ./load_sample_data.sh
 
@@ -32,14 +40,6 @@ testlocal:
     #! /usr/bin/env sh
     cd openverse-api
     pipenv run bash ./test/run_test.sh
-
-
-up:
-    docker-compose {{ DOCKER_FILE }} up -d
-
-
-down args="":
-    docker-compose {{ DOCKER_FILE }} down {{ args }}
 
 
 logs service="":
