@@ -48,7 +48,7 @@ docker-compose up
 11. Still in the new CMD or terminal, hit the API with a request
 
 ```
-curl localhost:8000/v1/images?q=honey
+curl 'http://localhost:8000/v1/images/?format=json&q=honey'
 ```
 
 12. Make sure you see the following response from the API
