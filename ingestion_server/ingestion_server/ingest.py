@@ -236,7 +236,7 @@ def _remap_constraint(name, con_table, fk_statement, table):
 
 def reload_upstream(table, progress=None, finish_time=None):
     """
-    Import updates from the upstream CC Catalog database into the API. The
+    Import updates from the upstream catalog database into the API. The
     process involves the following steps.
 
     1. Get the list of overlapping columns: ``_get_shared_cols``
