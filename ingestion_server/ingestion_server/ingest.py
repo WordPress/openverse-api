@@ -1,20 +1,3 @@
-import datetime
-import logging as log
-
-import psycopg2
-from decouple import config
-from psycopg2.extras import DictCursor
-from psycopg2.sql import SQL, Identifier, Literal
-
-from ingestion_server.cleanup import clean_image_data
-from ingestion_server.indexer import database_connect
-from ingestion_server.queries import (
-    get_copy_data_query,
-    get_fdw_query,
-    get_go_live_query,
-)
-
-
 """
 Pull the latest copy of a table from the upstream database (aka CC Catalog/the
 intermediary database).
@@ -32,6 +15,23 @@ data, and only then create indices and constraints. Then, "promote" the new
 table to replace the old data. This strategy is far faster than updating the
 data in place.
 """
+
+import datetime
+import logging as log
+
+import psycopg2
+from decouple import config
+from psycopg2.extras import DictCursor
+from psycopg2.sql import SQL, Identifier, Literal
+
+from ingestion_server.cleanup import clean_image_data
+from ingestion_server.indexer import database_connect
+from ingestion_server.queries import (
+    get_copy_data_query,
+    get_fdw_query,
+    get_go_live_query,
+)
+
 
 UPSTREAM_DB_HOST = config("UPSTREAM_DB_HOST", default="localhost")
 UPSTREAM_DB_PORT = config("UPSTREAM_DB_PORT", default=5433, cast=int)
