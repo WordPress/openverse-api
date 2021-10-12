@@ -60,7 +60,7 @@ pipenv shell
 
 ### How to Run Ingestion Server tests
 
-You can ingest and index me dummy data using the Ingestion Server API.
+You can ingest and index some dummy data using the Ingestion Server API.
 
 1. Change directory to ingestion server
 
