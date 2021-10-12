@@ -60,7 +60,8 @@ pipenv shell
 
 ### How to Run Ingestion Server tests
 
-You can ingest and index some dummy data using the Ingestion Server API.
+You can ingest and index 
+me dummy data using the Ingestion Server API.
 
 1. Change directory to ingestion server
 
@@ -88,4 +89,4 @@ python3 test/integration_tests.py
 
 ## Questions or Thoughts?
 
-Feel free to [join us on Slack](https://make.wordpress.org/chat/) and discuss the project with the engineers and community memebers on #openverse. We also use [GitHub discussions](https://github.com/WordPress/openverse-api/discussions) for feature requests, troubleshooting, and other 'off-topic' conversations.
+Feel free to [join us on Slack](https://make.wordpress.org/chat/) and discuss the project with the engineers and community members on #openverse. We also use [GitHub discussions](https://github.com/WordPress/openverse-api/discussions) for feature requests, troubleshooting, and other 'off-topic' conversations.
