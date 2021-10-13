@@ -289,7 +289,7 @@ def reload_upstream(table, progress=None, finish_time=None, approach="advanced")
     downstream_db.commit()
     downstream_db.close()
 
-    if table != "audio":
+    if table == "image":
         # Step 4: Clean the data
         log.info("Cleaning data...")
         clean_image_data(table)
