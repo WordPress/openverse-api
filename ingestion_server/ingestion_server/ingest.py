@@ -77,11 +77,6 @@ def _get_shared_cols(downstream, upstream, table: str):
     return list(shared)
 
 
-def _update_progress(progress, new_value):
-    if progress:
-        progress.value = new_value
-
-
 def _generate_indices(conn, table: str):
     """
     Using the existing table as a template, generate CREATE INDEX statements for
@@ -122,6 +117,72 @@ def _generate_indices(conn, table: str):
         idxs = cur.fetchall()
     cleaned_idxs = _clean_idxs(idxs)
     return cleaned_idxs
+
+
+def _is_foreign_key(_statement, table):
+    return f"REFERENCES {table}(" in _statement
+
+
+def _remap_constraint(name, con_table, fk_statement, table):
+    """Produce ALTER TABLE ... statements for each constraint."""
+    alterations = [
+        SQL("ALTER TABLE {con_table} DROP CONSTRAINT {name}").format(
+            con_table=Identifier(con_table), name=Identifier(name)
+        )
+    ]
+    # Constraint applies to the table we're replacing
+    if con_table == table:
+        alterations.append(
+            SQL("ALTER TABLE {con_table} ADD {fk_statement}").format(
+                con_table=Identifier(con_table),
+                fk_statement=SQL(fk_statement),
+            )
+        )
+    # Constraint references the table we're replacing. Point it at the new
+    # one.
+    else:
+        tokens = fk_statement.split(" ")
+        # Point the constraint to the new table.
+        reference_idx = tokens.index("REFERENCES") + 1
+        table_reference = tokens[reference_idx]
+        match_old_ref = f"{table}("
+        new_ref = f"temp_import_{table}("
+        new_reference = table_reference.replace(match_old_ref, new_ref)
+        tokens[reference_idx] = new_reference
+        con_definition = " ".join(tokens)
+        create_constraint = SQL("ALTER TABLE {con_table} ADD {con_definition}").format(
+            con_table=Identifier(con_table), con_definition=SQL(con_definition)
+        )
+        alterations.append(create_constraint)
+    return alterations
+
+
+def _generate_delete_orphans(fk_statement, fk_table):
+    """
+    Sometimes, upstream data is deleted. If there are foreign key
+    references to deleted data, we must delete them before adding
+    constraints back to the table. To accomplish this, parse the
+    foreign key statement and generate the deletion statement.
+    """
+    fk_tokens = fk_statement.split(" ")
+    fk_field_idx = fk_tokens.index("KEY") + 1
+    fk_ref_idx = fk_tokens.index("REFERENCES") + 1
+    fk_field = fk_tokens[fk_field_idx].replace("(", "").replace(")", "")
+    fk_reference = fk_tokens[fk_ref_idx]
+    ref_table, ref_field = fk_reference.split("(")
+    ref_field = ref_field.replace(")", "")
+
+    del_orphans = SQL(
+        "DELETE FROM {fk_table} AS fk_table "
+        "WHERE NOT EXISTS(SELECT 1 FROM {ref_table} AS r "
+        "WHERE {ref_field} = {fk_field});"
+    ).format(
+        fk_table=Identifier(fk_table),
+        ref_table=Identifier(f"temp_import_{ref_table}"),
+        ref_field=Identifier("r", ref_field),
+        fk_field=Identifier("fk_table", fk_field),
+    )
+    return del_orphans
 
 
 def _generate_constraints(conn, table: str):
@@ -168,70 +229,9 @@ def _generate_constraints(conn, table: str):
     return constraint_statements
 
 
-def _is_foreign_key(_statement, table):
-    return f"REFERENCES {table}(" in _statement
-
-
-def _generate_delete_orphans(fk_statement, fk_table):
-    """
-    Sometimes, upstream data is deleted. If there are foreign key
-    references to deleted data, we must delete them before adding
-    constraints back to the table. To accomplish this, parse the
-    foreign key statement and generate the deletion statement.
-    """
-    fk_tokens = fk_statement.split(" ")
-    fk_field_idx = fk_tokens.index("KEY") + 1
-    fk_ref_idx = fk_tokens.index("REFERENCES") + 1
-    fk_field = fk_tokens[fk_field_idx].replace("(", "").replace(")", "")
-    fk_reference = fk_tokens[fk_ref_idx]
-    ref_table, ref_field = fk_reference.split("(")
-    ref_field = ref_field.replace(")", "")
-
-    del_orphans = SQL(
-        "DELETE FROM {fk_table} AS fk_table "
-        "WHERE NOT EXISTS(SELECT 1 FROM {ref_table} AS r "
-        "WHERE {ref_field} = {fk_field});"
-    ).format(
-        fk_table=Identifier(fk_table),
-        ref_table=Identifier(f"temp_import_{ref_table}"),
-        ref_field=Identifier("r", ref_field),
-        fk_field=Identifier("fk_table", fk_field),
-    )
-    return del_orphans
-
-
-def _remap_constraint(name, con_table, fk_statement, table):
-    """Produce ALTER TABLE ... statements for each constraint."""
-    alterations = [
-        SQL("ALTER TABLE {con_table} DROP CONSTRAINT {name}").format(
-            con_table=Identifier(con_table), name=Identifier(name)
-        )
-    ]
-    # Constraint applies to the table we're replacing
-    if con_table == table:
-        alterations.append(
-            SQL("ALTER TABLE {con_table} ADD {fk_statement}").format(
-                con_table=Identifier(con_table),
-                fk_statement=SQL(fk_statement),
-            )
-        )
-    # Constraint references the table we're replacing. Point it at the new
-    # one.
-    else:
-        tokens = fk_statement.split(" ")
-        # Point the constraint to the new table.
-        reference_idx = tokens.index("REFERENCES") + 1
-        table_reference = tokens[reference_idx]
-        match_old_ref = f"{table}("
-        new_ref = f"temp_import_{table}("
-        new_reference = table_reference.replace(match_old_ref, new_ref)
-        tokens[reference_idx] = new_reference
-        con_definition = " ".join(tokens)
-        create_constraint = SQL("ALTER TABLE {con_table} ADD {con_definition}").format(
-            con_table=Identifier(con_table), con_definition=SQL(con_definition)
-        )
-        alterations.append(create_constraint)
-    return alterations
+def _update_progress(progress, new_value):
+    if progress:
+        progress.value = new_value
 
 
 def reload_upstream(table, progress=None, finish_time=None):
