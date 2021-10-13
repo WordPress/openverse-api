@@ -308,7 +308,7 @@ def reload_upstream(table, progress=None, finish_time=None, approach="advanced")
         # Step 6: Recreate constraints from the original table
         log.info("Done creating indices! Remapping constraints...")
         remap_constraints = SQL(";\n").join(_generate_constraints(downstream_db, table))
-        if remap_constraints != "":
+        if len(remap_constraints.seq) != 0:
             downstream_cur.execute(remap_constraints)
         _update_progress(progress, 99.0)
 
