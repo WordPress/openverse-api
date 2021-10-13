@@ -94,7 +94,7 @@ docker-compose exec -T "$UPSTREAM_DB_SERVICE_NAME" /bin/bash -c "psql -U deploy 
 	DROP VIEW IF EXISTS audioset_view;
 	CREATE VIEW audioset_view
 	AS
-		SELECT DISTINCT (jsonb_populate_record(null::audio_set_type, audio_set)).*
+		SELECT DISTINCT (jsonb_populate_record(null::audio_set_type, audio_set)).*, provider
 		FROM audio_view
 		WHERE audio_set IS NOT NULL;
 	EOF"
