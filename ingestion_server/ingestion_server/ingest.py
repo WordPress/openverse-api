@@ -234,7 +234,7 @@ def _update_progress(progress, new_value):
         progress.value = new_value
 
 
-def reload_upstream(table, progress=None, finish_time=None):
+def reload_upstream(table, progress=None, finish_time=None, approach="advanced"):
     """
     Import updates from the upstream catalog database into the API. The
     process involves the following steps.
@@ -282,7 +282,10 @@ def reload_upstream(table, progress=None, finish_time=None):
 
         # Step 3: Import data into a temporary table
         log.info("Copying upstream data...")
-        copy_data = get_copy_data_query(table, shared_cols)
+        if approach == "advanced":
+            copy_data = get_copy_data_query(table, shared_cols, approach=approach)
+        elif approach == "basic":
+            copy_data = get_copy_data_query(table, shared_cols, approach=approach)
         downstream_cur.execute(copy_data)
     downstream_db.commit()
     downstream_db.close()
