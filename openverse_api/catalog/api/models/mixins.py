@@ -18,6 +18,17 @@ class IdentifierMixin(models.Model):
         db_index=True,
         help_text="Our unique identifier for an open-licensed work.",
     )
+
+    class Meta:
+        abstract = True
+
+
+class ForeignIdentifierMixin(models.Model):
+    """
+    This mixin adds fields related to the external unique ID to any model. Do
+    not use this as the sole base class.
+    """
+
     foreign_identifier = models.CharField(
         max_length=1000,
         blank=True,

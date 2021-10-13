@@ -8,7 +8,7 @@ from catalog.api.models.media import (
     AbstractMediaList,
     AbstractMediaReport,
 )
-from catalog.api.models.mixins import FileMixin, IdentifierMixin, MediaMixin
+from catalog.api.models.mixins import FileMixin, ForeignIdentifierMixin, MediaMixin
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from uuslug import uuslug
@@ -37,7 +37,7 @@ class AltAudioFile(AbstractAltFile):
         return str(self)
 
 
-class AudioSet(IdentifierMixin, MediaMixin, FileMixin, OpenLedgerModel):
+class AudioSet(ForeignIdentifierMixin, MediaMixin, FileMixin, OpenLedgerModel):
     """
     This is an ordered collection of audio files, such as a podcast series or
     an album. Not to be confused with AudioList which is a many-to-many
