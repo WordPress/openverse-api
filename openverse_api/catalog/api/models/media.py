@@ -36,13 +36,6 @@ class AbstractMedia(
     license = models.CharField(max_length=50)
     license_version = models.CharField(max_length=25, blank=True, null=True)
 
-    provider = models.CharField(
-        max_length=80,
-        blank=True,
-        null=True,
-        db_index=True,
-        help_text="The content provider, e.g. Flickr, Jamendo...",
-    )
     source = models.CharField(
         max_length=80,
         blank=True,

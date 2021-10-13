@@ -69,6 +69,15 @@ class MediaMixin(models.Model):
         max_length=1000, blank=True, null=True, help_text="The thumbnail for the media."
     )
 
+    # This is different from ``source`` (see ``AbstractMedia``)
+    provider = models.CharField(
+        max_length=80,
+        blank=True,
+        null=True,
+        db_index=True,
+        help_text="The content provider, e.g. Flickr, Jamendo...",
+    )
+
     class Meta:
         abstract = True
 
