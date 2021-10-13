@@ -46,7 +46,8 @@ class AudioSet(IdentifierMixin, MediaMixin, FileMixin, OpenLedgerModel):
     The FileMixin inherited by this model refers not to audio but album art.
     """
 
-    pass
+    class Meta:
+        db_table = "audioset"  # drop the `api_` prefix
 
 
 class AudioFileMixin(FileMixin):
