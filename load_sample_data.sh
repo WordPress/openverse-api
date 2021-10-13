@@ -77,6 +77,9 @@ docker-compose exec -T "$UPSTREAM_DB_SERVICE_NAME" /bin/bash -c "psql -U deploy 
 		from './sample_data/sample_audio_data.csv' \
 		with (FORMAT csv, HEADER true);
 
+	UPDATE audio_view
+		SET audio_set_foreign_identifier = audio_set->>'foreign_identifier';
+
 	DROP TYPE IF EXISTS audio_set_type;
 	CREATE TYPE audio_set_type
 	AS (
