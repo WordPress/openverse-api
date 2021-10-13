@@ -71,10 +71,9 @@ def _get_shared_cols(downstream, upstream, table: str):
         cur2.execute(get_tables.format(table=Identifier(f"{table}_view")))
         conn2_cols = set([desc[0] for desc in cur2.description])
 
-    shared = conn1_cols.intersection(conn2_cols)
-    shared.add("standardized_popularity")
+    shared = list(conn1_cols.intersection(conn2_cols))
     log.info(f"Shared columns: {shared}")
-    return list(shared)
+    return shared
 
 
 def _generate_indices(conn, table: str):
