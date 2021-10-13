@@ -48,6 +48,23 @@ class AudioSet(ForeignIdentifierMixin, MediaMixin, FileMixin, OpenLedgerModel):
 
     class Meta:
         db_table = "audioset"  # drop the `api_` prefix
+        constraints = [
+            models.UniqueConstraint(
+                fields=["foreign_identifier", "provider"],
+                name="unique_foreign_identifier_provider",
+            ),
+        ]
+
+    @property
+    def identifier(self):
+        return f"{self.provider}--{self.foreign_identifier}"
+
+    @property
+    def tracks(self):
+        return Audio.objects.filter(
+            provider=self.provider,
+            audio_set_foreign_identifier=self.foreign_identifier,
+        )
 
 
 class AudioFileMixin(FileMixin):
@@ -80,12 +97,12 @@ class AudioFileMixin(FileMixin):
 
 
 class Audio(AudioFileMixin, AbstractMedia):
-    audio_set = models.ForeignKey(
-        help_text="Reference to set of which this track is a part.",
-        to=AudioSet,
-        on_delete=models.SET_NULL,
-        null=True,
+    # Replaces the foreign key to AudioSet
+    audio_set_foreign_identifier = models.CharField(
+        max_length=1000,
         blank=True,
+        null=True,
+        help_text="Reference to set of which this track is a part.",
     )
     audio_set_position = models.IntegerField(
         blank=True, null=True, help_text="Ordering of the audio in the set."
@@ -131,6 +148,13 @@ class Audio(AudioFileMixin, AbstractMedia):
     @property
     def duration_in_s(self):
         return self.duration / 1e3
+
+    @property
+    def audio_set(self):
+        return AudioSet.objects.get(
+            provider=self.provider,
+            foreign_identifier=self.audio_set_foreign_identifier,
+        )
 
     class Meta(AbstractMedia.Meta):
         db_table = "audio"
