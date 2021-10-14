@@ -1,15 +1,3 @@
-import csv
-import datetime
-import json
-import statistics
-from collections import defaultdict
-
-import gevent.pool
-import gevent.queue
-import grequests
-from locust import HttpLocust, TaskSet, between, task
-
-
 """
 Swarm the API server with async requests for thumbnails. Requires `url_dump.csv`
 in the same directory as the script. It is intentionally omitted from source
@@ -34,6 +22,18 @@ successful vs failed thumbnails.
 
 Optionally rerun the test after the cache has been warmed up.
 """
+
+import csv
+import datetime
+import json
+import statistics
+from collections import defaultdict
+
+import gevent.queue
+import grequests
+from locust import HttpLocust, TaskSet, between, task
+
+
 PROXY_URL = "https://api-dev.openverse.engineering/t/600/"
 
 url_queue = gevent.queue.Queue()
