@@ -43,6 +43,7 @@ redlock-py = "*"
 requests-oauthlib = "*"
 wsgi-basic-auth = "*"
 python-decouple = "*"
+django-cron = "*"
 
 [requires]
 python_version = "3.9"
