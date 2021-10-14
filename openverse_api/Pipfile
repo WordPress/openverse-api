@@ -10,6 +10,7 @@ pycodestyle = "*"
 pytest-django = ">=3.5"
 remote-pdb = "*"
 pre-commit = "*"
+locust = "*"
 
 [packages]
 aws-requests-auth = "*"
