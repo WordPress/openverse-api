@@ -21,6 +21,7 @@ from catalog.example_responses import (
     key_info_500_example,
     register_api_oauth2_201_example,
 )
+from django.conf import settings
 from django.core.cache import cache
 from django.core.mail import send_mail
 from drf_yasg import openapi
@@ -28,21 +29,6 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
-
-
-class HealthCheck(APIView):
-    """
-    Returns a `200 OK` response if the server is running.
-
-    This endpoint is used in production to ensure that the server should receive
-    traffic. If no response is provided, the server is deregistered from the
-    load balancer and destroyed.
-    """
-
-    swagger_schema = None
-
-    def get(self, request, format=None):
-        return Response({"status": "200 OK"}, status=200)
 
 
 class Register(APIView):
@@ -76,7 +62,7 @@ class Register(APIView):
 
     register_api_oauth2_bash = """
         # Register for a key
-        curl -X POST -H "Content-Type: application/json" -d '{"name": "My amazing project", "description": "To access Openverse API", "email": "zack.krida@automattic.com"}' https://api.openverse.engineering/v1/auth_tokens/register
+        curl -X POST -H "Content-Type: application/json" -d '{"name": "My amazing project", "description": "To access Openverse API", "email": "user@example.com"}' https://api.openverse.engineering/v1/auth_tokens/register
         """  # noqa
 
     register_api_oauth2_request = openapi.Schema(
@@ -115,7 +101,7 @@ class Register(APIView):
         example={
             "name": "My amazing project",
             "description": "To access Openverse API",
-            "email": "zack.krida@automattic.com",
+            "email": "user@example.com",
         },
     )
 
@@ -164,7 +150,7 @@ If you believe you received this message in error, please disregard it.
             send_mail(
                 subject="Verify your API credentials",
                 message=verification_msg,
-                from_email="zack.krida@automattic.com",
+                from_email=settings.EMAIL_SENDER,
                 recipient_list=[verification.email],
                 fail_silently=False,
             )
