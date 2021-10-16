@@ -1,6 +1,5 @@
 """
-Pull the latest copy of a table from the upstream database (aka CC Catalog/the
-intermediary database).
+Pull the latest copy of a table from the upstream catalog database.
 
 Since some of these tables have hundreds of millions of records and are tens of
 gigabytes in size, there are some performance considerations we need to account
