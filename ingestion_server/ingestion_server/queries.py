@@ -127,7 +127,7 @@ def get_copy_data_query(table: str, columns: list[str], approach: str):
             """,
             conclusion,
         ]
-    else:  # approach == 'advanced':
+    else:  # approach == 'advanced'
         steps = [
             table_creation,
             id_column_setup,

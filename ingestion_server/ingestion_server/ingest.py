@@ -282,7 +282,7 @@ def reload_upstream(table, progress=None, finish_time=None, approach="advanced")
         log.info("Copying upstream data...")
         if approach == "advanced":
             copy_data = get_copy_data_query(table, shared_cols, approach=approach)
-        elif approach == "basic":
+        else:  # approach == "basic"
             copy_data = get_copy_data_query(table, shared_cols, approach=approach)
         downstream_cur.execute(copy_data)
     downstream_db.commit()
