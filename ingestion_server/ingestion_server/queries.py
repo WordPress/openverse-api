@@ -1,4 +1,7 @@
-from psycopg2.sql import SQL, Identifier, Literal
+from typing import Literal
+
+from psycopg2.sql import SQL, Identifier
+from psycopg2.sql import Literal as PgLiteral
 
 
 def get_existence_queries(table):
@@ -62,16 +65,18 @@ def get_fdw_query(
           FROM SERVER upstream INTO upstream_schema;
     """
     ).format(
-        host=Literal(host),
-        port=Literal(str(port)),
-        dbname=Literal(dbname),
-        user=Literal(user),
-        password=Literal(password),
+        host=PgLiteral(host),
+        port=PgLiteral(str(port)),
+        dbname=PgLiteral(dbname),
+        user=PgLiteral(user),
+        password=PgLiteral(password),
         table=Identifier(table),
     )
 
 
-def get_copy_data_query(table: str, columns: list[str], approach: str):
+def get_copy_data_query(
+    table: str, columns: list[str], approach: Literal["basic", "advanced"]
+):
     """
     Get the query for copying data from the upstream table to a temporary table
     in the downstream database. This temporary table will replace the permanent
