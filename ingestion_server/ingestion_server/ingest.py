@@ -280,10 +280,7 @@ def reload_upstream(table, progress=None, finish_time=None, approach="advanced")
 
         # Step 3: Import data into a temporary table
         log.info("Copying upstream data...")
-        if approach == "advanced":
-            copy_data = get_copy_data_query(table, shared_cols, approach=approach)
-        else:  # approach == "basic"
-            copy_data = get_copy_data_query(table, shared_cols, approach=approach)
+        copy_data = get_copy_data_query(table, shared_cols, approach=approach)
         downstream_cur.execute(copy_data)
     downstream_db.commit()
     downstream_db.close()
