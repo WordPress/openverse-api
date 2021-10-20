@@ -138,8 +138,8 @@ ingest-upstream model="image":
     "Waiting for the API to be healthy..."
 
 # Run API tests inside Docker
-test: wait-for-es wait-for-is wait-for-web
-    docker-compose exec web ./test/run_test.sh
+test args="": wait-for-es wait-for-is wait-for-web
+    docker-compose exec {{ args }} web ./test/run_test.sh
 
 # Run API tests locally
 testlocal:
