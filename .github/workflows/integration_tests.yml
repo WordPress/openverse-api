@@ -84,4 +84,4 @@ jobs:
       run: just test -T
     - name: Run analytics tests
       working-directory: ./analytics
-      run: docker-compose exec -T analytics bash -c 'PYTHONPATH=. pipenv run pytest tests.py'
+      run: just nl-test -T
