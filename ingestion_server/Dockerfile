@@ -7,9 +7,9 @@ RUN groupadd --system supervisord \
 
 RUN apt-get update \
     && apt-get install -y supervisor \
+    && mkdir /ingestion_server \
     && mkdir -p /var/log/supervisord/ \
     && chown -R supervisord:supervisord /var/log/supervisord \
-    && mkdir /ingestion_server \
     && mkdir /worker_state \
     && chown -R supervisord:supervisord /worker_state
 
@@ -31,6 +31,7 @@ COPY Pipfile.lock /ingestion_server/
 RUN pipenv install --deploy --system --dev
 
 USER supervisord
+
 EXPOSE 8001
 
 CMD ["supervisord", "-c", "/ingestion_server/config/supervisord.conf"]
