@@ -31,7 +31,7 @@ down flags="":
     docker-compose {{ DOCKER_FILE }} down {{ flags }}
 
 # Recreate all volumes and containers from scratch
-recreate: 
+recreate:
     @just down -v
     @just up "--force-recreate --build"
 
