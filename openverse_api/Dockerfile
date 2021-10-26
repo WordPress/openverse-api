@@ -33,4 +33,8 @@ RUN pipenv install --deploy --system --dev
 COPY --from=awf /deps /
 COPY --from=awf /usr/local/bin/audiowaveform /usr/local/bin
 
+EXPOSE 8000
+
 ENTRYPOINT ["./run.sh"]
+
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
