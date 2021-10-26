@@ -54,7 +54,7 @@ init: up wait-for-es wait-for-ing wait-for-web
 #######
 
 # Install Python dependencies in Pipenv environments
-install:
+@install:
     just _api-install
     just _ing-install
 
@@ -119,11 +119,11 @@ _ing-api model action port="8001":
     "Waiting for the ingestion-server to be healthy..."
 
 # Load QA data into QA indices in Elasticsearch
-load-test-data model="image":
+@load-test-data model="image":
     just _ing-api {{ model }} "LOAD_TEST_DATA"
 
 # Load sample data into prod indices in Elasticsearch
-ingest-upstream model="image":
+@ingest-upstream model="image":
     just _ing-api {{ model }} "INGEST_UPSTREAM"
 
 # Run ingestion-server tests locally
