@@ -111,5 +111,5 @@ services:
     image: analytics
     ports:
       - "8090:8090"
-    environment:
-      DATABASE_CONN: "postgresql+psycopg2://deploy:deploy@db/openledger"
+    env_file:
+    - ./analytics/env.docker
