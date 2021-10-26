@@ -55,14 +55,13 @@ services:
     mem_limit: ${ES_MEM_LIMIT:-4294967296}  # 4 GiB in bytes
 
   web:
-    build: openverse_api/
+    build: ./openverse_api/
     image: openverse_api
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./openverse_api:/openverse_api
     ports:
       - "8000:8000"
-      - "4444:4444"
     depends_on:
       - db
       - es
