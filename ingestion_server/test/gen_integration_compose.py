@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 Parses the top-level Docker Compose file and generates a Docker Compose file for
 the integration tests.
