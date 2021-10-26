@@ -92,7 +92,7 @@ services:
   indexer-worker:
     build:
       context: ./ingestion_server/
-      dockerfile: Dockerfile-worker
+      dockerfile: Dockerfile_worker
     image: indexer_worker
     ports:
       - "8002:8002"
