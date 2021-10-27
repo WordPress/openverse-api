@@ -21,8 +21,7 @@ RUN pip install --upgrade pip \
     && pip install --upgrade pipenv
 
 # Copy the Pipenv files into the container
-COPY Pipfile /analytics/
-COPY Pipfile.lock /analytics/
+COPY Pipfile Pipfile.lock /analytics/
 
 # Install the dependencies system-wide
 # TODO: Use build args to avoid installing dev dependencies in production

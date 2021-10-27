@@ -23,8 +23,7 @@ RUN pip install --upgrade pip \
     && pip install --upgrade pipenv
 
 # Copy the Pipenv files into the container
-COPY Pipfile /openverse_api/
-COPY Pipfile.lock /openverse_api/
+COPY Pipfile Pipfile.lock /openverse_api/
 
 # Install the dependencies system-wide
 # TODO: Use build args to avoid installing dev dependencies in production
