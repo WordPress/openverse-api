@@ -13,9 +13,9 @@ info:
     email: "openverse@wordpress.org"
   license:
     name: "MIT License"
-    url: "https://github.com/wordpress/openverse-api/blob/master/LICENSE"
+    url: "https://github.com/WordPress/openverse-api/blob/HEAD/LICENSE"
   x-logo:
-    url: "https://raw.githubusercontent.com/WordPress/openverse/master/brand/logo.svg"
+    url: "https://raw.githubusercontent.com/WordPress/openverse/HEAD/brand/logo.svg"
     backgroundColor: "#fafafa"
 
 host: "api.openverse.engineering"
