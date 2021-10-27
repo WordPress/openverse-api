@@ -10,7 +10,6 @@ ENV PYTHONBUFFERED 1
 RUN apt-get update \
     && apt-get install -y libexempi8 \
     && rm -rf /var/lib/apt/lists/* \
-    && mkdir /openverse_api \
     && mkdir -p /var/log/openverse_api/openverse_api.log
 
 ADD catalog/api/utils/fonts/SourceSansPro-Bold.ttf /usr/share/fonts/truetype/SourceSansPro-Bold.ttf

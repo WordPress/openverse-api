@@ -9,8 +9,6 @@ RUN wget https://github.com/edenhill/librdkafka/archive/v1.6.1.tar.gz \
     && ./configure  \
     && make && make install && ldconfig
 
-RUN mkdir /analytics
-
 ENV PYTHONPATH=$PYTHONPATH:/analytics
 
 WORKDIR /analytics

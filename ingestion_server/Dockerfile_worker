@@ -2,8 +2,7 @@ FROM python:3.9
 
 ENV PYTHONBUFFERED 1
 
-RUN mkdir /ingestion_server \
-    && mkdir /worker_state
+RUN mkdir /worker_state
 
 ENV PYTHONPATH=$PYTHONPATH:/ingestion_server/
 

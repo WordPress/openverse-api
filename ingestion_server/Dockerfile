@@ -7,7 +7,6 @@ RUN groupadd --system supervisord \
 
 RUN apt-get update \
     && apt-get install -y supervisor \
-    && mkdir /ingestion_server \
     && mkdir -p /var/log/supervisord/ \
     && chown -R supervisord:supervisord /var/log/supervisord \
     && mkdir /worker_state \
