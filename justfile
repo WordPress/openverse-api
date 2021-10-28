@@ -23,12 +23,17 @@ default:
 DOCKER_FILE := "-f docker-compose.yml"
 
 # Bring all Docker services up
-up:
-    docker-compose {{ DOCKER_FILE }} up -d
+up flags="":
+    docker-compose {{ DOCKER_FILE }} up -d {{ flags }}
 
 # Take all Docker services down
-down args="":
-    docker-compose {{ DOCKER_FILE }} down {{ args }}
+down flags="":
+    docker-compose {{ DOCKER_FILE }} down {{ flags }}
+
+# Recreate all volumes and containers from scratch
+recreate:
+    @just down -v
+    @just up "--force-recreate --build"
 
 # Show logs of all, or named, Docker services
 logs services="":
@@ -43,6 +48,7 @@ logs services="":
 env:
     cp openverse_api/env.template openverse_api/.env
     cp ingestion_server/env.template ingestion_server/.env
+    cp analytics/env.template analytics/.env
 
 # Load sample data into the Docker Compose services
 init: up wait-for-es wait-for-ing wait-for-web
