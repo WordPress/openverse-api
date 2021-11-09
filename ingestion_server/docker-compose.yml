@@ -1,0 +1,10 @@
+version: "2.4"
+services:
+    ingestion_server:
+        image: openverse/ingestion_server:1.4.0
+        ports:
+            - "8001:8001"
+        env_file:
+            - .env
+        dns:
+            - 172.31.0.2

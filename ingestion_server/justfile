@@ -1,0 +1,74 @@
+set dotenv-load := false
+
+# Show all available recipes
+default:
+  @just --list --unsorted
+
+
+###########
+# Helpers #
+###########
+
+# Sleep for given time showing the given message as long as given condition is met
+@_loop condition message time="5":
+    while [ {{ condition }} ]; do \
+        echo "{{ message }}" && sleep {{ time }}; \
+    done
+
+
+##########
+# Docker #
+##########
+
+DOCKER_FILE := "-f docker-compose.yml"
+
+# Bring all Docker services up
+up flags="":
+    docker-compose {{ DOCKER_FILE }} up -d {{ flags }}
+
+# Take all Docker services down
+down flags="":
+    docker-compose {{ DOCKER_FILE }} down {{ flags }}
+
+# Show logs of all, or named, Docker services
+logs services="":
+    docker-compose {{ DOCKER_FILE }} logs -f {{ services }}
+
+# Pull the requisite images from Dockerhub
+pull services="":
+    docker-compose {{ DOCKER_FILE }} pull {{ services }}
+
+####################
+# Ingestion server #
+####################
+
+# Install dependencies for ingestion-server
+_ing-install:
+    cd ingestion_server && pipenv install --dev
+
+# Perform the given action on the given model by invoking the ingestion-server API
+_ing-api model action port="8001":
+    curl \
+      -X POST \
+      -H 'Content-Type: application/json' \
+      -d '{"model": "{{ model }}", "action": "{{ action }}"}' \
+      'http://localhost:{{ port }}/task'
+
+# Check the health of the ingestion-server
+@health ing_host="localhost:8001":
+    -curl -s -o /dev/null -w '%{http_code}' 'http://{{ ing_host }}/'
+
+# Wait for the ingestion-server to be healthy
+@wait-for-ing ing_host="localhost:8001":
+    just _loop \
+    '"$(just health {{ ing_host }})" != "200"' \
+    "Waiting for the ingestion-server to be healthy..."
+
+# Load data into prod indices in Elasticsearch
+@ingest-upstream model="image":
+    just _ing-api {{ model }} "INGEST_UPSTREAM"
+
+
+# Reindex Elasticsearch for a given model
+@reindex model="image":
+    just _ing-api {{ model }} "REINDEX"
