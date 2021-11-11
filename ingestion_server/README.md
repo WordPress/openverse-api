@@ -126,4 +126,4 @@ The current Docker hub image is at [openverse/ingestion_server](https://hub.dock
 
 The version numbering for the Docker image appears to be a standalone semver value, separate from the repository version.
 
-The published image can be deployed using the minimal [`docker-compose.yml`](docker-compose.yml) file defined in this folder (do not forget to update the `.env` file for production). The `justfile` defined here can be used to run the data refresh tasks more easily.
+The published image can be deployed using the minimal [`docker-compose.yml`](docker-compose.yml) file defined in this folder (do not forget to update the `.env` file for production). The repository `justfile` can be used, but the environment variable `IS_PROD` must be set to `true` in order for it to reference the production `docker-compose.yml` file here.
