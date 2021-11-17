@@ -287,6 +287,10 @@ class MediaSerializer(serializers.Serializer):
         help_text="The source of the data, meaning a particular dataset.",
     )
 
+    category = serializers.CharField(
+        required=False, help_text="The category of the media."
+    )
+
     tags = TagSerializer(
         required=False,
         many=True,
