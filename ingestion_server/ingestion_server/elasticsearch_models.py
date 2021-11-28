@@ -241,7 +241,9 @@ class Image(Media):
     def database_row_to_elasticsearch_doc(row, schema):
         source = row[schema["source"]]
         extension = Image.get_extension(row[schema["url"]])
-        fallback_category = get_category(extension, source)
+        category = get_category(extension, source)
+        if "category" in schema:
+            category = row[schema["category"]]
 
         height = row[schema["height"]]
         width = row[schema["width"]]
@@ -257,7 +259,7 @@ class Image(Media):
 
         return Image(
             thumbnail=row[schema["thumbnail"]],
-            category=row[schema["category"]] or fallback_category,
+            category=category,
             aspect_ratio=aspect_ratio,
             size=size,
             authority_boost=authority_boost,
