@@ -14,7 +14,7 @@ class Category(Enum):
     ILLUSTRATION = auto()
 
 
-# Map each provider to a set of categories.
+# One-to-one mapping of providers to categories
 source_category = {
     "__default": None,
     "thorvaldsenmuseum": Category.DIGITIZED_ARTWORK,
