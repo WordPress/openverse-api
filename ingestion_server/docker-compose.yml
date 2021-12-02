@@ -7,4 +7,7 @@ services:
         env_file:
             - .env
         dns:
+            # Related to DNS management on the production box.
+            # Not sure if this is strictly necessary, but it exists
+            # in the current, running system so we are retaining it here.
             - 172.31.0.2
