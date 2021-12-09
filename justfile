@@ -174,6 +174,9 @@ dj args="":
 stats media="images":
     curl "http://localhost:8000/v1/{{ media }}/stats/"
 
+attach:
+    docker attach openverse-api_web_1
+
 
 #############
 # Analytics #

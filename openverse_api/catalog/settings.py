@@ -96,6 +96,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "oauth2_provider.middleware.OAuth2TokenMiddleware",
+    "catalog.api.middleware.statsd_middleware.ViewStatsMiddleware",
 ]
 
 SWAGGER_SETTINGS = {"SECURITY_DEFINITIONS": {}}
@@ -322,3 +323,6 @@ VERBOSE_ES_RESPONSE = config("DEBUG_SCORES", default=False, cast=bool)
 
 # Whether to boost results by authority and popularity
 USE_RANK_FEATURES = config("USE_RANK_FEATURES", default=True, cast=bool)
+
+STATSD_HOST = config("STATSD_HOST")
+STATSD_PORT = config("STATSD_PORT", cast=int)

@@ -65,6 +65,7 @@ services:
       - db
       - es
       - cache
+      - statsd
     env_file:
       - openverse_api/env.docker
     stdin_open: true
@@ -113,3 +114,16 @@ services:
       - ./analytics:/analytics
     env_file:
     - ./analytics/env.docker
+
+  statsd:
+    image: graphiteapp/graphite-statsd
+    container_name: statsd
+    ports:
+      - "56839:80"
+      - "8125:8125/udp"
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "56838:3000"
