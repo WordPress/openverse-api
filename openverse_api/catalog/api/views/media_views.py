@@ -105,6 +105,7 @@ class MediaViewSet(ReadOnlyModelViewSet):
             )
             self.paginator.result_count = num_results
             self.paginator.page_count = 1
+            # `page_size` refers to the maximum number of related images to return.
             self.paginator.page_size = 10
         except ValueError as e:
             raise get_api_exception(getattr(e, "message", str(e)))
