@@ -8,6 +8,8 @@ services:
       - postgres/env.docker
     healthcheck:
       test: "pg_isready -U deploy -d openledger"
+    volumes:
+      - api-postgres:/var/lib/postgresql/data
 
   thumbs:
     image: willnorris/imageproxy
@@ -20,6 +22,7 @@ services:
     ports:
       - "5433:5432"
     volumes:
+      - catalog-postgres:/var/lib/postgresql/data
       - ./sample_data:/sample_data
     env_file:
       - postgres/env.docker
@@ -113,3 +116,7 @@ services:
       - ./analytics:/analytics
     env_file:
     - ./analytics/env.docker
+
+volumes:
+  api-postgres:
+  catalog-postgres:
