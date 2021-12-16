@@ -106,20 +106,18 @@ def test_creator_quotation_grouping():
     down their searches more effectively.
     """
     no_quotes = json.loads(
-        requests.get(
-            f"{API_URL}/v1/images?creator=william%20ford%stanley", verify=False
-        ).text
+        requests.get(f"{API_URL}/v1/images?creator=Steve%20Wedgwood", verify=False).text
     )
     quotes = json.loads(
         requests.get(
-            f'{API_URL}/v1/images?creator="william%20ford%stanley"', verify=False
+            f'{API_URL}/v1/images?creator="Steve%20Wedgwood"', verify=False
         ).text
     )
     # Did quotation marks actually narrow down the search?
     assert len(no_quotes["results"]) > len(quotes["results"])
     # Did we find only William Ford Stanley works, or also by others?
     for result in quotes["results"]:
-        assert "William Ford Stanley" in result["creator"]
+        assert "Steve Wedgwood" in result["creator"]
 
 
 @pytest.fixture
