@@ -127,12 +127,12 @@ image_oembed_200_example = {
     "application/json": {
         "version": "1.0",
         "type": "photo",
-        "width": 1276,
-        "height": 1536,
-        "title": "Bust of Patroclus (photograph; calotype; salt print)",
-        "author_name": "William Henry Fox Talbot",
-        "author_url": None,
-        "license_url": "https://creativecommons.org/licenses/by-nc-nd/4.0/",
+        "width": 1024,
+        "height": 683,
+        "title": "Train area in Copenhagen South / Tog område i Syd København",
+        "author_name": "Kristoffer Trolle",
+        "author_url": "https://www.flickr.com/photos/126744325@N07",
+        "license_url": "https://creativecommons.org/licenses/by/2.0/",
     }
 }
 
