@@ -62,6 +62,7 @@ def start_bottle(queue):
 
 class TestIngestion(unittest.TestCase):
     compose_path = None
+    maxDiff = None  # Show the entire diff for failed assertions
 
     @classmethod
     def _wait_for_dbs(cls):
@@ -164,6 +165,13 @@ class TestIngestion(unittest.TestCase):
         cur.close()
 
     @classmethod
+    def _get_indices(cls, conn, table) -> list[str]:
+        index_sql = f"SELECT indexdef FROM pg_indexes WHERE tablename = '{table}';"
+        with conn.cursor() as upstream_cursor:
+            upstream_cursor.execute(index_sql)
+            return sorted([row[0] for row in upstream_cursor])
+
+    @classmethod
     def setUpClass(cls) -> None:
         # Launch a Bottle server to receive and handle callbacks
         cb_queue = Queue()
@@ -185,14 +193,16 @@ class TestIngestion(unittest.TestCase):
         )
 
         # Wait for services to be ready
-        upstream_db, downstream_db = cls._wait_for_dbs()
+        cls.upstream_db, cls.downstream_db = cls._wait_for_dbs()
         cls._wait_for_es()
         cls._wait_for_ing()
 
         # Set up the base scenario for the tests
-        cls._load_schemas(upstream_db, ["audio_view", "audioset_view", "image_view"])
         cls._load_schemas(
-            downstream_db,
+            cls.upstream_db, ["audio_view", "audioset_view", "image_view"]
+        )
+        cls._load_schemas(
+            cls.downstream_db,
             [
                 "api_deletedaudio",
                 "api_deletedimage",
@@ -203,9 +213,7 @@ class TestIngestion(unittest.TestCase):
                 "image",
             ],
         )
-        cls._load_data(upstream_db, ["audio_view", "image_view"])
-        upstream_db.close()
-        downstream_db.close()
+        cls._load_data(cls.upstream_db, ["audio_view", "image_view"])
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -232,6 +240,11 @@ class TestIngestion(unittest.TestCase):
             capture_output=True,
         )
 
+        # Close connections with databases
+        for conn in [cls.upstream_db, cls.downstream_db]:
+            if conn:
+                conn.close()
+
     @pytest.mark.order(1)
     def test_list_tasks_empty(self):
         res = requests.get(f"{ingestion_server}/task")
@@ -245,6 +258,7 @@ class TestIngestion(unittest.TestCase):
         Check that INGEST_UPSTREAM task completes successfully and responds
         with a callback.
         """
+        upstream_indices = self._get_indices(self.upstream_db, "image_view")
         req = {
             "model": "image",
             "action": "INGEST_UPSTREAM",
@@ -256,6 +270,12 @@ class TestIngestion(unittest.TestCase):
 
         # Wait for the task to send us a callback.
         assert self.__class__.cb_queue.get(timeout=120) == "CALLBACK!"
+
+        # Check that the indices remained the same
+        downstream_indices = self._get_indices(self.downstream_db, "image")
+        assert (
+            upstream_indices == downstream_indices
+        ), "Indices in downstream DB don't match those in the upstream DB after go-live"
 
     @pytest.mark.order(3)
     def test_task_count_after_one(self):
