@@ -109,7 +109,7 @@ def _generate_indices(conn, table: str):
     # Get all of the old indices from the existing table.
     with conn.cursor() as cur:
         get_idxs = SQL(
-            "SELECT indexdef " "FROM pg_indexes " "WHERE tablename = {table};"
+            "SELECT indexdef FROM pg_indexes WHERE tablename = {table};"
         ).format(table=Literal(table))
         cur.execute(get_idxs)
         idxs = cur.fetchall()
