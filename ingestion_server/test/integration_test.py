@@ -62,7 +62,6 @@ def start_bottle(queue):
 
 class TestIngestion(unittest.TestCase):
     compose_path = None
-    maxDiff = None  # Show the entire diff for failed assertions
 
     @classmethod
     def _wait_for_dbs(cls):
@@ -164,12 +163,28 @@ class TestIngestion(unittest.TestCase):
         conn.commit()
         cur.close()
 
+    @staticmethod
+    def _get_index_parts(index: str, table: str) -> tuple[str, str]:
+        for token in [
+            "CREATE",
+            "UNIQUE",
+            "INDEX",
+            "ON",
+            "USING",
+            f"public.{table}",
+            "btree",
+        ]:
+            index = index.replace(f"{token} ", "")
+        return index.split(" ", maxsplit=1)
+
     @classmethod
-    def _get_indices(cls, conn, table) -> list[str]:
+    def _get_indices(cls, conn, table) -> dict[str, str]:
         index_sql = f"SELECT indexdef FROM pg_indexes WHERE tablename = '{table}';"
         with conn.cursor() as upstream_cursor:
             upstream_cursor.execute(index_sql)
-            return sorted([row[0] for row in upstream_cursor])
+            indices = [cls._get_index_parts(row[0], table) for row in upstream_cursor]
+            idx_mapping = {columns: name for name, columns in indices}
+            return idx_mapping
 
     @classmethod
     def setUpClass(cls) -> None:
