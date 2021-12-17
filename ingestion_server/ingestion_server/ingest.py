@@ -75,15 +75,17 @@ def _get_shared_cols(downstream, upstream, table: str):
     return shared
 
 
-def _generate_indices(conn, table: str):
+def _generate_indices(conn, table: str) -> tuple[list[str], dict[str, str]]:
     """
     Using the existing table as a template, generate CREATE INDEX statements for
     the new table.
 
     :param conn: A connection to the API database.
     :param table: The table to be updated.
-    :return: A list of CREATE INDEX statements.
+    :return: A list of CREATE INDEX statements, and a mapping from new indices to
+    the previous ones.
     """
+    index_mapping = {}
 
     def _clean_idxs(indices):
         # Remove names of indices. We don't want to collide with the old names;
@@ -94,17 +96,24 @@ def _generate_indices(conn, table: str):
             # The index name is always after CREATE [UNIQUE] INDEX; delete it.
             tokens = index[0].split(" ")
             index_idx = tokens.index("INDEX")
-            del tokens[index_idx + 1]
+            # Record what the old index was
+            old_index = tokens[index_idx + 1]
+            new_index = f"temp_import_{old_index}"
+            index_mapping[new_index] = old_index
+            # Update name
+            tokens[index_idx + 1] = new_index
             # The table name is always after ON. Rename it to match the
             # temporary copy of the data.
             on_idx = tokens.index("ON")
             table_name_idx = on_idx + 1
             schema_name, table_name = tokens[table_name_idx].split(".")
             tokens[table_name_idx] = f"{schema_name}.temp_import_{table_name}"
+            # This should do nothing?? All statements will be of the form
+            # "CREATE INDEX ..." so a full check against just "id" will always fail.
             if "id" not in index:
                 cleaned.append(" ".join(tokens))
 
-        return cleaned
+        return cleaned, index_mapping
 
     # Get all of the old indices from the existing table.
     with conn.cursor() as cur:
@@ -294,10 +303,11 @@ def reload_upstream(table, progress=None, finish_time=None, approach="advanced")
     with downstream_db.cursor() as downstream_cur:
         # Step 5: Recreate indices from the original table
         log.info("Copying finished! Recreating database indices...")
-        create_indices = ";\n".join(_generate_indices(downstream_db, table))
+        create_indices, index_mapping = _generate_indices(downstream_db, table)
+        print(f"{index_mapping=}")
         _update_progress(progress, 50.0)
         if create_indices != "":
-            downstream_cur.execute(create_indices)
+            downstream_cur.execute(";\n".join(create_indices))
         _update_progress(progress, 70.0)
 
         # Step 6: Recreate constraints from the original table
@@ -309,7 +319,8 @@ def reload_upstream(table, progress=None, finish_time=None, approach="advanced")
 
         # Step 7: Promote the temporary table and delete the original
         log.info("Done remapping constraints! Going live with new table...")
-        go_live = get_go_live_query(table)
+        go_live = get_go_live_query(table, index_mapping)
+        log.info(f"Running go-live: \n{go_live.as_string(downstream_cur)}")
         downstream_cur.execute(go_live)
     downstream_db.commit()
     downstream_db.close()
