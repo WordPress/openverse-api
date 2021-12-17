@@ -87,14 +87,14 @@ def _generate_indices(conn, table: str) -> tuple[list[str], dict[str, str]]:
     """
     index_mapping = {}
 
-    def _clean_idxs(indices):
+    def _clean_idxs(indices: list[str]):
         # Remove names of indices. We don't want to collide with the old names;
         # we want the database to generate them for us upon recreating the
         # table.
         cleaned = []
         for index in indices:
             # The index name is always after CREATE [UNIQUE] INDEX; delete it.
-            tokens = index[0].split(" ")
+            tokens = index.split(" ")
             index_idx = tokens.index("INDEX")
             # Record what the old index was
             old_index = tokens[index_idx + 1]
@@ -108,11 +108,10 @@ def _generate_indices(conn, table: str) -> tuple[list[str], dict[str, str]]:
             table_name_idx = on_idx + 1
             schema_name, table_name = tokens[table_name_idx].split(".")
             tokens[table_name_idx] = f"{schema_name}.temp_import_{table_name}"
-            # This should do nothing?? All statements will be of the form
-            # "CREATE INDEX ..." so a full check against just "id" will always fail.
-            # I'm too scared to remove it though so I'll do that in another pass.
-            if "id" not in index:
-                cleaned.append(" ".join(tokens))
+            # Skip the primary key, it already exists
+            if "(id)" in index:
+                continue
+            cleaned.append(" ".join(tokens))
 
         return cleaned, index_mapping
 
@@ -123,7 +122,7 @@ def _generate_indices(conn, table: str) -> tuple[list[str], dict[str, str]]:
         ).format(table=Literal(table))
         cur.execute(get_idxs)
         idxs = cur.fetchall()
-    cleaned_idxs = _clean_idxs(idxs)
+    cleaned_idxs = _clean_idxs([idx[0] for idx in idxs])
     return cleaned_idxs
 
 
