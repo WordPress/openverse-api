@@ -304,7 +304,6 @@ def reload_upstream(table, progress=None, finish_time=None, approach="advanced")
         # Step 5: Recreate indices from the original table
         log.info("Copying finished! Recreating database indices...")
         create_indices, index_mapping = _generate_indices(downstream_db, table)
-        print(f"{index_mapping=}")
         _update_progress(progress, 50.0)
         if create_indices != "":
             downstream_cur.execute(";\n".join(create_indices))

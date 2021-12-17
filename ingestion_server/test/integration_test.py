@@ -188,11 +188,29 @@ class TestIngestion(unittest.TestCase):
         Get the indices on a given table using a given connection.
         """
         index_sql = f"SELECT indexdef FROM pg_indexes WHERE tablename = '{table}';"
-        with conn.cursor() as upstream_cursor:
-            upstream_cursor.execute(index_sql)
-            indices = [cls._get_index_parts(row[0], table) for row in upstream_cursor]
+        with conn.cursor() as cursor:
+            cursor.execute(index_sql)
+            indices = [cls._get_index_parts(row[0], table) for row in cursor]
             idx_mapping = {columns: name for name, columns in indices}
             return idx_mapping
+
+    @classmethod
+    def _get_constraints(cls, conn, table) -> dict[str, str]:
+        """
+        Get the constraints on a given table using a given connection.
+        """
+        constraint_sql = f"""
+             SELECT conname, pg_get_constraintdef(c.oid)
+             FROM pg_constraint AS c
+             JOIN pg_namespace AS n
+             ON n.oid = c.connamespace
+             AND n.nspname = 'public'
+             AND conrelid::regclass::text = '{table}'
+             ORDER BY conrelid::regclass::text, contype DESC;
+        """
+        with conn.cursor() as cursor:
+            cursor.execute(constraint_sql)
+            return {constraint: name for name, constraint in cursor}
 
     def _ingest_upstream(self, model):
         """
@@ -200,6 +218,7 @@ class TestIngestion(unittest.TestCase):
         with a callback.
         """
         before_indices = self._get_indices(self.downstream_db, model)
+        before_constraints = self._get_constraints(self.downstream_db, model)
         req = {
             "model": model,
             "action": "INGEST_UPSTREAM",
@@ -214,9 +233,13 @@ class TestIngestion(unittest.TestCase):
 
         # Check that the indices remained the same
         after_indices = self._get_indices(self.downstream_db, model)
+        after_constraints = self._get_constraints(self.downstream_db, model)
         assert (
             before_indices == after_indices
         ), "Indices in DB don't match the names they had before the go-live"
+        assert (
+            before_constraints == after_constraints
+        ), "Constraints in DB don't match the names they had before the go-live"
 
     @classmethod
     def setUpClass(cls) -> None:
