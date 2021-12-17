@@ -291,6 +291,7 @@ def reload_upstream(table, progress=None, finish_time=None, approach="advanced")
         # Step 3: Import data into a temporary table
         log.info("Copying upstream data...")
         copy_data = get_copy_data_query(table, shared_cols, approach=approach)
+        log.info(f"Running copy-data query: \n{copy_data.as_string(downstream_cur)}")
         downstream_cur.execute(copy_data)
     downstream_db.commit()
     downstream_db.close()
