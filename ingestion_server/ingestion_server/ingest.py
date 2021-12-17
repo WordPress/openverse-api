@@ -96,9 +96,14 @@ def _generate_indices(conn, table: str) -> tuple[list[str], dict[str, str]]:
             # The index name is always after CREATE [UNIQUE] INDEX; delete it.
             tokens = index.split(" ")
             index_idx = tokens.index("INDEX")
+            is_pk = "(id)" in index
             # Record what the old index was
             old_index = tokens[index_idx + 1]
-            new_index = f"temp_import_{old_index}"
+            # Primary keys during data refresh are based on the table name ane may
+            # not be exactly correlated with what the primary keys are actually named
+            new_index = (
+                f"temp_import_{old_index}" if not is_pk else f"temp_import_{table}_pkey"
+            )
             index_mapping[new_index] = old_index
             # Update name
             tokens[index_idx + 1] = new_index
@@ -109,9 +114,8 @@ def _generate_indices(conn, table: str) -> tuple[list[str], dict[str, str]]:
             schema_name, table_name = tokens[table_name_idx].split(".")
             tokens[table_name_idx] = f"{schema_name}.temp_import_{table_name}"
             # Skip the primary key, it already exists
-            if "(id)" in index:
-                continue
-            cleaned.append(" ".join(tokens))
+            if not is_pk:
+                cleaned.append(" ".join(tokens))
 
         return cleaned, index_mapping
 
