@@ -273,7 +273,7 @@ class TestIngestion(unittest.TestCase):
         Check that INGEST_UPSTREAM task completes successfully and responds
         with a callback.
         """
-        upstream_indices = self._get_indices(self.upstream_db, "image_view")
+        before_indices = self._get_indices(self.downstream_db, "image")
         req = {
             "model": "image",
             "action": "INGEST_UPSTREAM",
@@ -287,10 +287,10 @@ class TestIngestion(unittest.TestCase):
         assert self.__class__.cb_queue.get(timeout=120) == "CALLBACK!"
 
         # Check that the indices remained the same
-        downstream_indices = self._get_indices(self.downstream_db, "image")
+        after_indices = self._get_indices(self.downstream_db, "image")
         assert (
-            upstream_indices == downstream_indices
-        ), "Indices in downstream DB don't match those in the upstream DB after go-live"
+            before_indices == after_indices
+        ), "Indices in DB don't match the names they had before the go-live"
 
     @pytest.mark.order(3)
     def test_task_count_after_one(self):
