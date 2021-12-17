@@ -168,7 +168,8 @@ class TestIngestion(unittest.TestCase):
         """
         Strip out common keywords from the index to get a the name & columns.
         Indices take the form of:
-         CREATE [UNIQUE] INDEX {name} ON {table} USING btree {columns}
+          CREATE [UNIQUE] INDEX {name} ON {table} USING btree {columns}
+        Output will look like: ["my_special_index", "(my_column)"]
         """
         for token in [
             "CREATE",
