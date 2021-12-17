@@ -110,6 +110,7 @@ def _generate_indices(conn, table: str) -> tuple[list[str], dict[str, str]]:
             tokens[table_name_idx] = f"{schema_name}.temp_import_{table_name}"
             # This should do nothing?? All statements will be of the form
             # "CREATE INDEX ..." so a full check against just "id" will always fail.
+            # I'm too scared to remove it though so I'll do that in another pass.
             if "id" not in index:
                 cleaned.append(" ".join(tokens))
 
