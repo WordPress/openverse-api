@@ -28,6 +28,8 @@ def message(text: str, summary: str = None) -> None:
     data = {
         "blocks": [{"text": {"text": text, "type": "mrkdwn"}, "type": "section"}],
         "text": summary,
+        "username": "Data Refresh Notification",
+        "icon_emoji": "arrows_counterclockwise",
     }
     try:
         requests.post(webhook, json=data)

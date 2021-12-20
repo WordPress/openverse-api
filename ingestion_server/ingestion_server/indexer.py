@@ -32,12 +32,12 @@ from elasticsearch.exceptions import ConnectionError as ESConnectionError
 from elasticsearch_dsl import Search, connections
 from psycopg2.sql import SQL, Identifier, Literal
 
+from ingestion_server import slack
 from ingestion_server.distributed_reindex_scheduler import schedule_distributed_index
 from ingestion_server.elasticsearch_models import database_table_to_elasticsearch_model
 from ingestion_server.es_mapping import index_settings
 from ingestion_server.qa import create_search_qa_index
 from ingestion_server.queries import get_existence_queries
-from ingestion_server import slack
 
 
 # For AWS IAM access to Elasticsearch
@@ -378,8 +378,7 @@ class TableIndexer:
             es.indices.put_alias(index=write_index, name=live_alias)
             log.info(f"Created '{live_alias}' index alias pointing to {write_index}")
         slack.message(
-            f"Elasticsearch promotion complete for `{write_index}` "
-            f"- data refresh complete!"
+            f"`{write_index}`: ES index promoted - data refresh complete! :tada:"
         )
 
     def listen(self, poll_interval=10):
@@ -416,7 +415,8 @@ class TableIndexer:
         else:
             self._index_table(model_name, dest_idx=destination_index)
             slack.message(
-                f"Elasticsearch reindex complete for `{model_name}` | Next: promote index as primary"
+                f"`{model_name}`: Elasticsearch reindex complete | "
+                f"_Next: promote index as primary_"
             )
             self.go_live(destination_index, model_name)
 
