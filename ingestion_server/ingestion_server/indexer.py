@@ -37,6 +37,7 @@ from ingestion_server.elasticsearch_models import database_table_to_elasticsearc
 from ingestion_server.es_mapping import index_settings
 from ingestion_server.qa import create_search_qa_index
 from ingestion_server.queries import get_existence_queries
+from ingestion_server import slack
 
 
 # For AWS IAM access to Elasticsearch
@@ -376,6 +377,10 @@ class TableIndexer:
         else:
             es.indices.put_alias(index=write_index, name=live_alias)
             log.info(f"Created '{live_alias}' index alias pointing to {write_index}")
+        slack.message(
+            f"Elasticsearch promotion complete for `{write_index}` "
+            f"- data refresh complete!"
+        )
 
     def listen(self, poll_interval=10):
         """
@@ -410,6 +415,9 @@ class TableIndexer:
             schedule_distributed_index(database_connect(), destination_index)
         else:
             self._index_table(model_name, dest_idx=destination_index)
+            slack.message(
+                f"Elasticsearch reindex complete for `{model_name}` | Next: promote index as primary"
+            )
             self.go_live(destination_index, model_name)
 
     def update(self, model_name: str, since_date):

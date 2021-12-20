@@ -13,6 +13,7 @@ from urllib.parse import urlparse
 
 import falcon
 
+from ingestion_server import slack
 import ingestion_server.indexer as indexer
 from ingestion_server.constants.media_types import MEDIA_TYPES
 from ingestion_server.state import clear_state, worker_finished
@@ -151,6 +152,7 @@ class WorkerFinishedResource:
             index_type = target_index.split("-")[0]
             if index_type not in MEDIA_TYPES:
                 index_type = "image"
+            slack.message(f"Elasticsearch reindex complete for `{index_type}` | Next: promote index as primary")
             f = indexer.TableIndexer.go_live
             p = Process(target=f, args=(target_index, index_type))
             p.start()

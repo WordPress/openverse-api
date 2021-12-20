@@ -30,7 +30,7 @@ from ingestion_server.queries import (
     get_fdw_query,
     get_go_live_query,
 )
-
+from ingestion_server import slack
 
 UPSTREAM_DB_HOST = config("UPSTREAM_DB_HOST", default="localhost")
 UPSTREAM_DB_PORT = config("UPSTREAM_DB_PORT", default=5433, cast=int)
@@ -266,6 +266,9 @@ def reload_upstream(table, progress=None, finish_time=None, approach="advanced")
     """
 
     # Step 1: Get the list of overlapping columns
+    slack.message(
+        f"Starting data refresh on `{table}` | Next: copying data from upstream"
+    )
     downstream_db = database_connect()
     upstream_db = psycopg2.connect(
         dbname=UPSTREAM_DB_NAME,
@@ -296,6 +299,9 @@ def reload_upstream(table, progress=None, finish_time=None, approach="advanced")
         copy_data = get_copy_data_query(table, shared_cols, approach=approach)
         log.info(f"Running copy-data query: \n{copy_data.as_string(downstream_cur)}")
         downstream_cur.execute(copy_data)
+
+    next_step = "starting data cleaning" if table == "image" else "re-applying indices & constraints"
+    slack.message(f"Data copy complete for `{table}` | Next: {next_step}")
     downstream_db.commit()
     downstream_db.close()
 
@@ -303,6 +309,9 @@ def reload_upstream(table, progress=None, finish_time=None, approach="advanced")
         # Step 4: Clean the data
         log.info("Cleaning data...")
         clean_image_data(table)
+        slack.message(
+            f"Data cleaning complete for `{table}` | Next: re-applying indices & constraints"
+        )
 
     downstream_db = database_connect()
     with downstream_db.cursor() as downstream_cur:
@@ -320,6 +329,7 @@ def reload_upstream(table, progress=None, finish_time=None, approach="advanced")
         if len(remap_constraints.seq) != 0:
             downstream_cur.execute(remap_constraints)
         _update_progress(progress, 99.0)
+        slack.message(f"Indices & constraints applied for `{table}` | Next: go-live")
 
         # Step 7: Promote the temporary table and delete the original
         log.info("Done remapping constraints! Going live with new table...")
@@ -330,6 +340,7 @@ def reload_upstream(table, progress=None, finish_time=None, approach="advanced")
     downstream_db.close()
     log.info(f"Finished refreshing table '{table}'.")
     _update_progress(progress, 100.0)
+    slack.message(f"Finished refresh of table `{table}` | Next: Elasticsearch reindex")
 
     if finish_time:
         finish_time.value = datetime.datetime.utcnow().timestamp()
