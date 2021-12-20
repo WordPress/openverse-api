@@ -99,7 +99,7 @@ def _generate_indices(conn, table: str) -> tuple[list[str], dict[str, str]]:
             is_pk = "(id)" in index
             # Record what the old index was
             old_index = tokens[index_idx + 1]
-            # Primary keys during data refresh are based on the table name ane may
+            # Primary keys during data refresh are based on the table name and may
             # not be exactly correlated with what the primary keys are actually named
             new_index = (
                 f"temp_import_{old_index}" if not is_pk else f"temp_import_{table}_pkey"
