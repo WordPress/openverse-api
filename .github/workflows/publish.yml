@@ -3,6 +3,7 @@ name: Publish Docker image
 on:
   release:
     types: [published]
+  pull_request:  # Temporary for testing, remove before merge
 
 jobs:
   push_to_registry:
@@ -11,6 +12,22 @@ jobs:
     permissions:
       packages: write
       contents: read
+    strategy:
+      matrix:
+        service: [api, ingestion-server, index-worker, analytics]
+        include:
+          - api:
+            context: openverse_api
+            file: Dockerfile
+          - ingestion-server:
+            context: ingestion_server
+            file: Dockerfile
+          - index-worker:
+            context: ingestion_server
+            file: Dockerfile_worker
+          - analytics:
+            context: analytics
+            file: Dockerfile
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
@@ -20,12 +37,13 @@ jobs:
           registry: https://ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build container image
+      - name: Build ingestion-server image
         uses: docker/build-push-action@v2
         with:
           push: true
-          context: ingestion_server
+          context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
           tags: |
-            ghcr.io/openverse/ingestion-server:${{ github.sha }}
-            ghcr.io/openverse/ingestion-server:${{ github.ref_name }}
-            ghcr.io/openverse/ingestion-server:latest
+            ghcr.io/wordpress/openverse-${{ matrix.service }}:${{ github.sha }}
+            ghcr.io/wordpress/openverse-${{ matrix.service }}:${{ github.ref_name }}
+            ghcr.io/wordpress/openverse-${{ matrix.service }}:latest
