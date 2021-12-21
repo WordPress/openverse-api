@@ -37,6 +37,8 @@ SECRET_KEY = config("DJANGO_SECRET_KEY")  # required
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DJANGO_DEBUG_ENABLED", default=False, cast=bool)
 
+PYTHON_ENV = config("PYTHON_ENV", default="development")
+
 ALLOWED_HOSTS = [
     "api-dev.openverse.engineering",
     "api.openverse.engineering",
@@ -337,4 +339,5 @@ if not DEBUG:
         integrations=[DjangoIntegration()],
         traces_sample_rate=SENTRY_SAMPLE_RATE,
         send_default_pii=False,
+        environment=PYTHON_ENV,
     )
