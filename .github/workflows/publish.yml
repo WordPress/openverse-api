@@ -43,8 +43,7 @@ jobs:
           push: true
           context: ${{ matrix.context }}
           file: ${{ matrix.file }}
+          # Re-add github.ref_name
           tags: |
             ghcr.io/wordpress/openverse-${{ matrix.service }}:${{ github.sha }}
-            # Temporary, remove before merge
-            # ghcr.io/wordpress/openverse-${{ matrix.service }}:${{ github.ref_name }}
             ghcr.io/wordpress/openverse-${{ matrix.service }}:latest
