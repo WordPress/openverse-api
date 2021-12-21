@@ -320,18 +320,6 @@ def search_factory():
 
 
 @pytest.fixture
-def search_with_dead_links(search_factory):
-    """
-    Here we pass filter_dead = False.
-    """
-
-    def _search_with_dead_links(**kwargs):
-        return search_factory(filter_dead=False, **kwargs)
-
-    return _search_with_dead_links
-
-
-@pytest.fixture
 def search_without_dead_links(search_factory):
     """
     Here we pass filter_dead = True.
@@ -354,28 +342,6 @@ def test_page_size_removing_dead_links(search_without_dead_links):
     """
     data = search_without_dead_links(q="*", page_size=100)
     assert len(data["results"]) == 100
-
-
-def test_dead_links_are_correctly_filtered(
-    search_with_dead_links, search_without_dead_links
-):
-    """
-    Test the results for the same query with and without dead links are
-    actually different.
-
-    We use the results' id to compare them.
-    """
-    data_with_dead_links = search_with_dead_links(q="*", page_size=100)
-    data_without_dead_links = search_without_dead_links(q="*", page_size=100)
-
-    comparisons = []
-    for result_1 in data_with_dead_links["results"]:
-        for result_2 in data_without_dead_links["results"]:
-            comparisons.append(result_1["id"] == result_2["id"])
-
-    # Some results should be different
-    # so we should have less than 100 True comparisons
-    assert comparisons.count(True) < 100
 
 
 def test_page_consistency_removing_dead_links(search_without_dead_links):
