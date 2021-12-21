@@ -45,5 +45,6 @@ jobs:
           file: ${{ matrix.file }}
           tags: |
             ghcr.io/wordpress/openverse-${{ matrix.service }}:${{ github.sha }}
-            ghcr.io/wordpress/openverse-${{ matrix.service }}:${{ github.ref_name }}
+            # Temporary, remove before merge
+            # ghcr.io/wordpress/openverse-${{ matrix.service }}:${{ github.ref_name }}
             ghcr.io/wordpress/openverse-${{ matrix.service }}:latest
