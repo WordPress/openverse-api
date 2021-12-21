@@ -16,6 +16,7 @@ data in place.
 """
 
 import datetime
+import gc
 import logging as log
 
 import psycopg2
@@ -319,9 +320,9 @@ def reload_upstream(table, progress=None, finish_time=None, approach="advanced")
             f"_Next: re-applying indices & constraints_"
         )
 
-    # The server sometimes hangs on or before this next step. Adding this debug
-    # message here because apparently that unblocks it? May have to do with GC.
-    log.debug("Getting downstream cursor again")
+    # The server sometimes hangs on or before this next step. This is a pre-emptive
+    # garbage collection to try and assist with that.
+    gc.collect()
     downstream_db = database_connect()
     with downstream_db.cursor() as downstream_cur:
         # Step 5: Recreate indices from the original table
