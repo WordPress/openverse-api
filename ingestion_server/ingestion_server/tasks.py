@@ -112,7 +112,7 @@ class Task(Process):
                 reload_upstream(self.model)
                 if self.model == "audio":
                     reload_upstream("audioset", approach="basic")
-                    indexer.reindex(self.model)
+                indexer.reindex(self.model)
             elif self.task_type == TaskTypes.LOAD_TEST_DATA:
                 indexer.load_test_data(self.model)
             logging.info(f"Task {self.task_id} exited.")
