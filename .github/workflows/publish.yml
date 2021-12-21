@@ -42,7 +42,7 @@ jobs:
         with:
           push: true
           context: ${{ matrix.context }}
-          file: ${{ matrix.file }}
+          file: ${{ matrix.context }}/${{ matrix.file }}
           # Re-add github.ref_name
           tags: |
             ghcr.io/wordpress/openverse-${{ matrix.service }}:${{ github.sha }}
