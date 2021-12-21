@@ -3,7 +3,6 @@ name: Publish Docker image
 on:
   release:
     types: [published]
-  pull_request:  # Temporary for testing, remove before merge
 
 jobs:
   push_to_registry:
@@ -43,7 +42,7 @@ jobs:
           push: true
           context: ${{ matrix.context }}
           file: ${{ matrix.context }}/${{ matrix.file }}
-          # Re-add github.ref_name
           tags: |
             ghcr.io/wordpress/openverse-${{ matrix.service }}:${{ github.sha }}
+            ghcr.io/wordpress/openverse-${{ matrix.service }}:${{ github.ref_name }}
             ghcr.io/wordpress/openverse-${{ matrix.service }}:latest
