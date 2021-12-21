@@ -18,7 +18,7 @@ def _patch_redis():
     return patch("django_redis.get_redis_connection", return_value=mock_conn)
 
 
-def _path_grequests():
+def _patch_grequests():
     def grequests_map(reqs, *_, **__):
         """
         Patch for ``grequests.map`` used by ``validate_images`` to filter
@@ -35,10 +35,9 @@ def _path_grequests():
 
 
 @pytest.mark.django_db
-def test_dead_link_filtering(client):
-    _patch_redis().start()
-    mocked_map = _path_grequests().start()
-
+@_patch_redis()
+@_patch_grequests()
+def test_dead_link_filtering(mocked_map, _, client):
     path = "/v1/images/"
     query_params = {"q": "*", "page_size": 100}
 
