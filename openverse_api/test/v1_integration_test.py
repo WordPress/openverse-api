@@ -4,18 +4,13 @@ designed. Run with the `pytest -s` command from this directory.
 """
 
 import json
-import time
-import uuid
 from test.constants import API_URL
 
-import catalog.settings
 import pytest
 import requests
 from catalog.api.licenses import LICENSE_GROUPS
-from catalog.api.models import Image, OAuth2Verification
+from catalog.api.models import Image
 from catalog.api.utils.watermark import watermark
-from django.db.models import Max
-from django.urls import reverse
 
 
 @pytest.fixture
@@ -118,91 +113,6 @@ def test_creator_quotation_grouping():
     # Did we find only William Ford Stanley works, or also by others?
     for result in quotes["results"]:
         assert "Steve Wedgwood" in result["creator"]
-
-
-@pytest.fixture
-def test_auth_tokens_registration():
-    payload = {
-        "name": f"INTEGRATION TEST APPLICATION {uuid.uuid4()}",
-        "description": "A key for testing the OAuth2 registration process.",
-        "email": "example@example.org",
-    }
-    response = requests.post(
-        f"{API_URL}/v1/auth_tokens/register", json=payload, verify=False
-    )
-    parsed_response = json.loads(response.text)
-    assert response.status_code == 201
-    return parsed_response
-
-
-@pytest.fixture
-def test_auth_token_exchange(test_auth_tokens_registration):
-    client_id = test_auth_tokens_registration["client_id"]
-    client_secret = test_auth_tokens_registration["client_secret"]
-    token_exchange_request = (
-        f"client_id={client_id}&"
-        f"client_secret={client_secret}&"
-        "grant_type=client_credentials"
-    )
-    headers = {
-        "content-type": "application/x-www-form-urlencoded",
-        "cache-control": "no-cache",
-    }
-    response = json.loads(
-        requests.post(
-            f"{API_URL}/v1/auth_tokens/token/",
-            data=token_exchange_request,
-            headers=headers,
-            verify=False,
-        ).text
-    )
-    assert "access_token" in response
-    return response
-
-
-def test_auth_rate_limit_reporting(test_auth_token_exchange, verified=False):
-    # We're anonymous still, so we need to wait a second before exchanging
-    # the token.
-    time.sleep(1)
-    token = test_auth_token_exchange["access_token"]
-    headers = {"Authorization": f"Bearer {token}"}
-    response = json.loads(
-        requests.get(f"{API_URL}/v1/rate_limit", headers=headers).text
-    )
-    if verified:
-        assert response["rate_limit_model"] == "standard"
-        assert response["verified"] is True
-    else:
-        assert response["rate_limit_model"] == "standard"
-        assert response["verified"] is False
-
-
-@pytest.fixture(scope="session")
-def django_db_setup():
-    if API_URL == "http://localhost:8000":
-        catalog.settings.DATABASES["default"] = {
-            "ENGINE": "django.db.backends.postgresql",
-            "HOST": "127.0.0.1",
-            "NAME": "openledger",
-            "PASSWORD": "deploy",
-            "USER": "deploy",
-            "PORT": 5432,
-        }
-
-
-@pytest.mark.django_db
-def test_auth_email_verification(test_auth_token_exchange, django_db_setup):
-    # This test needs to cheat by looking in the database, so it will be
-    # skipped in non-local environments.
-    if API_URL == "http://localhost:8000":
-        _id = OAuth2Verification.objects.aggregate(Max("id"))["id__max"]
-        verify = OAuth2Verification.objects.get(id=_id)
-        code = verify.code
-        path = reverse("verify-email", args=[code])
-        url = f"{API_URL}{path}"
-        response = requests.get(url)
-        assert response.status_code == 200
-        test_auth_rate_limit_reporting(test_auth_token_exchange, verified=True)
 
 
 @pytest.mark.skip(reason="Unmaintained feature/grequests ssl recursion bug")
