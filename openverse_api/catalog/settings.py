@@ -37,7 +37,7 @@ SECRET_KEY = config("DJANGO_SECRET_KEY")  # required
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DJANGO_DEBUG_ENABLED", default=False, cast=bool)
 
-PYTHON_ENV = config("PYTHON_ENV", default="development")
+PYTHON_ENV = config("PYTHON_ENV", default="production")
 
 ALLOWED_HOSTS = [
     "api-dev.openverse.engineering",
