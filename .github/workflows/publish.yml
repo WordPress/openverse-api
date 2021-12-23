@@ -13,7 +13,7 @@ jobs:
       contents: read
     strategy:
       matrix:
-        service: [api, ingestion-server, index-worker, analytics]
+        service: [api, ingestion-server, indexer-worker, analytics]
         include:
           - api:
             context: openverse_api
@@ -21,7 +21,7 @@ jobs:
           - ingestion-server:
             context: ingestion_server
             file: Dockerfile
-          - index-worker:
+          - indexer-worker:
             context: ingestion_server
             file: Dockerfile_worker
           - analytics:
