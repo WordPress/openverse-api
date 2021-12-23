@@ -174,6 +174,17 @@ dj args="":
 stats media="images":
     curl "http://localhost:8000/v1/{{ media }}/stats/"
 
+# Compile Sphinx documentation into HTML output
+sphinx-make out="html":
+    cd openverse_api && pipenv run sphinx-build -M {{ out }} docs/ build/
+
+# Serve the Sphinx documentation from the HTML output directory
+sphinx-serve port="3000":
+    cd openverse_api/build/html && pipenv run python -m http.server {{ port }}
+
+# Serve the Sphinx documentation via a live-reload server
+sphinx-live port="3000":
+    cd openverse_api && pipenv run sphinx-autobuild --port {{ port }} docs/ build/html/
 
 #############
 # Analytics #

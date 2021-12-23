@@ -11,6 +11,9 @@ pytest-django = ">=3.5"
 remote-pdb = "*"
 pre-commit = "*"
 locust = "*"
+sphinx = "*"
+sphinx-autobuild = "*"
+furo = "*"
 
 [packages]
 aws-requests-auth = "*"
