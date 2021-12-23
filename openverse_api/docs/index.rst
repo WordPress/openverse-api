@@ -1,0 +1,24 @@
+Openverse API developer docs
+============================
+
+This documentation is focused towards developers who are building the Openverse API. The consumer documentation for the Openverse API can be found `here <https://api.openverse.engineering/>`_.
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+   :hidden:
+
+   catalog
+
+.. toctree::
+   :caption: External links
+   :hidden:
+
+   GitHub repo <https://github.com/WordPress/openverse-api>
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
