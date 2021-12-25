@@ -175,16 +175,16 @@ stats media="images":
     curl "http://localhost:8000/v1/{{ media }}/stats/"
 
 # Compile Sphinx documentation into HTML output
-sphinx-make out="html":
-    cd openverse_api && pipenv run sphinx-build -M {{ out }} docs/ build/
+sphinx-make service="web": up wait-for-es wait-for-ing wait-for-web
+    docker-compose exec {{ service }} sphinx-build -M html docs/ build/
+
+# Serve Sphinx documentation via a live-reload server
+sphinx-live service="web" port="3000": up wait-for-es wait-for-ing wait-for-web
+    docker-compose exec {{ service }} sphinx-autobuild --host 0.0.0.0 --port {{ port }} docs/ build/html/
 
 # Serve the Sphinx documentation from the HTML output directory
-sphinx-serve port="3000":
-    cd openverse_api/build/html && pipenv run python -m http.server {{ port }}
-
-# Serve the Sphinx documentation via a live-reload server
-sphinx-live port="3000":
-    cd openverse_api && pipenv run sphinx-autobuild --port {{ port }} docs/ build/html/
+sphinx-serve dir="openverse_api" port="3001":
+    cd {{ dir }}/build/html && pipenv run python -m http.server {{ port }}
 
 #############
 # Analytics #

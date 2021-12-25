@@ -66,6 +66,7 @@ services:
       - ./openverse_api:/openverse_api
     ports:
       - "8000:8000"
+      - "3000:3000"
     depends_on:
       - db
       - es
