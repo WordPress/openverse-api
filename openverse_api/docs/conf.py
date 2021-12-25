@@ -11,8 +11,8 @@ import django
 
 
 # Configure Django to work with Sphinx
+# Pipenv populates DJANGO_SETTINGS_MODULE and DJANGO_SECRET_KEY from .env
 sys.path.append(os.path.abspath(".."))
-os.environ["DJANGO_SETTINGS_MODULE"] = "catalog.settings"
 django.setup()
 
 
