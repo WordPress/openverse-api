@@ -1,5 +1,5 @@
-API
-===
+Code reference
+==============
 
 Subpackages
 -----------
@@ -7,8 +7,8 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   catalog.api
-   catalog.urls
+   api/index
+   urls
 
 Submodules
 ----------

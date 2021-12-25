@@ -8,17 +8,11 @@ This documentation is focused towards developers who are building the Openverse 
    :caption: Contents:
    :hidden:
 
-   catalog
+   guides/index
+   reference/index
 
 .. toctree::
    :caption: External links
    :hidden:
 
    GitHub repo <https://github.com/WordPress/openverse-api>
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

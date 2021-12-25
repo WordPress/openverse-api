@@ -7,14 +7,14 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   catalog.api.constants
-   catalog.api.controllers
-   catalog.api.docs
-   catalog.api.examples
-   catalog.api.models
-   catalog.api.serializers
-   catalog.api.utils
-   catalog.api.views
+   constants
+   controllers
+   docs
+   examples
+   models
+   serializers
+   utils
+   views
 
 Submodules
 ----------
