@@ -140,6 +140,7 @@ _ing-api model action port="8001":
 ing-testlocal:
     cd ingestion_server && pipenv run ./test/run_test.sh
 
+
 #######
 # API #
 #######
@@ -174,6 +175,19 @@ dj args="":
 stats media="images":
     curl "http://localhost:8000/v1/{{ media }}/stats/"
 
+
+#############
+# Analytics #
+#############
+
+nl-test args="":
+    docker-compose exec {{ args }} analytics pytest tests.py
+
+
+##########
+# Sphinx #
+##########
+
 # Compile Sphinx documentation into HTML output
 sphinx-make service="web": up wait-for-es wait-for-ing wait-for-web
     docker-compose exec {{ service }} sphinx-build -M html docs/ build/
@@ -185,10 +199,3 @@ sphinx-live service="web" port="3000": up wait-for-es wait-for-ing wait-for-web
 # Serve the Sphinx documentation from the HTML output directory
 sphinx-serve dir="openverse_api" port="3001":
     cd {{ dir }}/build/html && pipenv run python -m http.server {{ port }}
-
-#############
-# Analytics #
-#############
-
-nl-test args="":
-    docker-compose exec {{ args }} analytics pytest tests.py
