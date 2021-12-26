@@ -27,10 +27,56 @@ jobs:
         pip install pre-commit
         pre-commit run --all-files
 
+  build-images:
+    name: Build images
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - image: openverse_api
+            context: openverse_api
+            file: Dockerfile
+          - image: ingestion_server
+            context: ingestion_server
+            file: Dockerfile
+          - image: indexer_worker
+            context: ingestion_server
+            file: Dockerfile
+          - image: analytics
+            context: analytics
+            file: Dockerfile
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v1
+      with:
+        install: true
+
+    - name: Build image ${{ matrix.image }}
+      uses: docker/build-push-action@v2
+      with:
+        context: ${{ matrix.context }}
+        file: ${{ matrix.context }}/${{ matrix.file }}
+        push: false
+        tags: ${{ matrix.image }}
+        cache-from: type=gha,scope=${{ matrix.image }}
+        cache-to: type=gha,scope=${{ matrix.image }}
+        outputs: type=docker,dest=/tmp/${{ matrix.image }}.tar
+
+    - name: Upload artifact ${{ matrix.image }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.image }}
+        path: /tmp/${{ matrix.image }}.tar
+
   test-ing:
     name: Run tests for ingestion-server
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    needs:
+      - build-images
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -56,22 +102,13 @@ jobs:
         pip install -U pip
         pip install pipenv
         just _ing-install
-    - name: Build image `ingestion_server`
-      uses: docker/build-push-action@v2
-      with:
-        context: ./ingestion_server/
-        push: false
-        tags: ingestion_server
-        cache-from: type=gha,scope=ingestion_server
-        cache-to: type=gha,scope=ingestion_server
-        outputs: type=docker,dest=/tmp/ingestion_server.tar
-    - name: Load image `ingestion_server`
-      run: docker load --input /tmp/ingestion_server.tar
-    - name: Upload ingestion-server image
-      uses: actions/upload-artifact@v2
+    - name: Download image `ingestion_server`
+      uses: actions/download-artifact@v2
       with:
         name: ingestion_server
-        path: /tmp/ingestion_server.tar
+        path: /tmp
+    - name: Load image `ingestion_server`
+      run: docker load --input /tmp/ingestion_server.tar
     - name: Run ingestion-server tests
       run: just ing-testlocal
 
@@ -80,26 +117,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs:
-      - test-ing
+      - build-images
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
     - name: Setup just
       uses: extractions/setup-just@v1
-    - name: Setup Docker Buildx
-      uses: docker/setup-buildx-action@v1
+
+    - name: Download image `openverse_api`
+      uses: actions/download-artifact@v2
       with:
-        install: true
-    - name: Build image `openverse_api`
-      uses: docker/build-push-action@v2
-      with:
-        context: ./openverse_api/
-        push: false
-        load: true
-        target: api
-        tags: openverse_api
-        cache-from: type=gha,scope=openverse_api
-        cache-to: type=gha,scope=openverse_api,mode=max
+        name: web
+        path: /tmp
+    - name: Load image `openverse_api`
+      run: docker load --input /tmp/openverse_api.tar
+
     - name: Download image `ingestion_server`
       uses: actions/download-artifact@v2
       with:
@@ -107,25 +139,23 @@ jobs:
         path: /tmp
     - name: Load image `ingestion_server`
       run: docker load --input /tmp/ingestion_server.tar
-    - name: Build image `indexer_worker`
-      uses: docker/build-push-action@v2
+
+    - name: Download image `indexer_worker`
+      uses: actions/download-artifact@v2
       with:
-        context: ./ingestion_server/
-        file: ./ingestion_server/Dockerfile_worker
-        push: false
-        load: true
-        tags: indexer_worker
-        cache-from: type=gha,scope=indexer_worker
-        cache-to: type=gha,scope=indexer_worker
-    - name: Build image `analytics`
-      uses: docker/build-push-action@v2
+        name: indexer_worker
+        path: /tmp
+    - name: Load image `indexer_worker`
+      run: docker load --input /tmp/indexer_worker.tar
+
+    - name: Download image `analytics`
+      uses: actions/download-artifact@v2
       with:
-        context: ./analytics/
-        push: false
-        load: true
-        tags: analytics
-        cache-from: type=gha,scope=analytics
-        cache-to: type=gha,scope=analytics
+        name: analytics
+        path: /tmp
+    - name: Load image `analytics`
+      run: docker load --input /tmp/analytics.tar
+
     - name: Start API, ingest and index test data
       run: just init
     - name: Run API tests
