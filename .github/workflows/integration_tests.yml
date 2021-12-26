@@ -64,9 +64,9 @@ jobs:
         tags: ingestion_server
         cache-from: type=gha,scope=ingestion_server
         cache-to: type=gha,scope=ingestion_server
-        outputs: |
-          type=docker
-          type=docker,dest=/tmp/ingestion_server.tar
+        outputs: type=docker,dest=/tmp/ingestion_server.tar
+    - name: Load image `ingestion_server`
+      run: docker load --input /tmp/ingestion_server.tar
     - name: Upload ingestion-server image
       uses: actions/upload-artifact@v2
       with:
