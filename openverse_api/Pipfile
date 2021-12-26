@@ -14,6 +14,7 @@ locust = "*"
 sphinx = "*"
 sphinx-autobuild = "*"
 furo = "*"
+myst-parser = "*"
 
 [packages]
 aws-requests-auth = "*"
