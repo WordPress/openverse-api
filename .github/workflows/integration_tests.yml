@@ -41,7 +41,7 @@ jobs:
             file: Dockerfile
           - image: indexer_worker
             context: ingestion_server
-            file: Dockerfile
+            file: Dockerfile_worker
           - image: analytics
             context: analytics
             file: Dockerfile
