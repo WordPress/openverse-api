@@ -61,10 +61,17 @@ jobs:
       with:
         context: ./ingestion_server/
         push: false
-        load: true
         tags: ingestion_server
         cache-from: type=gha,scope=ingestion_server
         cache-to: type=gha,scope=ingestion_server
+        outputs: |
+          type=docker
+          type=docker,dest=/tmp/ingestion_server.tar
+    - name: Upload ingestion-server image
+      uses: actions/upload-artifact@v2
+      with:
+        name: ingestion_server
+        path: /tmp/ingestion_server.tar
     - name: Run ingestion-server tests
       run: just ing-testlocal
 
@@ -72,6 +79,8 @@ jobs:
     name: Run tests for the API
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    needs:
+      - test-ing
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -91,15 +100,13 @@ jobs:
         tags: openverse_api
         cache-from: type=gha,scope=openverse_api
         cache-to: type=gha,scope=openverse_api,mode=max
-    - name: Build image `ingestion_server`
-      uses: docker/build-push-action@v2
+    - name: Download image `ingestion_server`
+      uses: actions/download-artifact@v2
       with:
-        context: ./ingestion_server/
-        push: false
-        load: true
-        tags: ingestion_server
-        cache-from: type=gha,scope=ingestion_server
-        cache-to: type=gha,scope=ingestion_server
+        name: ingestion_server
+        path: /tmp
+    - name: Load image `ingestion_server`
+      run: docker load --input /tmp/ingestion_server.tar
     - name: Build image `indexer_worker`
       uses: docker/build-push-action@v2
       with:
