@@ -127,7 +127,7 @@ jobs:
     - name: Download image `openverse_api`
       uses: actions/download-artifact@v2
       with:
-        name: web
+        name: openverse_api
         path: /tmp
     - name: Load image `openverse_api`
       run: docker load --input /tmp/openverse_api.tar
