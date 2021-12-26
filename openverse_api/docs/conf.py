@@ -15,13 +15,15 @@ import django
 sys.path.append(os.path.abspath(".."))
 django.setup()
 
+from django.conf import settings  # noqa: E402
+
 
 # Project information
 # ===================
 
-project = "Openverse API"
+project = "Openverse API developer docs"
 author = "Openverse"
-project_copyright = author
+project_copyright = f"{author} <{settings.CONTACT_EMAIL}>"
 
 
 # General configuration
