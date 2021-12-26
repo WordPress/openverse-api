@@ -93,15 +93,12 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('**/Pipfile.lock') }}
         restore-keys: |
           ${{ runner.os }}-pip-
-    - name: Setup Docker Buildx
-      uses: docker/setup-buildx-action@v1
-      with:
-        install: true
     - name: Install Python deps for ingestion-server
       run: |
         pip install -U pip
         pip install pipenv
         just _ing-install
+
     - name: Download image `ingestion_server`
       uses: actions/download-artifact@v2
       with:
@@ -109,6 +106,7 @@ jobs:
         path: /tmp
     - name: Load image `ingestion_server`
       run: docker load --input /tmp/ingestion_server.tar
+
     - name: Run ingestion-server tests
       run: just ing-testlocal
 
@@ -124,37 +122,17 @@ jobs:
     - name: Setup just
       uses: extractions/setup-just@v1
 
-    - name: Download image `openverse_api`
+    - name: Download all images
       uses: actions/download-artifact@v2
       with:
-        name: openverse_api
         path: /tmp
-    - name: Load image `openverse_api`
-      run: docker load --input /tmp/openverse_api.tar
 
-    - name: Download image `ingestion_server`
-      uses: actions/download-artifact@v2
-      with:
-        name: ingestion_server
-        path: /tmp
-    - name: Load image `ingestion_server`
-      run: docker load --input /tmp/ingestion_server.tar
-
-    - name: Download image `indexer_worker`
-      uses: actions/download-artifact@v2
-      with:
-        name: indexer_worker
-        path: /tmp
-    - name: Load image `indexer_worker`
-      run: docker load --input /tmp/indexer_worker.tar
-
-    - name: Download image `analytics`
-      uses: actions/download-artifact@v2
-      with:
-        name: analytics
-        path: /tmp
-    - name: Load image `analytics`
-      run: docker load --input /tmp/analytics.tar
+    - name: Load images
+      run: |
+        docker load --input /tmp/openverse_api/openverse_api.tar
+        docker load --input /tmp/ingestion_server/ingestion_server.tar
+        docker load --input /tmp/indexer_worker/indexer_worker.tar
+        docker load --input /tmp/analytics/analytics.tar
 
     - name: Start API, ingest and index test data
       run: just init
