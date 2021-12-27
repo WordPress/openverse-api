@@ -5,7 +5,6 @@
 - [Git](https://git-scm.com/downloads)
 - [Docker](https://docs.docker.com/install/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
-- [Pipenv](https://pipenv.pypa.io/en/latest/#install-pipenv-today)
 - [Just](https://github.com/casey/just)
 
 ## Steps
