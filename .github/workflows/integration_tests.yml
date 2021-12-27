@@ -32,16 +32,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include:
-          - image: openverse_api
-            context: openverse_api
-            file: Dockerfile
-          - image: ingestion_server
-            context: ingestion_server
-            file: Dockerfile
-          - image: analytics
-            context: analytics
-            file: Dockerfile
+        image:
+          - openverse_api
+          - ingestion_server
+          - analytics
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -54,8 +48,7 @@ jobs:
     - name: Build image ${{ matrix.image }}
       uses: docker/build-push-action@v2
       with:
-        context: ${{ matrix.context }}
-        file: ${{ matrix.context }}/${{ matrix.file }}
+        context: ${{ matrix.image }}
         push: false
         tags: ${{ matrix.image }}
         cache-from: type=gha,scope=${{ matrix.image }}
@@ -128,7 +121,6 @@ jobs:
       run: |
         docker load --input /tmp/openverse_api/openverse_api.tar
         docker load --input /tmp/ingestion_server/ingestion_server.tar
-        docker load --input /tmp/indexer_worker/indexer_worker.tar
         docker load --input /tmp/analytics/analytics.tar
 
     - name: Start API, ingest and index test data
