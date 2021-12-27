@@ -7,5 +7,5 @@
 :caption: Contents
 :hidden:
 
-development
+quickstart
 ```
