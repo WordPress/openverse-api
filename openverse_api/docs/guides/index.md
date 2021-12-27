@@ -10,4 +10,6 @@
 quickstart
 run
 test
+document
+deploy
 ```
