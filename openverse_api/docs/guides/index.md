@@ -8,4 +8,6 @@
 :hidden:
 
 quickstart
+run
+test
 ```
