@@ -8,7 +8,7 @@ verify_ssl = true
 [packages]
 falcon = "*"
 sqlalchemy = "*"
-psycopg2 = "*"
+psycopg2-binary = "*"
 alembic = "*"
 gunicorn = "*"
 requests = "*"
