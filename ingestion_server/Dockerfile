@@ -25,8 +25,8 @@ RUN pipenv install --system --deploy --dev
 FROM python:3.10-slim as ingestion
 
 ENV PYTHONBUFFERED=1
-ENV PATH="/venv/bin:${PATH}"
-ENV PYTHONPATH="${PYTHONPATH}:/ingestion_server/"
+ENV PATH="/venv/bin:$PATH"
+ENV PYTHONPATH="$PYTHONPATH:/ingestion_server/"
 # TLDEXTRACT fails to cache in /home/supervisord, set its cache to /tmp instead
 ENV TLDEXTRACT_CACHE="/tmp/python-tldextract"
 

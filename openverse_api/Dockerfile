@@ -34,7 +34,7 @@ RUN pipenv install --system --deploy --dev
 FROM python:3.10-slim as api
 
 ENV PYTHONBUFFERED=1
-ENV PATH="/venv/bin:${PATH}"
+ENV PATH="/venv/bin:$PATH"
 
 WORKDIR /openverse_api
 
