@@ -1,29 +1,40 @@
-FROM python:3.9
+##################
+# Python builder #
+##################
+
+FROM python:3.10 as builder
 
 ENV PYTHONBUFFERED 1
+ENV PATH="/venv/bin:$PATH"
 
-# Install librdkafka, a dependency for confluent-kafka
-RUN wget https://github.com/edenhill/librdkafka/archive/v1.6.1.tar.gz \
-    && tar xvzf v1.6.1.tar.gz  \
-    && cd librdkafka-1.6.1/  \
-    && ./configure  \
-    && make && make install && ldconfig
-
-ENV PYTHONPATH=$PYTHONPATH:/analytics
-
-WORKDIR /analytics
-
-# Install Python dependency management tools
-RUN pip install --upgrade pip \
-    && pip install --upgrade setuptools \
+RUN apt-get update \
+    && apt-get install -y librdkafka-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && python -m venv /venv \
     && pip install --upgrade pipenv
 
 # Copy the Pipenv files into the container
-COPY Pipfile Pipfile.lock /analytics/
+COPY Pipfile Pipfile.lock ./
 
-# Install the dependencies system-wide
-# TODO: Use build args to avoid installing dev dependencies in production
-RUN pipenv install --deploy --system --dev
+RUN pipenv install --system --deploy --dev
+
+#############
+# Analytics #
+#############
+
+FROM python:3.10-slim as nl
+
+ENV PYTHONBUFFERED=1
+ENV PATH="/venv/bin:$PATH"
+ENV PYTHONPATH="$PYTHONPATH:/analytics/"
+
+WORKDIR /analytics
+
+COPY --from=builder /venv /venv
+
+RUN apt-get update \
+    && apt-get install -y librdkafka-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 8090
 
