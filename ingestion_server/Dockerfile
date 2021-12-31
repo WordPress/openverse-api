@@ -1,4 +1,4 @@
-#################
+##################
 # Python builder #
 ##################
 
@@ -42,8 +42,13 @@ WORKDIR /ingestion_server
 # Copy virtualenv from the builder image
 COPY --from=builder /venv /venv
 
+# - Install system packages needed for running Python dependencies
+#   - libpq-dev: required by `psycopg2`
 # - Create directory for holding worker state
-RUN mkdir /worker_state
+RUN apt-get update \
+      && apt-get install -y curl libpq-dev \
+      && rm -rf /var/lib/apt/lists/* \
+    && mkdir /worker_state
 
 # Exposes
 # - 8001: Gunicorn server for `ingestion_server` Falcon app

@@ -58,9 +58,10 @@ COPY --from=awf /usr/local/bin/audiowaveform /usr/local/bin
 
 # - Install system packages needed for running Python dependencies
 #   - libexempi8
+#   - libpq-dev: required by `psycopg2`
 # - Create directory for dumping openverse-api logs
 RUN apt-get update \
-      && apt-get install -y curl libexempi8 \
+      && apt-get install -y curl libpq-dev libexempi8 \
       && rm -rf /var/lib/apt/lists/* \
     && mkdir -p /var/log/openverse_api/openverse_api.log
 

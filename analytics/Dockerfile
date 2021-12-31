@@ -43,8 +43,9 @@ COPY --from=builder /venv /venv
 
 # - Install system packages needed for running Python dependencies
 #   - librdkafka-dev
+#   - libpq-dev: required by `psycopg2`
 RUN apt-get update \
-      && apt-get install -y librdkafka-dev \
+      && apt-get install -y libpq-dev librdkafka-dev \
       && rm -rf /var/lib/apt/lists/*
 
 # Exposes
