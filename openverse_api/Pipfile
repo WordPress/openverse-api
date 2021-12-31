@@ -35,7 +35,7 @@ hvac = "*"
 ipaddress = {version = "*"}
 piexif = "*"
 Pillow = "*"
-psycopg2-binary = "*"
+psycopg2 = "*"
 PyJWT = "*"
 python-xmp-toolkit = "*"
 python3-openid = "*"
