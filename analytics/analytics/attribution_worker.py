@@ -92,7 +92,7 @@ def listen(consumer, database):
             else:
                 ignored += 1
         else:
-            log.info("No message received in {timeout}")
+            log.info(f"No message received in {timeout}")
         if saved + ignored % 100 == 0:
             log.info(f"Saved {saved} attribution events, ignored {ignored}")
 
