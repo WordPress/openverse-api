@@ -189,4 +189,4 @@ _nl-install:
     cd analytics && pipenv install --dev
 
 nl-test args="":
-    docker-compose exec {{ args }} analytics pytest tests.py
+    docker-compose exec {{ args }} analytics ./test/run_test.sh
