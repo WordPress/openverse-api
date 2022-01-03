@@ -1,5 +1,17 @@
-from decouple import config
+from decouple import Csv, config
 
+
+ORIGINS = config(
+    "ORIGINS",
+    cast=Csv(),
+    default=",".join(
+        [
+            "https://search.openverse.engineering",
+            "https://search-dev.openverse.engineering",
+            "https://wordpress.org",
+        ]
+    ),
+)
 
 DATABASE_CONNECTION = config(
     "DATABASE_CONN",
