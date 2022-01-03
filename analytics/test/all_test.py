@@ -11,7 +11,7 @@ import requests
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-import analytics.settings as settings
+from analytics import settings
 from analytics.attribution_worker import is_valid, parse_message
 from analytics.models import AttributionReferrerEvent
 from analytics.report_controller import (

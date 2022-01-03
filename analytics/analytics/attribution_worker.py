@@ -4,11 +4,12 @@ import urllib.parse as urlparse
 from urllib.parse import parse_qs
 from uuid import UUID
 
-import settings
 from confluent_kafka import Consumer
-from models import AttributionReferrerEvent
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+from analytics import settings
+from analytics.models import AttributionReferrerEvent
 
 
 def parse_identifier(resource):
