@@ -87,7 +87,7 @@ def test_attribution_validation():
     )
     invalid_msg = mock_attribution_event(
         {
-            "http_referer": "https://search.creativecommons.org/photos/12345",
+            "http_referer": "https://wordpress.org/openverse/photos/12345",
             "request": "GET /static/img/cc-nd_icon.svg HTTP/1.1",
         }
     )

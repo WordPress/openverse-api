@@ -64,15 +64,15 @@ def scrub_malformed(_json: str):
 def is_valid(parsed_msg: dict):
     """
     We are only interested in attribution image logs for images that are
-    embedded in domains not owned by Creative Commons. We also want to make
-    sure that we're only tracking hits on embedded content.
+    embedded in domains not owned by us. We also want to make sure that we're
+    only tracking hits on embedded content.
     """
     if parsed_msg is None:
         return False
     try:
         referer = parsed_msg["http_referer"]
         resource = parsed_msg["resource"]
-        valid = "creativecommons.org" not in referer and ".svg" in resource
+        valid = settings.IGNORED_REFERRER not in referer and ".svg" in resource
     except KeyError:
         valid = False
     return valid
