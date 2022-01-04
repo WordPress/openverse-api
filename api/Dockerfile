@@ -65,6 +65,10 @@ RUN apt-get update \
       && rm -rf /var/lib/apt/lists/* \
     && mkdir -p /var/log/openverse_api/openverse_api.log
 
+# Copy the operational code into the final image
+COPY run.sh manage.py /api/
+COPY catalog/ /api/catalog/
+
 # Exposes
 # - 8000: Dev server for API Django app
 # - 3000: Sphinx live server

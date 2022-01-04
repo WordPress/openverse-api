@@ -52,7 +52,7 @@ RUN apt-get update \
 
 # Copy the operational code into the final image
 COPY gunicorn.conf.py gunicorn_worker.conf.py /ingestion_server/
-COPY ingestion_server /ingestion_server/ingestion_server/
+COPY ingestion_server/ /ingestion_server/ingestion_server/
 
 # Exposes
 # - 8001: Gunicorn server for `ingestion_server` Falcon app
