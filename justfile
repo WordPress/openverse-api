@@ -50,7 +50,7 @@ logs services="":
 
 # Create .env files from templates
 env:
-    cp openverse_api/env.template openverse_api/.env
+    cp api/env.template api/.env
     cp ingestion_server/env.template ingestion_server/.env
     cp analytics/env.template analytics/.env
 
