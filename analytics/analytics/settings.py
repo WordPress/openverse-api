@@ -1,6 +1,8 @@
 from decouple import Csv, config
 
 
+VERSION = config("VERSION", default="1.0.0")
+
 ORIGINS = config(
     "ORIGINS",
     cast=Csv(),

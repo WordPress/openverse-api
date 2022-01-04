@@ -4,37 +4,56 @@ from uuid import UUID
 
 import falcon
 from falcon_cors import CORS
+from spectree import Response, SpecTree
 
 from analytics import settings
+from analytics.docs.schemas.requests import (
+    DetailEventSchema,
+    ResultClickEventSchema,
+    SearchEventSchema,
+    SearchRatingEventSchema,
+)
+from analytics.docs.schemas.responses import (
+    BadRequestSchema,
+    CreatedSchema,
+    InternalServerErrorSchema,
+    OkSchema,
+)
 from analytics.event_controller import EventController
-from analytics.models import DetailPageEvents
+
+
+with open("docs/redoc.html", "r") as redoc_html:
+    page_templates = {"redoc": redoc_html.read()}
+with open("docs/README.md", "r") as readme_file:
+    description = readme_file.read()
+spec = SpecTree(
+    "falcon",
+    title="Openverse Analytics",
+    version=settings.VERSION,
+    description=description,
+    page_templates=page_templates,
+    path="doc",
+    mode="strict",
+    validation_error_status=400,
+)
+
+resp = Response(
+    HTTP_201=CreatedSchema,
+    HTTP_400=BadRequestSchema,
+    HTTP_500=InternalServerErrorSchema,
+)
 
 
 class HealthResource:
-    @staticmethod
-    def on_get(_, resp):
+    @spec.validate(
+        resp=Response(HTTP_200=OkSchema),
+        validation_error_status=200,  # never fails validation
+        tags=["health"],
+    )
+    def on_get(self, _, resp):
+        """detail"""
         resp.media = {"status": "200 OK"}
         resp.status = falcon.HTTP_200
-
-
-class RedocResource:
-    @staticmethod
-    def on_get(_, resp):
-        resp.status = falcon.HTTP_200
-        resp.content_type = "text/html"
-        with open("docs/redoc.html", "r") as f:
-            resp.text = f.read()
-
-
-class OpenAPISpecResource:
-    @staticmethod
-    def on_get(req, resp):
-        resp.status = falcon.HTTP_200
-        resp.content_type = (
-            "application/vnd.yml" if "download" in req.query_string else "text/vnd.yml"
-        )
-        with open("docs/swagger.yaml", "r") as f:
-            resp.text = f.read()
 
 
 class BaseEventResource:
@@ -53,77 +72,103 @@ class BaseEventResource:
 
 
 class SearchEventResource(BaseEventResource):
+    @spec.validate(
+        json=SearchEventSchema,
+        resp=resp,
+        tags=["search_event"],
+    )
     def on_post(self, req, resp):
-        j = req.media
-        session_uuid = self._validate_uuid("Session", j["session_uuid"])
+        """create
 
+        Register a search query event.
+        """
+
+        j = req.media
         try:
             self.event_controller.create_search(
                 query=j["query"],
-                session_uuid=session_uuid,
+                session_uuid=j["session_uuid"],
             )
             resp.media = {"status": "201 Created"}
             resp.status = falcon.HTTP_201
-        except Exception:
-            raise falcon.HTTPBadRequest()
+        except Exception as e:
+            raise falcon.HTTPInternalServerError(description=str(e))
 
 
 class SearchRatingEventResource(BaseEventResource):
+    @spec.validate(
+        json=SearchRatingEventSchema,
+        resp=resp,
+        tags=["search_rating_event"],
+    )
     def on_post(self, req, resp):
-        j = req.media
-        if not type(relevant := j["relevant"]) == bool:
-            raise falcon.HTTPBadRequest(description="Rating must be `true` or `false`")
+        """create
 
+        Submit a user's rating of a search.
+        """
+
+        j = req.media
         try:
             self.event_controller.create_search_rating(
-                query=j["query"], relevant=relevant
+                query=j["query"],
+                relevant=j["relevant"],
             )
             resp.media = {"status": "201 Created"}
             resp.status = falcon.HTTP_201
-        except Exception:
-            raise falcon.HTTPBadRequest()
+        except Exception as e:
+            raise falcon.HTTPInternalServerError(description=str(e))
 
 
 class ResultClickEventResource(BaseEventResource):
+    @spec.validate(
+        json=ResultClickEventSchema,
+        resp=resp,
+        tags=["result_click_event"],
+    )
     def on_post(self, req, resp):
-        j = req.media
-        session_uuid = self._validate_uuid("Session", j["session_uuid"])
-        result_uuid = self._validate_uuid("Result", j["result_uuid"])
-        if not type(rank := j["result_rank"]) == int:
-            raise falcon.HTTPBadRequest(description="Result rank must be an integer")
+        """create
 
+        Submit an event indicating which result was clicked for a given search
+        query.
+        """
+
+        j = req.media
         try:
             self.event_controller.create_result_click(
                 query=j["query"],
-                session_uuid=session_uuid,
-                result_uuid=result_uuid,
-                rank=rank,
+                session_uuid=j["session_uuid"],
+                result_uuid=j["result_uuid"],
+                rank=j["result_rank"],
             )
             resp.media = {"status": "201 Created"}
             resp.status = falcon.HTTP_201
-        except Exception:
-            raise falcon.HTTPBadRequest()
+        except Exception as e:
+            raise falcon.HTTPInternalServerError(description=str(e))
 
 
 class DetailEventResource(BaseEventResource):
+    @spec.validate(
+        json=DetailEventSchema,
+        resp=resp,
+        tags=["detail_page_event"],
+    )
     def on_post(self, req, resp):
-        j = req.media
-        result_uuid = self._validate_uuid("Result", j["result_uuid"])
-        if not hasattr(DetailPageEvents, event := j["event_type"]):
-            items = ", ".join([f"'{item.name}'" for item in DetailPageEvents])
-            raise falcon.HTTPBadRequest(
-                description=f"Event type must be one of {items}"
-            )
+        """create
 
+        Record events occurring on detail pages, such as sharing an image to
+        social media or clicking through to its source.
+        """
+
+        j = req.media
         try:
             self.event_controller.create_detail_event(
-                event=event,
-                result_uuid=result_uuid,
+                event=j["event_type"],
+                result_uuid=j["result_uuid"],
             )
             resp.media = {"status": "201 Created"}
             resp.status = falcon.HTTP_201
-        except Exception:
-            raise falcon.HTTPBadRequest()
+        except Exception as e:
+            raise falcon.HTTPInternalServerError(description=str(e))
 
 
 def create_api(log=True):
@@ -150,8 +195,6 @@ def create_api(log=True):
     event_controller = EventController()
 
     _api.add_route("/", HealthResource())
-    _api.add_route("/doc", RedocResource())
-    _api.add_route("/swagger.yaml", OpenAPISpecResource())
     _api.add_route("/search_event", SearchEventResource(event_controller))
     _api.add_route("/search_rating_event", SearchRatingEventResource(event_controller))
     _api.add_route("/result_click_event", ResultClickEventResource(event_controller))
@@ -161,3 +204,4 @@ def create_api(log=True):
 
 
 api = create_api()
+spec.register(api)
