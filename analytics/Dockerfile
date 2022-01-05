@@ -49,7 +49,7 @@ RUN apt-get update \
       && rm -rf /var/lib/apt/lists/*
 
 # Copy code into the final image
-COPY . /analytics
+COPY . /analytics/
 
 # Exposes
 # - 8090: Gunicorn server for `analytics` Falcon app
