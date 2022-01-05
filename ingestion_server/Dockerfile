@@ -50,9 +50,8 @@ RUN apt-get update \
       && rm -rf /var/lib/apt/lists/* \
     && mkdir /worker_state
 
-# Copy the operational code into the final image
-COPY gunicorn.conf.py gunicorn_worker.conf.py /ingestion_server/
-COPY ingestion_server/ /ingestion_server/ingestion_server/
+# Copy code into the final image
+COPY . /ingestion_server/
 
 # Exposes
 # - 8001: Gunicorn server for `ingestion_server` Falcon app

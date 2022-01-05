@@ -48,7 +48,7 @@ RUN apt-get update \
       && apt-get install -y libpq-dev librdkafka-dev \
       && rm -rf /var/lib/apt/lists/*
 
-# Copy the operational code into the final image
+# Copy code into the final image
 COPY . /analytics
 
 # Exposes
