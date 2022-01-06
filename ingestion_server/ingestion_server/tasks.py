@@ -127,7 +127,8 @@ class Task(Process):
         except Exception as err:
             exception_type = f"{err.__class__.__module__}.{err.__class__.__name__}"
             slack.message(
-                f":x_red: Error processing task `{self.task_type}` for `{self.model}`: "
-                f'"{err}" (`{exception_type}`)'
+                f":x_red: Error processing task `{self.task_type}` for `{self.model}` "
+                f"(`{exception_type}`): \n"
+                f"```\n{err}\n```"
             )
             raise
