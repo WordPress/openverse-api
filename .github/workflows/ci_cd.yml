@@ -187,6 +187,7 @@ jobs:
   docs:
     name: Publish developer docs
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.repository == 'WordPress/openverse-api'
     needs:
       - test-api
     steps:
