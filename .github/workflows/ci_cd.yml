@@ -136,7 +136,7 @@ jobs:
         run: just nl-test -T
 
       - name: Make developer docs
-        run: just sphinx-make
+        run: just sphinx-make -T
       - name: Upload developer docs
         uses: actions/upload-artifact@v2
         with:
