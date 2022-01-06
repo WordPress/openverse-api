@@ -72,7 +72,7 @@ The command `just up` spawns the following services:
 - [Elasticsearch](https://www.elastic.co/elasticsearch/)
 - [Redis](https://redis.io/)
 - [imageproxy](https://github.com/willnorris/imageproxy)
-- **web** (`openverse_api/`)
+- **web** (`api/`)
 - **ingestion_server** and **indexer_worker** (`ingestion_server/`)
 - **analytics** (`analytics/`)
 

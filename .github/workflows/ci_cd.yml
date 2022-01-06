@@ -1,0 +1,177 @@
+name: CI + CD
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+      - name: Cache pre-commit envs
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pre-commit
+          key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+      - name: Run pre-commit to lint files
+        run: |
+          pip install pre-commit
+          pre-commit run --all-files
+
+  build-images:
+    name: Build images
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image:
+          - api
+          - ingestion_server
+          - analytics
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+
+      - name: Build image `${{ matrix.image }}`
+        uses: docker/build-push-action@v2
+        with:
+          context: ${{ matrix.image }}
+          push: false
+          tags: ${{ matrix.image }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,scope=${{ matrix.image }}
+          outputs: type=docker,dest=/tmp/${{ matrix.image }}.tar
+
+      - name: Upload image `${{ matrix.image }}`
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.image }}
+          path: /tmp/${{ matrix.image }}.tar
+
+  test-ing:
+    name: Run tests for ingestion-server
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs:
+      - build-images
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup just
+        uses: extractions/setup-just@v1
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+      - name: Cache Python dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/Pipfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Install Python deps for ingestion-server
+        run: |
+          pip install -U pip
+          pip install pipenv
+          just _ing-install
+
+      - name: Download image `ingestion_server`
+        uses: actions/download-artifact@v2
+        with:
+          name: ingestion_server
+          path: /tmp
+      - name: Load image `ingestion_server`
+        run: docker load --input /tmp/ingestion_server.tar
+
+      - name: Run ingestion-server tests
+        run: just ing-testlocal
+
+  test-api:
+    name: Run tests for the API
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs:
+      - build-images
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup just
+        uses: extractions/setup-just@v1
+
+      - name: Download all images
+        uses: actions/download-artifact@v2
+        with:
+          path: /tmp
+
+      - name: Load all images
+        run: |
+          docker load --input /tmp/api/api.tar
+          docker load --input /tmp/ingestion_server/ingestion_server.tar
+          docker load --input /tmp/analytics/analytics.tar
+
+      - name: Start API, ingest and index test data
+        run: just init
+      - name: Run API tests
+        run: just api-test -T
+      - name: Run analytics tests
+        run: just nl-test -T
+
+  push:
+    name: Publish Docker images
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
+    needs:
+      - test-ing
+      - test-api
+    permissions:
+      packages: write
+      contents: read
+    strategy:
+      matrix:
+        image:
+          - api
+          - ingestion_server
+          - analytics
+    steps:
+      - name: Log in to GitHub Docker Registry
+        uses: docker/login-action@v1
+        with:
+          registry: https://ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download image `${{ matrix.image }}`
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ matrix.image }}
+          path: /tmp
+
+      - name: Load and tag image `${{ matrix.image }}`
+        run: |
+          docker load --input /tmp/${{ matrix.image }}.tar
+          docker tag ${{ matrix.image }} \
+            ghcr.io/wordpress/openverse-${{ matrix.image }}:latest
+          docker tag ${{ matrix.image }} \
+            ghcr.io/wordpress/openverse-${{ matrix.image }}:${{ github.sha }}
+          docker tag ${{ matrix.image }} \
+            ghcr.io/wordpress/openverse-${{ matrix.image }}:${{ github.ref_name }}
+          docker push --all-tags ghcr.io/wordpress/openverse-${{ matrix.image }}

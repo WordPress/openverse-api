@@ -4,7 +4,7 @@ The developer documentation for the Openverse API can be found [here]().
 
 # Introduction
 
-The Openverse API ('openverse_api') is a system that allows programmatic access
+The Openverse API is a system that allows programmatic access
 to public domain digital media. It is our ambition to index and catalog billions
 of openly-licensed works, including articles, songs, videos, photographs,
 paintings, and more. Using this API, developers will be able to access the

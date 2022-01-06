@@ -50,7 +50,7 @@ logs services="":
 
 # Create .env files from templates
 env:
-    cp openverse_api/env.template openverse_api/.env
+    cp api/env.template api/.env
     cp ingestion_server/env.template ingestion_server/.env
     cp analytics/env.template analytics/.env
 
@@ -67,14 +67,15 @@ init: up wait-for-es wait-for-ing wait-for-web
 @install:
     just _api-install
     just _ing-install
+    just _nl-install
 
 # Setup pre-commit as a Git hook
 precommit:
-    cd openverse_api && pipenv run pre-commit install
+    cd api && pipenv run pre-commit install
 
 # Run pre-commit to lint and reformat all files
 lint:
-    cd openverse_api && pipenv run pre-commit run --all-files
+    cd api && pipenv run pre-commit run --all-files
 
 
 #################
@@ -145,9 +146,9 @@ ing-testlocal *args:
 # API #
 #######
 
-# Install depenendencies for API
+# Install dependencies for API
 _api-install:
-    cd openverse_api && pipenv install --dev
+    cd api && pipenv install --dev
 
 # Check the health of the API
 @web-health:
@@ -165,20 +166,28 @@ api-test args="": up wait-for-es wait-for-ing wait-for-web
 
 # Run API tests locally
 api-testlocal:
-    cd openverse_api && pipenv run ./test/run_test.sh
+    cd api && pipenv run ./test/run_test.sh
 
 # Run Django administrative commands
 dj args="":
-    cd openverse_api && pipenv run python manage.py {{ args }}
+    cd api && pipenv run python manage.py {{ args }}
 
 # Make a test cURL request to the API
 stats media="images":
     curl "http://localhost:8000/v1/{{ media }}/stats/"
 
+# Attach to ipython
+ipython:
+    docker-compose exec web ipython
+
 
 #############
 # Analytics #
 #############
+
+# Install dependencies for analytics
+_nl-install:
+    cd analytics && pipenv install --dev
 
 nl-test args="":
     docker-compose exec {{ args }} analytics pytest tests.py
@@ -197,5 +206,5 @@ sphinx-live service="web" port="3000": up wait-for-es wait-for-ing wait-for-web
     docker-compose exec {{ service }} sphinx-autobuild --host 0.0.0.0 --port {{ port }} docs/ build/html/
 
 # Serve the Sphinx documentation from the HTML output directory
-sphinx-serve dir="openverse_api" port="3001":
+sphinx-serve dir="api" port="3001":
     cd {{ dir }}/build/html && pipenv run python -m http.server {{ port }}
