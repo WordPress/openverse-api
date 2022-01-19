@@ -1,7 +1,7 @@
-from typing import Literal
-
 from psycopg2.sql import SQL, Identifier
 from psycopg2.sql import Literal as PgLiteral
+
+from ingestion_server.constants.internal_types import ApproachType
 
 
 def get_existence_queries(table):
@@ -74,9 +74,7 @@ def get_fdw_query(
     )
 
 
-def get_copy_data_query(
-    table: str, columns: list[str], approach: Literal["basic", "advanced"]
-):
+def get_copy_data_query(table: str, columns: list[str], approach: ApproachType):
     """
     Get the query for copying data from the upstream table to a temporary table
     in the downstream database. This temporary table will replace the permanent
