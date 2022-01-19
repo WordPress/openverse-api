@@ -306,7 +306,15 @@ def reload_upstream(
 
         # Step 3: Import data into a temporary table
         log.info("Copying upstream data...")
-        copy_data = get_copy_data_query(table, shared_cols, approach=approach)
+        environment = config("ENVIRONMENT", default="local").lower()
+        limit_default = 100_000
+        if environment in {"prod", "production"}:
+            # If we're in production, turn off limits unless it's explicitly provided
+            limit_default = None
+        limit = config("DATA_REFRESH_LIMIT", cast=int, default=limit_default)
+        copy_data = get_copy_data_query(
+            table, shared_cols, approach=approach, limit=limit
+        )
         log.info(f"Running copy-data query: \n{copy_data.as_string(downstream_cur)}")
         downstream_cur.execute(copy_data)
 

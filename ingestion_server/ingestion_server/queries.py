@@ -1,3 +1,5 @@
+from typing import Optional
+
 from psycopg2.sql import SQL, Identifier
 from psycopg2.sql import Literal as PgLiteral
 
@@ -74,7 +76,12 @@ def get_fdw_query(
     )
 
 
-def get_copy_data_query(table: str, columns: list[str], approach: ApproachType):
+def get_copy_data_query(
+    table: str,
+    columns: list[str],
+    approach: ApproachType,
+    limit: Optional[int] = 100_000,
+):
     """
     Get the query for copying data from the upstream table to a temporary table
     in the downstream database. This temporary table will replace the permanent
@@ -82,9 +89,14 @@ def get_copy_data_query(table: str, columns: list[str], approach: ApproachType):
     table and avoids entries from the deleted table with the "api_deleted"
     prefix. After the copying process, the "upstream" schema is dropped.
 
+    When running this on a non-production environment, the results will be ordered
+    by `identifier` to simulate a random sample and only the first 100k records
+    will be pulled from the upstream database.
+
     :param table: the name of the downstream table being replaced
     :param columns: the names of the columns to copy from upstream
     :param approach: whether to use advanced logic specific to media ingestion
+    :param limit: number of rows to copy when
     :return: the SQL query for copying the data
     """
 
@@ -121,29 +133,40 @@ def get_copy_data_query(table: str, columns: list[str], approach: ApproachType):
     """
 
     if approach == "basic":
-        steps = [
-            table_creation,
-            id_column_setup,
-            timestamp_column_setup,
-            """
-            INSERT INTO {temp_table} ({columns}) SELECT {columns} from {upstream_table};
-            """,
-            conclusion,
-        ]
+        tertiary_column_setup = timestamp_column_setup
+        select_insert = """
+        INSERT INTO {temp_table} ({columns}) SELECT {columns} FROM {upstream_table}
+        """
     else:  # approach == 'advanced'
-        steps = [
-            table_creation,
-            id_column_setup,
-            metric_column_setup,
+        tertiary_column_setup = metric_column_setup
+        select_insert = """
+        INSERT INTO {temp_table} ({columns})
+            SELECT {columns} from {upstream_table} AS u
+            WHERE NOT EXISTS(
+                SELECT FROM {deleted_table} WHERE identifier = u.identifier
+            )
+        """
+
+    # If a limit is requested, add the condition onto the select at the very end
+    if limit:
+        # The audioset view does not have identifiers associated with it
+        if table != "audioset":
+            select_insert += """
+            ORDER BY identifier
             """
-            INSERT INTO {temp_table} ({columns})
-                SELECT {columns} from {upstream_table} AS u
-                WHERE NOT EXISTS(
-                    SELECT FROM {deleted_table} WHERE identifier = u.identifier
-                );
-            """,
-            conclusion,
-        ]
+        select_insert += """
+        LIMIT {limit}
+        """
+    # Always add a semi-colon at the end
+    select_insert += ";"
+
+    steps = [
+        table_creation,
+        id_column_setup,
+        tertiary_column_setup,
+        select_insert,
+        conclusion,
+    ]
 
     return SQL("".join(steps)).format(
         table=Identifier(table),
@@ -151,6 +174,7 @@ def get_copy_data_query(table: str, columns: list[str], approach: ApproachType):
         upstream_table=Identifier("upstream_schema", f"{table}_view"),
         deleted_table=Identifier(f"api_deleted{table}"),
         columns=SQL(",").join([Identifier(col) for col in columns]),
+        limit=PgLiteral(limit),
     )
 
 
