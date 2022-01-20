@@ -1,3 +1,4 @@
+from textwrap import dedent as d
 from typing import Optional
 
 from psycopg2.sql import SQL, Identifier
@@ -100,63 +101,79 @@ def get_copy_data_query(
     :return: the SQL query for copying the data
     """
 
-    table_creation = """
+    table_creation = d(
+        """
     DROP TABLE IF EXISTS {temp_table};
     CREATE TABLE {temp_table} (LIKE {table} INCLUDING DEFAULTS INCLUDING CONSTRAINTS);
     """
+    )
 
-    id_column_setup = """
+    id_column_setup = d(
+        """
     ALTER TABLE {temp_table} ADD COLUMN IF NOT EXISTS
         id serial;
     CREATE TEMP SEQUENCE IF NOT EXISTS id_temp_seq;
     ALTER TABLE {temp_table} ALTER COLUMN
         id SET DEFAULT nextval('id_temp_seq'::regclass);
     """
+    )
 
-    timestamp_column_setup = """
+    timestamp_column_setup = d(
+        """
     ALTER TABLE {temp_table} ALTER COLUMN
         created_on SET DEFAULT CURRENT_TIMESTAMP;
     ALTER TABLE {temp_table} ALTER COLUMN
         updated_on SET DEFAULT CURRENT_TIMESTAMP;
     """
+    )
 
-    metric_column_setup = """
+    metric_column_setup = d(
+        """
     ALTER TABLE {temp_table} ADD COLUMN IF NOT EXISTS
         standardized_popularity double precision;
     ALTER TABLE {temp_table} ALTER COLUMN
         view_count SET DEFAULT 0;
     """
+    )
 
-    conclusion = """
+    conclusion = d(
+        """
     ALTER TABLE {temp_table} ADD PRIMARY KEY (id);
     DROP SERVER upstream CASCADE;
     """
+    )
 
     if approach == "basic":
         tertiary_column_setup = timestamp_column_setup
-        select_insert = """
+        select_insert = d(
+            """
         INSERT INTO {temp_table} ({columns}) SELECT {columns} FROM {upstream_table}
         """
+        )
     else:  # approach == 'advanced'
         tertiary_column_setup = metric_column_setup
-        select_insert = """
+        select_insert = d(
+            """
         INSERT INTO {temp_table} ({columns})
             SELECT {columns} from {upstream_table} AS u
             WHERE NOT EXISTS(
                 SELECT FROM {deleted_table} WHERE identifier = u.identifier
             )
         """
+        )
 
     # If a limit is requested, add the condition onto the select at the very end
     if limit:
         # The audioset view does not have identifiers associated with it
         if table != "audioset":
-            select_insert += """
-            ORDER BY identifier
+            select_insert += d(
+                """
+            ORDER BY identifier"""
+            )
+        select_insert += d(
             """
-        select_insert += """
-        LIMIT {limit}
-        """
+        LIMIT {limit}"""
+        )
     # Always add a semi-colon at the end
     select_insert += ";"
 
