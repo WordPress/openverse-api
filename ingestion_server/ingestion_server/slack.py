@@ -31,7 +31,7 @@ def message(text: str, summary: str = None) -> None:
     data = {
         "blocks": [{"text": {"text": text, "type": "mrkdwn"}, "type": "section"}],
         "text": summary,
-        "username": f"Data Refresh Notification | {environment}",
+        "username": f"Data Refresh Notification | {environment.upper()}",
         "icon_emoji": "arrows_counterclockwise",
     }
     try:
