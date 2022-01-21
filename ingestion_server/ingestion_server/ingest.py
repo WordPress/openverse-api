@@ -310,7 +310,7 @@ def reload_upstream(
         limit_default = 100_000
         if environment in {"prod", "production"}:
             # If we're in production, turn off limits unless it's explicitly provided
-            limit_default = None
+            limit_default = 0
         limit = config("DATA_REFRESH_LIMIT", cast=int, default=limit_default)
         copy_data = get_copy_data_query(
             table, shared_cols, approach=approach, limit=limit
