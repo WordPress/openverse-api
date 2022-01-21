@@ -16,7 +16,6 @@ data in place.
 """
 
 import datetime
-import gc
 import logging as log
 import multiprocessing
 
@@ -336,9 +335,6 @@ def reload_upstream(
             f"_Next: re-applying indices & constraints_"
         )
 
-    # The server sometimes hangs on or before this next step. This is a pre-emptive
-    # garbage collection to try and assist with that.
-    gc.collect()
     downstream_db = database_connect()
     with downstream_db.cursor() as downstream_cur:
         # Step 5: Recreate indices from the original table
