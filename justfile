@@ -165,12 +165,12 @@ _api-install:
     "Waiting for the API to be healthy..."
 
 # Run API tests inside Docker
-api-test args="": up wait-for-es wait-for-ing wait-for-web
-    docker-compose exec {{ args }} web ./test/run_test.sh
+api-test docker_args="" tests="": up wait-for-es wait-for-ing wait-for-web
+    docker-compose exec {{ docker_args }} web ./test/run_test.sh {{ tests }}
 
 # Run API tests locally
-api-testlocal:
-    cd api && pipenv run ./test/run_test.sh
+api-testlocal args="":
+    cd api && pipenv run ./test/run_test.sh {{ args }}
 
 # Run Django administrative commands
 dj args="":
