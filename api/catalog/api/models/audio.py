@@ -5,7 +5,6 @@ from catalog.api.models.media import (
     AbstractDeletedMedia,
     AbstractMatureMedia,
     AbstractMedia,
-    AbstractMediaAddOn,
     AbstractMediaList,
     AbstractMediaReport,
 )
@@ -159,17 +158,31 @@ class Audio(AudioFileMixin, AbstractMedia):
         except AudioSet.DoesNotExist:
             return None
 
+    waveform = ArrayField(
+        base_field=models.FloatField(),
+        # The approximate resolution of waveform generation
+        # results in _about_ 1000 peaks. We use 1500 to give
+        # sufficient wiggle room should we have any outlier
+        # files pop up.
+        # https://github.com/WordPress/openverse-api/blob/a7955c86d43bff504e8d41454f68717d79dd3a44/api/catalog/api/utils/waveform.py#L71
+        size=1500,
+        help_text=(
+            "The waveform peaks. A list of floats in"
+            " the range of 0 -> 1 inclusively."
+        ),
+        blank=True,
+        null=True,
+    )
+
     def get_or_create_waveform(self):
-        if hasattr(self, "waveform"):
-            return self.waveform.peaks
+        if self.waveform is not None:
+            return self.waveform
 
-        peaks = generate_peaks(self)
+        self.waveform = generate_peaks(self)
 
-        self.waveform = AudioWaveformAddOn(audio=self, peaks=peaks)
+        self.save()
 
-        self.waveform.save()
-
-        return self.waveform.peaks
+        return self.waveform
 
     class Meta(AbstractMedia.Meta):
         db_table = "audio"
@@ -223,26 +236,3 @@ class AudioList(AbstractMediaList):
     def save(self, *args, **kwargs):
         self.slug = uuslug(self.title, instance=self)
         super(AudioList, self).save(*args, **kwargs)
-
-
-class AudioWaveformAddOn(AbstractMediaAddOn):
-    audio = models.OneToOneField(
-        to=Audio,
-        on_delete=models.CASCADE,
-        related_name="waveform",
-        help_text=("The foreign key of the audio."),
-    )
-
-    peaks = ArrayField(
-        base_field=models.FloatField(),
-        # The approximate resolution of waveform generation
-        # results in _about_ 1000 peaks. We use 1500 to give
-        # sufficient wiggle room should we have any outlier
-        # files pop up.
-        # https://github.com/WordPress/openverse-api/blob/a7955c86d43bff504e8d41454f68717d79dd3a44/api/catalog/api/utils/waveform.py#L71
-        size=1500,
-        help_text=(
-            "The waveform peaks. A list of floats in"
-            " the range of 0 -> 1 inclusively."
-        ),
-    )
