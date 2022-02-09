@@ -6,7 +6,7 @@ This repository is primarily concerned with back end infrastructure like datasto
 
 ## Getting started
 
-Our quickstart guide and other documentation can be found [on our github.io site](https://wordpress.github.io/openverse-api/) (or within the repo at [`./api/docs/guides/quickstart.md`](./api/docs/guides/quickstart.md)).
+Our quickstart guide and other documentation can be found in our [developer docs](https://wordpress.github.io/openverse-api/) (or within the repo at [`./api/docs/guides/quickstart.md`](./api/docs/guides/quickstart.md)).
 Our API documentation can also be found at [https://api.openverse.engineering](https://api.openverse.engineering).
 
 ## System architecture
