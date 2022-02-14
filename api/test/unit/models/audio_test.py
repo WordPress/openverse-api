@@ -31,3 +31,8 @@ def test_audio_waveform_caches(generate_peaks_mock, audio_fixture):
     assert audio_fixture.get_or_create_waveform() == mock_waveform
     # Should only be called once if Audio.get_or_create_waveform is using the DB value on subsequent calls
     generate_peaks_mock.assert_called_once()
+
+    # Ensure there are no foreign constraints on the AudioAddOn that would cause failures during refresh
+    audio_fixture.delete()
+
+    assert AudioAddOn.objects.count() == 1    
