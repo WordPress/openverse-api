@@ -103,9 +103,7 @@ class AudioAddOn(OpenLedgerModel):
         unique=True,
         blank=False,
         null=False,
-        help_text=(
-            "The identifier of the audio object."
-        )
+        help_text=("The identifier of the audio object."),
     )
     """
     This cannot be a "ForeignKey" or "OneToOneRel" because the refresh process
