@@ -1678,15 +1678,6 @@
             "markers": "python_version >= '3.7'",
             "version": "==22.0.3"
         },
-        "pipdeptree": {
-            "hashes": [
-                "sha256:21a89e77d6eae635685e8af5ecd56561f092f8216bb290e7ae5362885d611f60",
-                "sha256:95fb603e46343651342583c337a0ee68d3ccade7a81f5cf6b2fbd8151b79ed80",
-                "sha256:e31bcb4db905fe3df15e7c41bc015a3587ef4bafdd5119b011aae32948c4a371"
-            ],
-            "index": "pypi",
-            "version": "==2.2.0"
-        },
         "platformdirs": {
             "hashes": [
                 "sha256:30671902352e97b1eafd74ade8e4a694782bd3471685e78c32d0fdfd3aa7e7bb",
