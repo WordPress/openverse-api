@@ -99,10 +99,7 @@ class AudioFileMixin(FileMixin):
 
 class AudioAddOn(OpenLedgerModel):
     audio_identifier = models.UUIDField(
-        db_index=True,
-        unique=True,
-        blank=False,
-        null=False,
+        primary_key=True,
         help_text=("The identifier of the audio object."),
     )
     """
@@ -130,7 +127,6 @@ class AudioAddOn(OpenLedgerModel):
             "The waveform peaks. A list of floats in"
             " the range of 0 -> 1 inclusively."
         ),
-        blank=True,
         null=True,
     )
 
@@ -203,7 +199,6 @@ class Audio(AudioFileMixin, AbstractMedia):
             return add_on.waveform_peaks
 
         add_on.waveform_peaks = generate_peaks(self)
-
         add_on.save()
 
         return add_on.waveform_peaks
