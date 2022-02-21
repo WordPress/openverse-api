@@ -192,11 +192,21 @@ class Audio(AudioFileMixin, AbstractMedia):
         except AudioSet.DoesNotExist:
             return None
 
-    def get_or_create_waveform(self):
+    def get_or_create_waveform(self, short_circuit=False):
+        """
+        Get the waveform peak data for the audio object from the associated
+        addon object. If the associated addon does not exist, it is created. If
+        the waveform is not saved, it is generated.
+
+        :param short_circuit: create the addon instance but not waveform
+        :return: the waveform peaks
+        """
         add_on, _ = AudioAddOn.objects.get_or_create(audio_identifier=self.identifier)
 
         if add_on.waveform_peaks is not None:
             return add_on.waveform_peaks
+        elif short_circuit:
+            return []
 
         add_on.waveform_peaks = generate_peaks(self)
         add_on.save()
