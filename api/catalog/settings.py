@@ -93,7 +93,6 @@ if USE_S3:
     INSTALLED_APPS.append("storages")
 
 MIDDLEWARE = [
-    "compression_middleware.middleware.CompressionMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
