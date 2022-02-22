@@ -17,6 +17,11 @@ services:
       - "8222:8222"
     command: ["-addr", "0.0.0.0:8222"]
 
+  awf:
+    image: ghcr.io/dhruvkb/awf:1.0.0
+    ports:
+      - "8888:8888"
+
   upstream_db:
     image: postgres:13.2-alpine
     ports:
