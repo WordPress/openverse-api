@@ -1,15 +1,4 @@
 ##################
-# Audio waveform #
-##################
-
-FROM realies/audiowaveform:latest AS awf
-
-# Identify dependencies of the `audiowaveform` binary and move them to `/deps`,
-# while retaining their folder structure
-RUN ldd /usr/local/bin/audiowaveform | tr -s '[:blank:]' '\n' | grep '^/' | \
-    xargs -I % sh -c 'mkdir -p $(dirname deps%); cp % deps%;'
-
-##################
 # Python builder #
 ##################
 
@@ -50,11 +39,6 @@ ADD catalog/api/utils/fonts/SourceSansPro-Bold.ttf /usr/share/fonts/truetype/Sou
 
 # Copy virtualenv from the builder image
 COPY --from=builder /venv /venv
-
-# Copy `audiowaveform` dependencies
-COPY --from=awf /deps /
-# Copy `audiowaveform` binary
-COPY --from=awf /usr/local/bin/audiowaveform /usr/local/bin
 
 # - Install system packages needed for running Python dependencies
 #   - libexempi8
