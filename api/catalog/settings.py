@@ -283,6 +283,9 @@ ELASTICSEARCH_URL = config("ELASTICSEARCH_URL", default="localhost")
 ELASTICSEARCH_PORT = config("ELASTICSEARCH_PORT", default=9200, cast=int)
 ELASTICSEARCH_AWS_REGION = config("ELASTICSEARCH_AWS_REGION", default="us-east-1")
 
+AWF_HOST = config("AWF_URL", default="localhost")
+AWF_PORT = config("AWF_PORT", default=8888, cast=int)
+
 # Additional settings for dev/prod environments
 AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID", default="")
 AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY", default="")
