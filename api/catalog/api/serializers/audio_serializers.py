@@ -180,7 +180,7 @@ class AudioSerializer(MediaSerializer):
     def get_peaks(obj):
         if isinstance(obj, Hit):
             obj = Audio.objects.get(identifier=obj.identifier)
-        return obj.get_or_create_waveform(short_circuit=True)
+        return obj.get_waveform()
 
 
 class AudioSearchSerializer(MediaSearchSerializer):
