@@ -1,4 +1,5 @@
 import catalog.api.controllers.search_controller as search_controller
+import requests
 from catalog.api.models import OpenLedgerModel
 from catalog.api.models.media import (
     AbstractAltFile,
@@ -9,7 +10,7 @@ from catalog.api.models.media import (
     AbstractMediaReport,
 )
 from catalog.api.models.mixins import FileMixin, ForeignIdentifierMixin, MediaMixin
-from catalog.api.utils.waveform import generate_peaks
+from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from uuslug import uuslug
@@ -192,13 +193,32 @@ class Audio(AudioFileMixin, AbstractMedia):
         except AudioSet.DoesNotExist:
             return None
 
+    def get_peaks(self) -> list[float]:
+        """
+        Get peaks for the audio using an API call to `awf`.
+        :return: the peaks for the audio object
+        """
+
+        default_count = 1000
+        url = f"http://{settings.AWF_HOST}:{settings.AWF_PORT}/waveform/"
+        body = {
+            "identifier": str(self.identifier),
+            "url": self.url,
+            "duration": self.duration,
+            "counts": [default_count],  # optional
+        }
+
+        res = requests.post(url, json=body)
+        data = res.json()
+        return data["peak_sets"][str(default_count)]["peaks"]
+
     def get_or_create_waveform(self):
         add_on, _ = AudioAddOn.objects.get_or_create(audio_identifier=self.identifier)
 
         if add_on.waveform_peaks is not None:
             return add_on.waveform_peaks
 
-        add_on.waveform_peaks = generate_peaks(self)
+        add_on.waveform_peaks = self.get_peaks()
         add_on.save()
 
         return add_on.waveform_peaks
