@@ -59,3 +59,12 @@ def test_audio_thumb(audio_fixture):
 
 def test_audio_report(audio_fixture):
     report("audio", audio_fixture)
+
+
+def test_audio_waveform(audio_fixture):
+    waveform_url = audio_fixture["results"][0]["waveform"]
+    waveform_response = requests.get(waveform_url)
+    assert waveform_response.status_code == 200
+    data = waveform_response.json()
+    assert "len" in data
+    assert len(data["points"]) == data["len"]
