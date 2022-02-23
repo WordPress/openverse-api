@@ -1,4 +1,5 @@
 import logging
+import subprocess
 
 from catalog.api.models.audio import Audio
 from django_tqdm import BaseCommand
@@ -19,7 +20,15 @@ class Command(BaseCommand):
         )
         with self.tqdm(total=count) as progress:
             for audio in audios:
-                audio.get_or_create_waveform()
+                try:
+                    audio.get_or_create_waveform()
+                except subprocess.CalledProcessError as err:
+                    self.stderr.write(
+                        self.style.ERROR(
+                            f"Unable to process {audio.identifier}: "
+                            f"{err.stderr.decode().strip()}"
+                        )
+                    )
                 progress.update(1)
 
         self.stdout.write(self.style.SUCCESS("Finished generating waveforms!"))
