@@ -34,11 +34,11 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:25a76b7b530a124d9e526c62ff2b7da5782315195badb9a6273714898d689820",
-                "sha256:cc40566dec3f48611a82ace07b29489848e9bd35a51e3e992d1902a3c037e9fc"
+                "sha256:6ad9a2837fb89eb9084ed545af7f29a5e099db93776f1aafe5c08bc15933704a",
+                "sha256:bbe4f4ddfc13469d306f0ca5fa77441ec37ad50dc270755e93260aeafb06d3d1"
             ],
             "index": "pypi",
-            "version": "==1.21.0"
+            "version": "==1.21.4"
         },
         "botocore": {
             "hashes": [
@@ -249,6 +249,14 @@
             ],
             "index": "pypi",
             "version": "==1.12.3"
+        },
+        "django-tqdm": {
+            "hashes": [
+                "sha256:39db30b64f1177e666cfb77e5769e572bbfe6de6bebcd382beaf8a7b4f335401",
+                "sha256:c7fa0aadbe512fb7bff83f1d800094313b044eed9ac0552e1c22da49d84b2121"
+            ],
+            "index": "pypi",
+            "version": "==1.0.0"
         },
         "django-uuslug": {
             "hashes": [
@@ -803,6 +811,14 @@
                 "sha256:bad6603bb14d279193107714b288be206cac565dfa49aa5b105294dd5c4aab93"
             ],
             "version": "==1.3"
+        },
+        "tqdm": {
+            "hashes": [
+                "sha256:8dd278a422499cd6b727e6ae4061c40b48fce8b76d1ccbf5d34fca9b7f925b0c",
+                "sha256:d359de7217506c9851b7869f3708d8ee53ed70a1b8edbba4dbcb47442592920d"
+            ],
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
+            "version": "==4.62.3"
         },
         "uritemplate": {
             "hashes": [
@@ -1987,7 +2003,7 @@
                 "sha256:fa2ba70284fa42c2a5ecb35e322e68823288a4251f9ba9cc77be04ae15eada68",
                 "sha256:fba85b6cd9c39be262fcd23865652920832b61583de2a2ca907dbd8e8a8c81e5"
             ],
-            "markers": "python_version >= '3.5'",
+            "markers": "python_version > '2.7'",
             "version": "==6.1"
         },
         "traitlets": {
