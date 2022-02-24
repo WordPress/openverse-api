@@ -1,14 +1,14 @@
 import logging
 import os
+from enum import Enum
 
 import requests
 from decouple import config
-from enum import Enum
-
 
 log = logging.getLogger(__name__)
 SLACK_WEBHOOK = "SLACK_WEBHOOK"
 LOG_LEVEL = "SLACK_LOG_LEVEL"
+
 
 class Level(Enum):
     VERBOSE = 0
@@ -31,9 +31,8 @@ def _message(text: str, summary: str = None, level: Level = Level.INFO) -> None:
         )
         return
     # If no log level is configured in the environment, log everything by default.
-    os_level = os.getenv(LOG_LEVEL)
-    os_level = Level.VERBOSE if os_level is None else Level[os_level]
-    if not (os_level.value <= level.value):
+    os_level = Level[os.getenv(LOG_LEVEL, Level.VERBOSE.name)]
+    if level.value < os_level.value:
         log.debug(
             f"Slack logging level for {environment} set to {os_level.name}, skipping \
             slack message with priority {level.name}: {text}"
@@ -44,7 +43,6 @@ def _message(text: str, summary: str = None, level: Level = Level.INFO) -> None:
             summary = "Ingestion server message"
         else:
             summary = text
-
 
     data = {
         "blocks": [{"text": {"text": text, "type": "mrkdwn"}, "type": "section"}],
@@ -60,12 +58,12 @@ def _message(text: str, summary: str = None, level: Level = Level.INFO) -> None:
 
 
 def verbose(text: str, summary: str = None) -> None:
-    _message(text, summary, level = Level.VERBOSE)
+    _message(text, summary, level=Level.VERBOSE)
 
 
 def info(text: str, summary: str = None) -> None:
-    _message(text, summary, level = Level.INFO)
+    _message(text, summary, level=Level.INFO)
 
 
 def error(text: str, summary: str = None) -> None:
-    _message(text, summary, level = Level.ERROR)
+    _message(text, summary, level=Level.ERROR)
