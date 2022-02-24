@@ -78,7 +78,7 @@ def test_message(
         (slack.verbose, None, True),
         (slack.info, None, True),
         (slack.error, None, True),
-    ]
+    ],
 )
 def test_log_levels(log_func, log_level, should_log, monkeypatch):
     monkeypatch.setenv("ENVIRONMENT", "staging")

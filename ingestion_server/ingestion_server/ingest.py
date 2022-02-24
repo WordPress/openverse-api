@@ -275,9 +275,7 @@ def reload_upstream(
     """
 
     # Step 1: Get the list of overlapping columns
-    slack.info(
-        f"`{table}`: Starting data refresh | _Next: copying data from upstream_"
-    )
+    slack.info(f"`{table}`: Starting data refresh | _Next: copying data from upstream_")
     downstream_db = database_connect()
     upstream_db = psycopg2.connect(
         dbname=UPSTREAM_DB_NAME,

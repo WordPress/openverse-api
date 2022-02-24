@@ -5,6 +5,7 @@ from enum import Enum
 import requests
 from decouple import config
 
+
 log = logging.getLogger(__name__)
 SLACK_WEBHOOK = "SLACK_WEBHOOK"
 LOG_LEVEL = "SLACK_LOG_LEVEL"
