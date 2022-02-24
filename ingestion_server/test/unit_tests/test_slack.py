@@ -48,7 +48,7 @@ def test_message(
     monkeypatch.setenv("ENVIRONMENT", environment)
     monkeypatch.setenv(slack.SLACK_WEBHOOK, webhook)
     with mock.patch("requests.post") as mock_post:
-        slack.message(text, summary)
+        slack._message(text, summary)
         assert mock_post.called == should_alert
         if not should_alert:
             return
@@ -57,3 +57,62 @@ def test_message(
         assert data["text"] == expected_summary
         if environment:
             assert data["username"].endswith(environment.upper())
+
+@pytest.mark.parametrize(
+    "log_level, should_log",
+    [
+        ("ERROR", False),
+        ("INFO", False),
+        ("VERBOSE", True),
+        # If no log level set, verbose logging is enabled by default
+        (None, True)
+    ]
+)
+def test_verbose(log_level, should_log, monkeypatch):
+    monkeypatch.setenv("ENVIRONMENT", "staging")
+    monkeypatch.setenv(slack.SLACK_WEBHOOK, "http://fake")
+    if log_level:
+        monkeypatch.setenv(slack.LOG_LEVEL, log_level)
+    with mock.patch("requests.post") as mock_post:
+        slack.verbose("text", "summary")
+        assert mock_post.called == should_log
+
+
+@pytest.mark.parametrize(
+    "log_level, should_log",
+    [
+        ("ERROR", False),
+        ("INFO", True),
+        ("VERBOSE", True),
+        # If no log level set, verbose logging is enabled by default
+        (None, True)
+    ]
+)
+def test_info(log_level, should_log, monkeypatch):
+    monkeypatch.setenv("ENVIRONMENT", "staging")
+    monkeypatch.setenv(slack.SLACK_WEBHOOK, "http://fake")
+    if log_level:
+        monkeypatch.setenv(slack.LOG_LEVEL, log_level)
+    with mock.patch("requests.post") as mock_post:
+        slack.info("text", "summary")
+        assert mock_post.called == should_log
+
+
+@pytest.mark.parametrize(
+    "log_level, should_log",
+    [
+        ("ERROR", True),
+        ("INFO", True),
+        ("VERBOSE", True),
+        # If no log level set, verbose logging is enabled by default
+        (None, True)
+    ]
+)
+def test_error(log_level, should_log, monkeypatch):
+    monkeypatch.setenv("ENVIRONMENT", "staging")
+    monkeypatch.setenv(slack.SLACK_WEBHOOK, "http://fake")
+    if log_level:
+        monkeypatch.setenv(slack.LOG_LEVEL, log_level)
+    with mock.patch("requests.post") as mock_post:
+        slack.error("text", "summary")
+        assert mock_post.called == should_log
