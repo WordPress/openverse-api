@@ -58,61 +58,33 @@ def test_message(
         if environment:
             assert data["username"].endswith(environment.upper())
 
+
 @pytest.mark.parametrize(
-    "log_level, should_log",
+    "log_func, log_level, should_log",
     [
-        ("ERROR", False),
-        ("INFO", False),
-        ("VERBOSE", True),
+        # Verbose logging
+        (slack.verbose, "ERROR", False),
+        (slack.verbose, "INFO", False),
+        (slack.verbose, "VERBOSE", True),
+        # Info logging
+        (slack.info, "ERROR", False),
+        (slack.info, "INFO", True),
+        (slack.info, "VERBOSE", True),
+        # Error logging
+        (slack.error, "ERROR", True),
+        (slack.error, "INFO", True),
+        (slack.error, "VERBOSE", True),
         # If no log level set, verbose logging is enabled by default
-        (None, True)
+        (slack.verbose, None, True),
+        (slack.info, None, True),
+        (slack.error, None, True),
     ]
 )
-def test_verbose(log_level, should_log, monkeypatch):
+def test_log_levels(log_func, log_level, should_log, monkeypatch):
     monkeypatch.setenv("ENVIRONMENT", "staging")
     monkeypatch.setenv(slack.SLACK_WEBHOOK, "http://fake")
     if log_level:
         monkeypatch.setenv(slack.LOG_LEVEL, log_level)
     with mock.patch("requests.post") as mock_post:
-        slack.verbose("text", "summary")
-        assert mock_post.called == should_log
-
-
-@pytest.mark.parametrize(
-    "log_level, should_log",
-    [
-        ("ERROR", False),
-        ("INFO", True),
-        ("VERBOSE", True),
-        # If no log level set, verbose logging is enabled by default
-        (None, True)
-    ]
-)
-def test_info(log_level, should_log, monkeypatch):
-    monkeypatch.setenv("ENVIRONMENT", "staging")
-    monkeypatch.setenv(slack.SLACK_WEBHOOK, "http://fake")
-    if log_level:
-        monkeypatch.setenv(slack.LOG_LEVEL, log_level)
-    with mock.patch("requests.post") as mock_post:
-        slack.info("text", "summary")
-        assert mock_post.called == should_log
-
-
-@pytest.mark.parametrize(
-    "log_level, should_log",
-    [
-        ("ERROR", True),
-        ("INFO", True),
-        ("VERBOSE", True),
-        # If no log level set, verbose logging is enabled by default
-        (None, True)
-    ]
-)
-def test_error(log_level, should_log, monkeypatch):
-    monkeypatch.setenv("ENVIRONMENT", "staging")
-    monkeypatch.setenv(slack.SLACK_WEBHOOK, "http://fake")
-    if log_level:
-        monkeypatch.setenv(slack.LOG_LEVEL, log_level)
-    with mock.patch("requests.post") as mock_post:
-        slack.error("text", "summary")
+        log_func("text", "summary")
         assert mock_post.called == should_log
