@@ -3,7 +3,6 @@ from uuid import uuid4
 
 import factory
 from catalog.api.licenses import LICENSES
-from catalog.api.models.media import AbstractMedia
 from factory.django import DjangoModelFactory
 
 
@@ -18,7 +17,9 @@ class MediaFactory(DjangoModelFactory):
     foreign_identifier = factory.sequence(lambda _: uuid4())
     """The foreign identifier isn't necessarily a UUID but for test purposes it's fine if it looks like one"""
 
-    license = Faker("random_element", elements=[l[0] for l in LICENSES])
+    license = Faker(
+        "random_element", elements=[the_license[0] for the_license in LICENSES]
+    )
 
     foreign_landing_url = Faker("url")
 

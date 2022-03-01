@@ -50,7 +50,7 @@ def test_does_not_reprocess_existing_waveforms():
 
     # AudioAddOnFactory will create associated Audio objects as well
     # so those three will serve as the audio that should _not_ get processed
-    waveforms = AudioAddOnFactory.create_batch(3)
+    AudioAddOnFactory.create_batch(3)
 
     # Create an add on that doesn't have a waveform, this one should get processed as well
     null_waveform_addon = AudioAddOnFactory.create(waveform_peaks=None)
@@ -105,7 +105,11 @@ def test_paginates_audio_waveforms_to_generate(
             (1, "audiowaveform"),
             {"stderr": b"This is an error string"},
         ),
-        (psycopg2.errors.lookup(psycopg2.errorcodes.NOT_NULL_VIOLATION), tuple(), dict()),
+        (
+            psycopg2.errors.lookup(psycopg2.errorcodes.NOT_NULL_VIOLATION),
+            tuple(),
+            dict(),
+        ),
     ),
 )
 @mock.patch("catalog.api.models.audio.generate_peaks")
