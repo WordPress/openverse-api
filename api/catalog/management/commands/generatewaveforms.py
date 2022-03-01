@@ -1,8 +1,5 @@
 import logging
 import subprocess
-from typing import Iterable, Callable
-from django.db.models import QuerySet
-from django.db.transaction import atomic
 
 from catalog.api.models.audio import Audio, AudioAddOn
 from django_tqdm import BaseCommand
@@ -24,6 +21,7 @@ def paginate_reducing_query(get_query_set, page_size=10):
         yield page
         page = list(get_query_set()[0:page_size])
 
+
 class Command(BaseCommand):
     help = "Generates waveforms for all audio records to populate the cache."
     """
@@ -35,14 +33,17 @@ class Command(BaseCommand):
     That should be enough latency to not cause any problems.
     """
 
-
     def handle(self, *args, **options):
         # These logs really muck up the tqdm output and don't give us much helpful
         # information, so they get silenced
         logging.getLogger("catalog.api.utils.waveform").setLevel(logging.WARNING)
 
-        existing_waveform_audio_identifiers_query = AudioAddOn.objects.filter(waveform_peaks__isnull=False).values_list('audio_identifier', flat=True)
-        audios = Audio.objects.exclude(identifier__in=existing_waveform_audio_identifiers_query).order_by("id")
+        existing_waveform_audio_identifiers_query = AudioAddOn.objects.filter(
+            waveform_peaks__isnull=False
+        ).values_list("audio_identifier", flat=True)
+        audios = Audio.objects.exclude(
+            identifier__in=existing_waveform_audio_identifiers_query
+        ).order_by("id")
         count = audios.count()
         self.stdout.write(
             self.style.NOTICE(f"Generating waveforms for {count:,} records")
@@ -68,8 +69,7 @@ class Command(BaseCommand):
                         errored_identifiers.append(audio.identifier)
                         self.stderr.write(
                             self.style.ERROR(
-                                f"Unable to process {audio.identifier}: "
-                                f"{err}"
+                                f"Unable to process {audio.identifier}: " f"{err}"
                             )
                         )
                     progress.update(1)

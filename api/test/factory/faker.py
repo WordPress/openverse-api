@@ -4,7 +4,7 @@ from faker.utils.distribution import choices_distribution
 
 
 class WaveformProvider(BaseProvider):
-    _float_space = [x /100.0 for x in range(101)] * 20
+    _float_space = [x / 100.0 for x in range(101)] * 20
 
     @classmethod
     def generate_waveform(cls) -> list[float]:

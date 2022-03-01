@@ -1,17 +1,15 @@
-import pytest
 import subprocess
-
-from unittest import mock
-from io import StringIO, BytesIO
-import psycopg2
-from django.db import connections
-from django.core.management import call_command
-from django.test.utils import CaptureQueriesContext
-
-from catalog.api.models.audio import Audio, AudioAddOn
-
+from io import StringIO
 from test.factory.faker import WaveformProvider
-from test.factory.models.audio import AudioFactory, AudioAddOnFactory
+from test.factory.models.audio import AudioAddOnFactory, AudioFactory
+from unittest import mock
+
+import psycopg2
+import pytest
+from catalog.api.models.audio import Audio, AudioAddOn
+from django.core.management import call_command
+from django.db import connections
+from django.test.utils import CaptureQueriesContext
 
 
 @mock.patch("catalog.api.models.audio.generate_peaks")
@@ -25,11 +23,14 @@ def call_generatewaveforms(mock_generate_peaks: mock.MagicMock) -> tuple[str, st
 
 
 def assert_all_audio_have_waveforms():
-    assert list(
-        AudioAddOn.objects.filter(waveform_peaks__isnull=False).values_list('audio_identifier')
-     ).sort() == list(
-         Audio.objects.all().values_list('identifier')
-     ).sort()
+    assert (
+        list(
+            AudioAddOn.objects.filter(waveform_peaks__isnull=False).values_list(
+                "audio_identifier"
+            )
+        ).sort()
+        == list(Audio.objects.all().values_list("identifier")).sort()
+    )
 
 
 @pytest.mark.django_db
@@ -53,7 +54,9 @@ def test_does_not_reprocess_existing_waveforms():
 
     # Create an add on that doesn't have a waveform, this one should get processed as well
     null_waveform_addon = AudioAddOnFactory.create(waveform_peaks=None)
-    waveformless_audio.append(Audio.objects.get(identifier=null_waveform_addon.audio_identifier))
+    waveformless_audio.append(
+        Audio.objects.get(identifier=null_waveform_addon.audio_identifier)
+    )
 
     out, err = call_generatewaveforms()
 
@@ -63,7 +66,9 @@ def test_does_not_reprocess_existing_waveforms():
 
 @pytest.mark.django_db
 @mock.patch("catalog.api.models.audio.generate_peaks")
-def test_paginates_audio_waveforms_to_generate(mock_generate_peaks, django_assert_num_queries):
+def test_paginates_audio_waveforms_to_generate(
+    mock_generate_peaks, django_assert_num_queries
+):
     mock_generate_peaks.return_value = WaveformProvider.generate_waveform()
 
     audio_count = 53  # 6 pages
@@ -71,16 +76,18 @@ def test_paginates_audio_waveforms_to_generate(mock_generate_peaks, django_asser
     AudioFactory.create_batch(audio_count)
 
     test_audio = AudioFactory.create()
-    with CaptureQueriesContext(connections['default']) as capture:
+    with CaptureQueriesContext(connections["default"]) as capture:
         test_audio.get_or_create_waveform()
     test_audio.delete()
-    
+
     queries_per_iteration = len(capture.captured_queries)
 
     pagination_queries = pages + 1  # 1 per page + the final empty page's query
     count_queries = 1  # initializes the count for tqdm
-    interation_queries = queries_per_iteration * audio_count  # queries inside get_or_create_waveform
-    
+    interation_queries = (
+        queries_per_iteration * audio_count
+    )  # queries inside get_or_create_waveform
+
     expected_queries = interation_queries + pagination_queries + count_queries
 
     with django_assert_num_queries(expected_queries):
@@ -90,11 +97,26 @@ def test_paginates_audio_waveforms_to_generate(mock_generate_peaks, django_asser
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize(
+    ("exception_class", "exception_args", "exception_kwargs"),
+    (
+        (
+            subprocess.CalledProcessError,
+            (1, "audiowaveform"),
+            {"stderr": b"This is an error string"},
+        ),
+        (psycopg2.errors.lookup(psycopg2.errorcodes.NOT_NULL_VIOLATION), tuple(), dict()),
+    ),
+)
 @mock.patch("catalog.api.models.audio.generate_peaks")
-def test_logs_and_continues_if_waveform_generation_fails(mock_generate_peaks):
+def test_logs_and_continues_if_waveform_generation_fails(
+    mock_generate_peaks, exception_class, exception_args, exception_kwargs
+):
     audio_count = 23
     return_values = [
-        subprocess.CalledProcessError(1, 'audiowaveform', stderr=b"This is an error string") if i == 9 else WaveformProvider.generate_waveform()
+        exception_class(*exception_args, **exception_kwargs)
+        if i == 9
+        else WaveformProvider.generate_waveform()
         for i in range(audio_count)
     ]
     mock_generate_peaks.side_effect = return_values
@@ -105,9 +127,14 @@ def test_logs_and_continues_if_waveform_generation_fails(mock_generate_peaks):
     call_command("generatewaveforms", stdout=out, stderr=err)
 
     # import pdb; pdb.set_trace()
-    failed_audio = Audio.objects.exclude(identifier__in=AudioAddOn.objects.values_list('audio_identifier', flat=True))
+    failed_audio = Audio.objects.exclude(
+        identifier__in=AudioAddOn.objects.values_list("audio_identifier", flat=True)
+    )
 
     assert failed_audio.count() == 1
     assert f"Unable to process {failed_audio.first().identifier}" in err.getvalue()
 
-    assert AudioAddOn.objects.filter(waveform_peaks__isnull=False).count() == audio_count - 1
+    assert (
+        AudioAddOn.objects.filter(waveform_peaks__isnull=False).count()
+        == audio_count - 1
+    )

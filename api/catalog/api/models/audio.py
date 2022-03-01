@@ -11,8 +11,7 @@ from catalog.api.models.media import (
 from catalog.api.models.mixins import FileMixin, ForeignIdentifierMixin, MediaMixin
 from catalog.api.utils.waveform import generate_peaks
 from django.contrib.postgres.fields import ArrayField
-from django.db import models
-from django.db import transaction
+from django.db import models, transaction
 from uuslug import uuslug
 
 
