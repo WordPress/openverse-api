@@ -12,6 +12,7 @@ from catalog.api.models.mixins import FileMixin, ForeignIdentifierMixin, MediaMi
 from catalog.api.utils.waveform import generate_peaks
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.db import transaction
 from uuslug import uuslug
 
 
@@ -192,6 +193,7 @@ class Audio(AudioFileMixin, AbstractMedia):
         except AudioSet.DoesNotExist:
             return None
 
+<<<<<<< HEAD
     def get_waveform(self) -> list[float]:
         """
         Get the waveform if it exists. Return a blank list otherwise.
@@ -204,6 +206,9 @@ class Audio(AudioFileMixin, AbstractMedia):
         except AudioAddOn.DoesNotExist:
             return []
 
+=======
+    @transaction.atomic
+>>>>>>> d0f86a02 (Paginate generatewaveforms)
     def get_or_create_waveform(self):
         add_on, _ = AudioAddOn.objects.get_or_create(audio_identifier=self.identifier)
 
