@@ -75,3 +75,4 @@ class Command(BaseCommand):
                     progress.update(1)
 
         self.stdout.write(self.style.SUCCESS("Finished generating waveforms!"))
+        self.stdout.write(self.style.WARNING(f"The following Audio identifiers were unable to be processed {','.join(str(identifier) for identifier in errored_identifiers)}"))

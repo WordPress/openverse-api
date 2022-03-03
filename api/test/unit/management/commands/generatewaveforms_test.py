@@ -130,9 +130,8 @@ def test_logs_and_continues_if_waveform_generation_fails(
     err = StringIO()
     call_command("generatewaveforms", stdout=out, stderr=err)
 
-    # import pdb; pdb.set_trace()
     failed_audio = Audio.objects.exclude(
-        identifier__in=AudioAddOn.objects.values_list("audio_identifier", flat=True)
+        identifier__in=AudioAddOn.objects.filter(waveform_peaks__isnull=False).values_list("audio_identifier", flat=True)
     )
 
     assert failed_audio.count() == 1
