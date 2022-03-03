@@ -17,7 +17,7 @@ def call_generatewaveforms(mock_generate_peaks: mock.MagicMock) -> tuple[str, st
     mock_generate_peaks.side_effect = lambda _: WaveformProvider.generate_waveform()
     out = StringIO()
     err = StringIO()
-    call_command("generatewaveforms", stdout=out, stderr=err)
+    call_command("generatewaveforms", unlimited=True, stdout=out, stderr=err)
 
     return out.getvalue(), err.getvalue()
 
@@ -128,10 +128,12 @@ def test_logs_and_continues_if_waveform_generation_fails(
 
     out = StringIO()
     err = StringIO()
-    call_command("generatewaveforms", stdout=out, stderr=err)
+    call_command("generatewaveforms", unlimited=True, stdout=out, stderr=err)
 
     failed_audio = Audio.objects.exclude(
-        identifier__in=AudioAddOn.objects.filter(waveform_peaks__isnull=False).values_list("audio_identifier", flat=True)
+        identifier__in=AudioAddOn.objects.filter(
+            waveform_peaks__isnull=False
+        ).values_list("audio_identifier", flat=True)
     )
 
     assert failed_audio.count() == 1
@@ -140,4 +142,36 @@ def test_logs_and_continues_if_waveform_generation_fails(
     assert (
         AudioAddOn.objects.filter(waveform_peaks__isnull=False).count()
         == audio_count - 1
+    )
+
+
+@pytest.mark.django_db
+@mock.patch("catalog.api.models.audio.generate_peaks")
+def test_keyboard_interrupt_should_halt_processing(mock_generate_peaks):
+    audio_count = 23
+    interrupt_at = 9
+    return_values = [
+        KeyboardInterrupt()
+        if i == interrupt_at
+        else WaveformProvider.generate_waveform()
+        for i in range(audio_count)
+    ]
+
+    mock_generate_peaks.side_effect = return_values
+    AudioFactory.create_batch(audio_count)
+
+    out = StringIO()
+    err = StringIO()
+    call_command("generatewaveforms", unlimited=True, stdout=out, stderr=err)
+
+    failed_audio = Audio.objects.exclude(
+        identifier__in=AudioAddOn.objects.filter(
+            waveform_peaks__isnull=False
+        ).values_list("audio_identifier", flat=True)
+    )
+
+    assert failed_audio.count() == audio_count - interrupt_at
+
+    assert (
+        AudioAddOn.objects.filter(waveform_peaks__isnull=False).count() == interrupt_at
     )

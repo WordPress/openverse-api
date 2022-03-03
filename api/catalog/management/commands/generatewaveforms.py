@@ -3,6 +3,7 @@ import subprocess
 
 from catalog.api.models.audio import Audio, AudioAddOn
 from django_tqdm import BaseCommand
+from limit import limit
 
 
 def paginate_reducing_query(get_query_set, page_size=10):
@@ -33,6 +34,54 @@ class Command(BaseCommand):
     That should be enough latency to not cause any problems.
     """
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--unlimited", help="Remove self impose rate limits for testing."
+        )
+        parser.add_argument(
+            "--limit", help="Limit the number of waveforms to create.", type=int
+        )
+
+    def get_audio_handler(self, options):
+        if options["unlimited"]:
+            return lambda audio: audio.get_or_create_waveform()
+
+        @limit(limit=1, every=2)  # Call once per two seconds maximum
+        def limited(audio):
+            audio.get_or_create_waveform()
+
+        return limited
+
+    def _process_wavelengths(self, audios, audio_handler, count_to_process):
+        errored_identifiers = []
+        processed = 0
+        with self.tqdm(total=count_to_process) as progress:
+            paginator = paginate_reducing_query(
+                get_query_set=lambda: audios.exclude(identifier__in=errored_identifiers)
+            )
+            for page in paginator:
+                for audio in page:
+                    if processed > count_to_process:
+                        return errored_identifiers
+                    try:
+                        processed += 1
+                        audio_handler(audio)
+                    except subprocess.CalledProcessError as err:
+                        errored_identifiers.append(audio.identifier)
+                        self.error(
+                            f"Unable to process {audio.identifier}: "
+                            f"{err.stderr.decode().strip()}"
+                        )
+                    except KeyboardInterrupt:
+                        errored_identifiers.append(audio.identifier)
+                        return errored_identifiers
+                    except BaseException as err:
+                        errored_identifiers.append(audio.identifier)
+                        self.error(f"Unable to process {audio.identifier}: " f"{err}")
+                    progress.update(1)
+
+        return errored_identifiers
+
     def handle(self, *args, **options):
         # These logs really muck up the tqdm output and don't give us much helpful
         # information, so they get silenced
@@ -44,35 +93,35 @@ class Command(BaseCommand):
         audios = Audio.objects.exclude(
             identifier__in=existing_waveform_audio_identifiers_query
         ).order_by("id")
-        count = audios.count()
-        self.stdout.write(
-            self.style.NOTICE(f"Generating waveforms for {count:,} records")
-        )
-        errored_identifiers = []
-        with self.tqdm(total=count) as progress:
-            paginator = paginate_reducing_query(
-                get_query_set=lambda: audios.exclude(identifier__in=errored_identifiers)
-            )
-            for page in paginator:
-                for audio in page:
-                    try:
-                        audio.get_or_create_waveform()
-                    except subprocess.CalledProcessError as err:
-                        errored_identifiers.append(audio.identifier)
-                        self.stderr.write(
-                            self.style.ERROR(
-                                f"Unable to process {audio.identifier}: "
-                                f"{err.stderr.decode().strip()}"
-                            )
-                        )
-                    except BaseException as err:
-                        errored_identifiers.append(audio.identifier)
-                        self.stderr.write(
-                            self.style.ERROR(
-                                f"Unable to process {audio.identifier}: " f"{err}"
-                            )
-                        )
-                    progress.update(1)
 
-        self.stdout.write(self.style.SUCCESS("Finished generating waveforms!"))
-        self.stdout.write(self.style.WARNING(f"The following Audio identifiers were unable to be processed {','.join(str(identifier) for identifier in errored_identifiers)}"))
+        limit_records = options["limit"]
+        count = audios.count()
+
+        count_to_process = count
+
+        if limit_records is not None:
+            count_to_process = limit_records if limit_records < count else count
+
+        self.info(
+            self.style.NOTICE(f"Generating waveforms for {count_to_process:,} records")
+        )
+
+        audio_handler = self.get_audio_handler(options)
+
+        errored_identifiers = self._process_wavelengths(
+            audios, audio_handler, count_to_process
+        )
+
+        self.info(self.style.SUCCESS("Finished generating waveforms!"))
+
+        if errored_identifiers:
+            errored_identifiers_joined = "\n".join(
+                str(identifier) for identifier in errored_identifiers
+            )
+
+            self.info(
+                self.style.WARNING(
+                    f"The following Audio identifiers were unable "
+                    f"to be processed\n\n{errored_identifiers_joined}"
+                )
+            )
