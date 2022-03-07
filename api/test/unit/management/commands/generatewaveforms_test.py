@@ -17,7 +17,7 @@ def call_generatewaveforms(mock_generate_peaks: mock.MagicMock) -> tuple[str, st
     mock_generate_peaks.side_effect = lambda _: WaveformProvider.generate_waveform()
     out = StringIO()
     err = StringIO()
-    call_command("generatewaveforms", unlimited=True, stdout=out, stderr=err)
+    call_command("generatewaveforms", no_rate_limit=True, stdout=out, stderr=err)
 
     return out.getvalue(), err.getvalue()
 
@@ -131,7 +131,7 @@ def test_logs_and_continues_if_waveform_generation_fails(
 
     out = StringIO()
     err = StringIO()
-    call_command("generatewaveforms", unlimited=True, stdout=out, stderr=err)
+    call_command("generatewaveforms", no_rate_limit=True, stdout=out, stderr=err)
 
     failed_audio = Audio.objects.exclude(
         identifier__in=AudioAddOn.objects.filter(
@@ -165,7 +165,7 @@ def test_keyboard_interrupt_should_halt_processing(mock_generate_peaks):
 
     out = StringIO()
     err = StringIO()
-    call_command("generatewaveforms", unlimited=True, stdout=out, stderr=err)
+    call_command("generatewaveforms", no_rate_limit=True, stdout=out, stderr=err)
 
     failed_audio = Audio.objects.exclude(
         identifier__in=AudioAddOn.objects.filter(

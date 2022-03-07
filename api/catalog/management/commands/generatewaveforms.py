@@ -36,14 +36,14 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--unlimited", help="Remove self impose rate limits for testing."
+            "--no_rate_limit", help="Remove self impose rate limits for testing."
         )
         parser.add_argument(
-            "--limit", help="Limit the number of waveforms to create.", type=int
+            "--max_records", help="Limit the number of waveforms to create.", type=int
         )
 
     def get_audio_handler(self, options):
-        if options["unlimited"]:
+        if options["no_rate_limit"]:
             return lambda audio: audio.get_or_create_waveform()
 
         @limit(limit=1, every=2)  # Call once per two seconds maximum
@@ -94,13 +94,13 @@ class Command(BaseCommand):
             identifier__in=existing_waveform_audio_identifiers_query
         ).order_by("id")
 
-        limit_records = options["limit"]
+        max_records = options["max_records"]
         count = audios.count()
 
         count_to_process = count
 
-        if limit_records is not None:
-            count_to_process = limit_records if limit_records < count else count
+        if max_records is not None:
+            count_to_process = max_records if max_records < count else count
 
         self.info(
             self.style.NOTICE(f"Generating waveforms for {count_to_process:,} records")
