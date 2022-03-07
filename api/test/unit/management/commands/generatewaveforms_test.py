@@ -82,11 +82,14 @@ def test_paginates_audio_waveforms_to_generate(
 
     queries_per_iteration = len(capture.captured_queries)
 
-    pagination_queries = pages + 1  # 1 per page + the final empty page's query
-    count_queries = 1  # initializes the count for tqdm
-    interation_queries = (
-        queries_per_iteration * audio_count
-    )  # queries inside get_or_create_waveform
+    # 1 per page + the final empty page's query
+    pagination_queries = pages + 1
+
+    # initializes the count for tqdm
+    count_queries = 1
+
+    # queries inside get_or_create_waveform
+    interation_queries = queries_per_iteration * audio_count
 
     expected_queries = interation_queries + pagination_queries + count_queries
 
