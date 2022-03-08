@@ -17,6 +17,7 @@ class ImageSearchRequestSerializer(MediaSearchRequestSerializer):
     fields_names = [
         *MediaSearchRequestSerializer.fields_names,
         "source",
+        "excluded_source",
         "categories",
         "aspect_ratio",
         "size",
@@ -29,6 +30,13 @@ class ImageSearchRequestSerializer(MediaSearchRequestSerializer):
     source = serializers.CharField(
         label="provider",
         help_text="A comma separated list of data sources to search. Valid "
+        "inputs: "
+        f"`{list(get_sources('image').keys())}`",
+        required=False,
+    )
+    excluded_source = serializers.CharField(
+        label="excluded_provider",
+        help_text="A comma separated list of data sources to ignore. Valid "
         "inputs: "
         f"`{list(get_sources('image').keys())}`",
         required=False,
@@ -61,6 +69,9 @@ class ImageSearchRequestSerializer(MediaSearchRequestSerializer):
         input_sources = [x for x in input_sources if x in allowed_sources]
         input_sources = ",".join(input_sources)
         return input_sources.lower()
+
+    def validate_excluded_source(self, input_sources):
+        return self.validate_source(input_sources)
 
     @staticmethod
     def validate_categories(value):

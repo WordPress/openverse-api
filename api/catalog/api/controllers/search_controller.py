@@ -167,6 +167,23 @@ def _apply_filter(s: Search, search_params, param_name, renamed_param=None):
         return s
 
 
+def _apply_exclude(s: Search, search_params, param_name, renamed_param=None):
+    """
+    Same as ``_apply_filter`` above, but works in a manner opposite to that of
+    ``filter`` by using ``exclude``.
+    """
+
+    if param_name in search_params.data:
+        filters = []
+        for arg in search_params.data[param_name].split(","):
+            _param = renamed_param if renamed_param else param_name
+            args = {"name_or_query": "term", _param: arg}
+            filters.append(Q(**args))
+        return s.exclude("bool", should=filters)
+    else:
+        return s
+
+
 def _exclude_filtered(s: Search):
     """
     Hide data sources from the catalog dynamically.
@@ -227,8 +244,11 @@ def search(
         ("license_type", "license__keyword"),
     ]
     for tup in filters:
-        api_field, elasticsearch_field = tup
-        s = _apply_filter(s, search_params, api_field, elasticsearch_field)
+        s = _apply_filter(s, search_params, *tup)
+
+    exclude = [("excluded_source", "source")]
+    for tup in exclude:
+        s = _apply_exclude(s, search_params, *tup)
 
     # Exclude mature content and disabled sources
     s = _exclude_mature_by_param(s, search_params)
