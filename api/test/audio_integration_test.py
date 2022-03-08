@@ -9,6 +9,7 @@ from test.media_integration import (
     detail,
     report,
     search,
+    search_all_excluded,
     search_consistency,
     search_quotes,
     search_special_chars,
@@ -30,6 +31,10 @@ def audio_fixture():
 
 def test_search(audio_fixture):
     search(audio_fixture)
+
+
+def test_search_all_excluded():
+    search_all_excluded("audio", ["jamendo", "wikimedia_audio"])
 
 
 def test_search_quotes():
