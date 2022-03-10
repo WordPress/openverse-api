@@ -1,14 +1,15 @@
+from __future__ import annotations
+
 import json
 import logging as log
 import pprint
 from itertools import accumulate
 from math import ceil
-from typing import List, Literal, Optional, Tuple
+from typing import TYPE_CHECKING, List, Literal, Optional, Tuple
 
 import catalog.api.models as models
 from aws_requests_auth.aws_auth import AWSRequestsAuth
 from catalog import settings
-from catalog.api.serializers.media_serializers import MediaSearchRequestSerializer
 from catalog.api.utils.dead_link_mask import get_query_hash, get_query_mask
 from catalog.api.utils.validate_images import validate_images
 from django.core.cache import cache
@@ -18,6 +19,10 @@ from elasticsearch_dsl import Q, Search, connections
 from elasticsearch_dsl.query import Query
 from elasticsearch_dsl.response import Hit, Response
 from rest_framework.request import Request
+
+
+if TYPE_CHECKING:
+    from catalog.api.serializers.media_serializers import MediaSearchRequestSerializer
 
 
 ELASTICSEARCH_MAX_RESULT_WINDOW = 10000
