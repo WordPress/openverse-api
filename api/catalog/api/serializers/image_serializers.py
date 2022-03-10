@@ -35,7 +35,7 @@ class ImageSearchRequestSerializer(MediaSearchRequestSerializer):
         f"`{list(get_sources('image').keys())}`",
         required=False,
     )
-    # Ref: ingestion_server/ingestion_server/categorize.py#Category
+    
     categories = imageCategories
     aspect_ratio = serializers.CharField(
         label="aspect_ratio",
