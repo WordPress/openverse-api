@@ -1,3 +1,4 @@
+from api.catalog.api.models import image
 from catalog.api.controllers.search_controller import get_sources
 from catalog.api.docs.media_docs import fields_to_md
 from catalog.api.models import Image, ImageReport
@@ -9,6 +10,7 @@ from catalog.api.serializers.media_serializers import (
     _validate_enum,
 )
 from rest_framework import serializers
+from catalog.api.constants.categories import imageCategories
 
 
 class ImageSearchRequestSerializer(MediaSearchRequestSerializer):
@@ -34,13 +36,7 @@ class ImageSearchRequestSerializer(MediaSearchRequestSerializer):
         required=False,
     )
     # Ref: ingestion_server/ingestion_server/categorize.py#Category
-    categories = serializers.CharField(
-        label="categories",
-        help_text="A comma separated list of categories; available categories "
-        "include `illustration`, `photograph`, and "
-        "`digitized_artwork`.",
-        required=False,
-    )
+    categories = imageCategories
     aspect_ratio = serializers.CharField(
         label="aspect_ratio",
         help_text="A comma separated list of aspect ratios; available aspect "

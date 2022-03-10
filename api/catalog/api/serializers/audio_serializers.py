@@ -10,6 +10,7 @@ from catalog.api.serializers.media_serializers import (
 )
 from elasticsearch_dsl.response import Hit
 from rest_framework import serializers
+from catalog.api.constants.categories import audioCategories
 
 
 class AudioSetSerializer(serializers.Serializer):
@@ -58,13 +59,8 @@ class AudioSearchRequestSerializer(MediaSearchRequestSerializer):
         f"`{list(get_sources('audio').keys())}`",
         required=False,
     )
-    categories = serializers.CharField(
-        label="categories",
-        help_text="A comma separated list of categories; available categories "
-        "include `music`, `sound_effect`, `podcast`, `audiobook`, "
-        "and `news`.",
-        required=False,
-    )
+    categories = audioCategories
+    
     duration = serializers.CharField(
         label="duration",
         help_text="A comma separated list of audio lengths; available lengths "
