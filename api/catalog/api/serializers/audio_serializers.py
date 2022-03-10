@@ -1,4 +1,3 @@
-from catalog.api.controllers.search_controller import get_sources
 from catalog.api.docs.media_docs import fields_to_md
 from catalog.api.models import AudioReport
 from catalog.api.models.audio import Audio
@@ -7,6 +6,7 @@ from catalog.api.serializers.media_serializers import (
     MediaSearchSerializer,
     MediaSerializer,
     _validate_enum,
+    get_search_request_source_serializer,
 )
 from elasticsearch_dsl.response import Hit
 from rest_framework import serializers
@@ -37,13 +37,20 @@ class AudioSetSerializer(serializers.Serializer):
     )
 
 
-class AudioSearchRequestSerializer(MediaSearchRequestSerializer):
+AudioSearchRequestSourceSerializer = get_search_request_source_serializer(
+    "audio"
+)  # class
+
+
+class AudioSearchRequestSerializer(
+    AudioSearchRequestSourceSerializer,
+    MediaSearchRequestSerializer,
+):
     """Parse and validate search query string parameters."""
 
     fields_names = [
         *MediaSearchRequestSerializer.fields_names,
-        "source",
-        "excluded_source",
+        *AudioSearchRequestSourceSerializer.field_names,
         "categories",
         "duration",
     ]
@@ -52,20 +59,6 @@ class AudioSearchRequestSerializer(MediaSearchRequestSerializer):
     used to generate Swagger documentation.
     """
 
-    source = serializers.CharField(
-        label="provider",
-        help_text="A comma separated list of data sources to search. Valid "
-        "inputs: "
-        f"`{list(get_sources('audio').keys())}`",
-        required=False,
-    )
-    excluded_source = serializers.CharField(
-        label="excluded_provider",
-        help_text="A comma separated list of data sources to ignore. Valid "
-        "inputs: "
-        f"`{list(get_sources('audio').keys())}`",
-        required=False,
-    )
     categories = serializers.CharField(
         label="categories",
         help_text="A comma separated list of categories; available categories "
@@ -79,17 +72,6 @@ class AudioSearchRequestSerializer(MediaSearchRequestSerializer):
         "include `short`, and `long`.",
         required=False,
     )
-
-    @staticmethod
-    def validate_source(input_sources):
-        allowed_sources = list(get_sources("audio").keys())
-        input_sources = input_sources.split(",")
-        input_sources = [x for x in input_sources if x in allowed_sources]
-        input_sources = ",".join(input_sources)
-        return input_sources.lower()
-
-    def validate_excluded_source(self, input_sources):
-        return self.validate_source(input_sources)
 
     @staticmethod
     def validate_categories(value):

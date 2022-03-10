@@ -1,4 +1,3 @@
-from catalog.api.controllers.search_controller import get_sources
 from catalog.api.docs.media_docs import fields_to_md
 from catalog.api.models import Image, ImageReport
 from catalog.api.serializers.media_serializers import (
@@ -7,17 +6,25 @@ from catalog.api.serializers.media_serializers import (
     MediaSerializer,
     _add_protocol,
     _validate_enum,
+    get_search_request_source_serializer,
 )
 from rest_framework import serializers
 
 
-class ImageSearchRequestSerializer(MediaSearchRequestSerializer):
+ImageSearchRequestSourceSerializer = get_search_request_source_serializer(
+    "image"
+)  # class
+
+
+class ImageSearchRequestSerializer(
+    ImageSearchRequestSourceSerializer,
+    MediaSearchRequestSerializer,
+):
     """Parse and validate search query string parameters."""
 
     fields_names = [
         *MediaSearchRequestSerializer.fields_names,
-        "source",
-        "excluded_source",
+        *ImageSearchRequestSourceSerializer.field_names,
         "categories",
         "aspect_ratio",
         "size",
@@ -27,20 +34,6 @@ class ImageSearchRequestSerializer(MediaSearchRequestSerializer):
     used to generate Swagger documentation.
     """
 
-    source = serializers.CharField(
-        label="provider",
-        help_text="A comma separated list of data sources to search. Valid "
-        "inputs: "
-        f"`{list(get_sources('image').keys())}`",
-        required=False,
-    )
-    excluded_source = serializers.CharField(
-        label="excluded_provider",
-        help_text="A comma separated list of data sources to ignore. Valid "
-        "inputs: "
-        f"`{list(get_sources('image').keys())}`",
-        required=False,
-    )
     # Ref: ingestion_server/ingestion_server/categorize.py#Category
     categories = serializers.CharField(
         label="categories",
@@ -61,17 +54,6 @@ class ImageSearchRequestSerializer(MediaSearchRequestSerializer):
         " include `small`, `medium`, or `large`.",
         required=False,
     )
-
-    @staticmethod
-    def validate_source(input_sources):
-        allowed_sources = list(get_sources("image").keys())
-        input_sources = input_sources.split(",")
-        input_sources = [x for x in input_sources if x in allowed_sources]
-        input_sources = ",".join(input_sources)
-        return input_sources.lower()
-
-    def validate_excluded_source(self, input_sources):
-        return self.validate_source(input_sources)
 
     @staticmethod
     def validate_categories(value):
