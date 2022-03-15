@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "8dbd649d6060f1d94a28016fe2b4a6aae3bfae224d37d7a9906cac8a92174868"
+            "sha256": "f90de180a4af8c71f26b68a4b0e7a30d3ab9829beb6c5f52264b5c734cc2660b"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -305,14 +305,6 @@
             ],
             "index": "pypi",
             "version": "==7.4.0"
-        },
-        "fakeredis": {
-            "hashes": [
-                "sha256:7c2c4ba1b42e0a75337c54b777bf0671056b4569650e3ff927e4b9b385afc8ec",
-                "sha256:be3668e50f6b57d5fc4abfd27f9f655bed07a2c5aecfc8b15d0aad59f997c1ba"
-            ],
-            "index": "pypi",
-            "version": "==1.7.1"
         },
         "future": {
             "hashes": [
@@ -811,13 +803,6 @@
             ],
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
             "version": "==1.16.0"
-        },
-        "sortedcontainers": {
-            "hashes": [
-                "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88",
-                "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0"
-            ],
-            "version": "==2.4.0"
         },
         "sqlparse": {
             "hashes": [
