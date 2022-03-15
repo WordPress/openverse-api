@@ -8,14 +8,29 @@ from rest_framework.throttling import SimpleRateThrottle
 
 log = logging.getLogger(__name__)
 
-
 class ThrottleExemption:
+    """
+    Abstract class describing a given throttle exemption.
+
+    To be included in an iterable of ``ThrottleExemption``s
+    in children of ``ExemptionAwareThrottle``.
+    """
+
     def __init__(self, throttle_class, request):
+        """
+        :param throttle_class: The throttle class the exemption modifies.
+        :param request: The current request against which to evaluate the exemption.
+        """
         self.throttle_class = throttle_class
         self.request = request
 
     @abc.abstractmethod
     def is_exempt(self) -> bool:
+        """
+        Whether the current request is exempt from throttling.
+
+        :return: ``True`` if exempt, ``False`` otherwise.
+        """
         ...
 
 
@@ -31,6 +46,10 @@ class ExemptionAwareThrottle(SimpleRateThrottle):
     exemption_classes = []
 
     def allow_request(self, request, view):
+        """
+        Short circuit ``allow_request`` if _any_ exemption
+        declares the request to be exempt from the throttle.
+        """
         for exemption_class in self.exemption_classes:
             if exemption_class(self, request).is_exempt():
                 return True
@@ -42,6 +61,11 @@ class InternalNetworkExemption(ThrottleExemption):
     redis_set_name = "ip-whitelist"
 
     def is_exempt(self):
+        """
+        Exempts requests coming from within Openverse's own
+        network. In practical terms this prevents the Nuxt server
+        from being rate-limited when server-side-rendering.
+        """
         ip = self.throttle_class.get_ident(self.request)
         redis = get_redis_connection("default", write=False)
         return redis.sismember(self.redis_set_name, ip)
@@ -51,6 +75,12 @@ class ApiKeyExemption(ThrottleExemption):
     redis_set_name = "client-id-allowlist"
 
     def is_exempt(self):
+        """
+        Exempt certain API keys from throttling. In practical
+        terms this is used to prevent large consumers of
+        Openverse's API like WordPress.com and Jetpack from
+        being rate-limited.
+        """
         client_id, _, _ = get_token_info(str(self.request.auth))
         redis = get_redis_connection("default")
         return redis.sismember(self.redis_set_name, client_id)
