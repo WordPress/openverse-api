@@ -8,7 +8,7 @@ from rest_framework.throttling import SimpleRateThrottle
 
 log = logging.getLogger(__name__)
 
-class ThrottleExemption:
+class ThrottleExemption(abc.ABC):
     """
     Abstract class describing a given throttle exemption.
 
