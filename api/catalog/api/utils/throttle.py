@@ -82,6 +82,9 @@ class ApiKeyExemption(ThrottleExemption):
         being rate-limited.
         """
         client_id, _, _ = get_token_info(str(self.request.auth))
+        if not client_id:
+            return False
+
         redis = get_redis_connection("default")
         return redis.sismember(self.redis_set_name, client_id)
 

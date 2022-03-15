@@ -143,6 +143,13 @@ def test_api_key_exemption_throttles_when_token_not_in_allowlist(redis, access_t
 
 
 @pytest.mark.django_db
+def test_api_key_exemption_throttles_with_unauthed_request(request_factory):
+    request = request_factory.get("/")
+    view = get_throttled_view(MockApiKeyExemptThrottle)
+    assert_throttles(view, request)
+
+
+@pytest.mark.django_db
 def test_multiple_exemptions_allows_if_one_passes_api_key(redis, access_token, authed_request):
     view = get_throttled_view(MockMultipleExemptionThrottle)
     client_id, _, _ = get_token_info(access_token.token)
