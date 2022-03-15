@@ -18,8 +18,7 @@ succeeded=$?
 if [[ $succeeded -eq 0 ]]; then
 	printf "${green}:-) All tests passed${endcol}\n"
 else
-    printf "Full system logs:\n"
-    docker-compose logs
-	printf "${red}:'( Some tests did not pass${endcol}\n"
+    printf "\n\n${red}:'( Some tests did not pass${endcol}\n"
+    printf "Hint: \`just logs [service]\` will print the docker logs and may be helpful for debugging.\n\n"
 fi
 exit $succeeded

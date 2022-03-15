@@ -126,8 +126,13 @@ jobs:
 
       - name: Start API, ingest and index test data
         run: just init
+
       - name: Run API tests
         run: just api-test -T
+
+      - name: Print API test failure logs
+        if: {{ failure() }}
+        run: just logs
 
       - name: Make developer docs
         run: just sphinx-make -T
