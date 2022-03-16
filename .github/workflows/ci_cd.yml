@@ -101,6 +101,9 @@ jobs:
 
       - name: Run ingestion-server tests
         run: just ing-testlocal
+      
+      - name: Print ingestion test failure logs
+        run: cat ingestion/test/ingestion_logs.txt
 
   test-api:
     name: Run tests for the API
@@ -134,6 +137,16 @@ jobs:
         if: {{ failure() }}
         run: just logs
 
+<<<<<<< HEAD
+=======
+      - name: Run analytics tests
+        run: just nl-test -T
+
+      - name: Print analytics test failure logs
+        if: {{ failure() }}
+        run just logs
+
+>>>>>>> 39f83ee6 (Log for any failure)
       - name: Make developer docs
         run: just sphinx-make -T
       - name: Upload developer docs
