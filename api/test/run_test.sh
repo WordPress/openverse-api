@@ -14,7 +14,7 @@ PYTHONWARNINGS="ignore:Unverified HTTPS request" \
 PYTHONPATH=. \
 pytest -s --disable-pytest-warnings $TEST_ARG
 
-succeeded=$?
+succeeded=1
 if [[ $succeeded -eq 0 ]]; then
 	printf "${green}:-) All tests passed${endcol}\n"
 else
