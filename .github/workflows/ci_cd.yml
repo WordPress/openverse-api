@@ -103,6 +103,7 @@ jobs:
         run: just ing-testlocal
       
       - name: Print ingestion test failure logs
+        if: {{ failure() }}
         run: cat ingestion/test/ingestion_logs.txt
 
   test-api:
@@ -144,7 +145,7 @@ jobs:
 
       - name: Print analytics test failure logs
         if: {{ failure() }}
-        run just logs
+        run: just logs
 
 >>>>>>> 39f83ee6 (Log for any failure)
       - name: Make developer docs
