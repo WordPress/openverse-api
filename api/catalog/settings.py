@@ -306,6 +306,13 @@ VERBOSE_ES_RESPONSE = config("DEBUG_SCORES", default=False, cast=bool)
 # Whether to boost results by authority and popularity
 USE_RANK_FEATURES = config("USE_RANK_FEATURES", default=True, cast=bool)
 
+# Proxy handling, for production
+if config("IS_PROXIED", default=True, cast=bool):
+    # https://docs.djangoproject.com/en/4.0/ref/settings/#use-x-forwarded-host
+    USE_X_FORWARDED_HOST = True
+    # https://docs.djangoproject.com/en/4.0/ref/settings/#secure-proxy-ssl-header
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 SENTRY_DSN = config(
     "SENTRY_DSN",
     default="https://08f4706d16004f57bcd37eb907bfc2e7@o787041.ingest.sentry.io/6107216",
