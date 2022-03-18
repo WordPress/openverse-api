@@ -1,0 +1,32 @@
+version: '2.4'
+
+services:
+  db:
+    env_file:
+      - docker/environments/development/config/postgres/.env.docker
+
+  upstream_db:
+    env_file:
+      - docker/environments/development/config/postgres/.env.docker
+
+  web:
+    env_file:
+      - docker/environments/development/config/api/.env.docker
+    stdin_open: true
+    tty: true
+
+  ingestion_server:
+    env_file:
+      - docker/environments/development/config/ingestion_server/.env.docker
+    stdin_open: true
+    tty: true
+
+  indexer_worker:
+    env_file:
+      - docker/environments/development/config/ingestion_server/.env.docker
+    stdin_open: true
+    tty: true
+
+  analytics:
+    env_file:
+      - docker/environments/development/config/analytics/.env.docker

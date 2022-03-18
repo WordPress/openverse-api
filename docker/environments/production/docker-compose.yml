@@ -1,0 +1,26 @@
+version: '2.4'
+
+services:
+  db:
+    healthcheck:
+      test: 'pg_isready -U deploy -d openledger'
+
+  upstream_db:
+    healthcheck:
+      test: 'pg_isready -U deploy -d openledger'
+
+  web:
+    env_file:
+      - docker/environments/production/config/api/.env.docker
+
+  ingestion_server:
+    env_file:
+      - docker/environments/production/config/ingestion_server/.env.docker
+
+  indexer_worker:
+    env_file:
+      - docker/environments/production/config/ingestion_server/.env.docker
+
+  analytics:
+    env_file:
+      - docker/environments/production/config/analytics/.env.docker
