@@ -14,8 +14,16 @@ services:
       - docker/environments/production/config/api/.env.docker
 
   ingestion_server:
+    # Allow the image tag to be set to a specific version, default to latest
+    image: ghcr.io/wordpress/openverse-ingestion_server:${IMAGE_TAG:-latest}
     env_file:
       - docker/environments/production/config/ingestion_server/.env.docker
+    dns:
+      # Related to DNS management on the production box.
+      # 172.16.0.0–172.31.255.255 is a reserved IP range by the (IANA) for
+      # private/internal networking. This specific IP is the DNS resolution address
+      # for a default AWS Virtual Private Cloud.
+      - 172.31.0.2
 
   indexer_worker:
     env_file:

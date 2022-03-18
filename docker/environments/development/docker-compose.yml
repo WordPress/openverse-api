@@ -16,6 +16,9 @@ services:
     tty: true
 
   ingestion_server:
+    build: ./ingestion_server/
+    image: openverse-ingestion_server
+    command: gunicorn -c ./gunicorn.conf.py
     env_file:
       - docker/environments/development/config/ingestion_server/.env.docker
     stdin_open: true

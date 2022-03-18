@@ -21,9 +21,14 @@ default:
 ##########
 
 IS_PROD := env_var_or_default("IS_PROD", "")
-DOCKER_FILE := "-f " + (
-    if IS_PROD == "true" {"ingestion_server/docker-compose.yml"}
-    else {"docker-compose.yml"}
+
+# include all the time the base docker-compose file
+BASE_DOCKER_FILE := "-f docker-compose.yml"
+
+# according to the value of the env IS_PROD determine what secondary docker-compose file should be loaded
+DOCKER_FILE := ( BASE_DOCKER_FILE ) + " -f " + (
+    if IS_PROD == "true" {"docker/environments/production/docker-compose.yml"}
+    else {"docker/environments/development/docker-compose.yml"}
 )
 
 # Build all (or specified) services
