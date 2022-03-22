@@ -38,6 +38,8 @@ class Image(ImageFileMixin, AbstractMedia):
     class Meta(AbstractMedia.Meta):
         db_table = "image"
 
+    test_field = models.TextField()
+
 
 class ImageReport(AbstractMediaReport):
     class Meta:
