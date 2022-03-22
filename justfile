@@ -180,8 +180,8 @@ dj-local +args:
     cd api && pipenv run python manage.py {{ args }}
 
 # Run Django administrative commands in the docker container
-@dj docker_args="" +args="":
-    just _exec_web "{{ docker_args }}" python manage.py {{ args }}
+@dj +args="":
+    just _exec_web "" python manage.py {{ args }}
 
 # Make a test cURL request to the API
 stats media="images":
