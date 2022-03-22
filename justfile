@@ -172,9 +172,13 @@ api-test docker_args="" tests="": up wait-for-es wait-for-ing wait-for-web
 api-testlocal args="":
     cd api && pipenv run ./test/run_test.sh {{ args }}
 
-# Run Django administrative commands
-dj args="":
+# Run Django administrative commands locally
+dj-local +args:
     cd api && pipenv run python manage.py {{ args }}
+
+# Run Django administrative commands in the docker container
+dj +args:
+    docker-compose exec {{ docker_args }} web python manage {{ args }}
 
 # Make a test cURL request to the API
 stats media="images":
