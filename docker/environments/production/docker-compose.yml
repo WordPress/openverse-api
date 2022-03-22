@@ -1,13 +1,13 @@
-version: '2.4'
+version: "2.4"
 
 services:
   db:
     healthcheck:
-      test: 'pg_isready -U deploy -d openledger'
+      test: "pg_isready -U deploy -d openledger"
 
   upstream_db:
     healthcheck:
-      test: 'pg_isready -U deploy -d openledger'
+      test: "pg_isready -U deploy -d openledger"
 
   web:
     env_file:

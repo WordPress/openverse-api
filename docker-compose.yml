@@ -1,22 +1,22 @@
-version: '2.4'
+version: "2.4"
 services:
   db:
     image: postgres:13.2-alpine
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
       - api-postgres:/var/lib/postgresql/data
 
   thumbs:
     image: willnorris/imageproxy
     ports:
-      - '8222:8222'
-    command: ['-addr', '0.0.0.0:8222']
+      - "8222:8222"
+    command: ["-addr", "0.0.0.0:8222"]
 
   upstream_db:
     image: postgres:13.2-alpine
     ports:
-      - '5433:5432'
+      - "5433:5432"
     volumes:
       - catalog-postgres:/var/lib/postgresql/data
       - ./sample_data:/sample_data
@@ -24,12 +24,12 @@ services:
   cache:
     image: redis:4.0.10
     ports:
-      - '6379:6379'
+      - "6379:6379"
 
   es:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.12.0
     ports:
-      - '9200:9200'
+      - "9200:9200"
     environment:
       # disable XPack
       # https://www.elastic.co/guide/en/elasticsearch/reference/5.3/docker.html#_security_note
@@ -51,7 +51,7 @@ services:
     # Memory limit for ES, as it tends to be a memory hoarder
     # Set this value to an empty string to remove the limit
     # https://docs.docker.com/compose/compose-file/compose-file-v2/#cpu-and-other-resources
-    mem_limit: 4294967296 # 4 GiB in bytes
+    mem_limit: ${ES_MEM_LIMIT:-4294967296} # 4 GiB in bytes
     volumes:
       - es-data:/usr/share/elasticsearch/data
 
@@ -61,8 +61,8 @@ services:
     volumes:
       - ./api:/api
     ports:
-      - '8000:8000'
-      - '3000:3000'
+      - "8000:8000"
+      - "3000:3000"
     depends_on:
       - db
       - es
@@ -71,7 +71,7 @@ services:
   ingestion_server:
     image: openverse-ingestion_server
     ports:
-      - '8001:8001'
+      - "8001:8001"
     depends_on:
       - db
       - es
@@ -84,7 +84,7 @@ services:
     image: openverse-ingestion_server
     command: gunicorn -c ./gunicorn_worker.conf.py
     ports:
-      - '8002:8002'
+      - "8002:8002"
     depends_on:
       - db
       - es
@@ -95,7 +95,7 @@ services:
     build: ./analytics/
     image: openverse-analytics
     ports:
-      - '8090:8090'
+      - "8090:8090"
     volumes:
       - ./analytics:/analytics
 
