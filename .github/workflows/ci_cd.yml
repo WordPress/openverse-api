@@ -164,7 +164,7 @@ jobs:
 
       - name: Run makemigrations
         run: just dj makemigrations
-      
+
       - name: Check for uncommitted changes
         id: check-changes
         uses: mskri/check-uncommitted-changes-action@v1.0.1
