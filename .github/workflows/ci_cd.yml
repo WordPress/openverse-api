@@ -165,17 +165,7 @@ jobs:
           docker load --input /tmp/analytics/analytics.tar
 
       - name: Run makemigrations
-        run: just dj makemigrations
-
-      - name: Check for uncommitted changes
-        id: check-changes
-        uses: mskri/check-uncommitted-changes-action@v1.0.1
-
-      - name: Fail on uncommited mirgations
-        if: steps.check-changes.outputs.outcome == failure()
-        run: |
-          echo "There are uncommitted migrations. Please run `just dj makemigrations` locally and commit the generated migration files."
-          exit 1
+        run: just dj makemigrations --check --noinput
 
   push:
     name: Publish Docker images

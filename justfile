@@ -164,8 +164,11 @@ _api-install:
     '"$(just web-health)" != "200"' \
     "Waiting for the API to be healthy..."
 
+@_api-up: up wait-for-es wait-for-ing wait-for-web
+    exit 0
+
 # Run API tests inside Docker
-@api-test docker_args="" tests="":
+@api-test docker_args="" tests="": _api-up
     docker-compose exec {{ docker_args }} ./test/run_test.sh {{ tests }}
 
 # Run API tests locally
@@ -177,7 +180,7 @@ dj-local +args:
     cd api && pipenv run python manage.py {{ args }}
 
 # Run Django administrative commands in the docker container
-@dj +args="":
+@dj +args="": _api-up
     docker-compose exec web python manage.py {{ args }}
 
 # Make a test cURL request to the API
