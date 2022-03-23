@@ -101,7 +101,7 @@ jobs:
 
       - name: Run ingestion-server tests
         run: just ing-testlocal
-      
+
       - name: Print ingestion test failure logs
         if: failure()
         run: cat ingestion/test/ingestion_logs.txt
