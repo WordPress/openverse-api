@@ -240,6 +240,7 @@ def search(
     filters = [
         ("extension", None),
         ("category", None),
+        ("categories", "category"),
         ("aspect_ratio", None),
         ("size", None),
         ("source", None),
