@@ -152,6 +152,7 @@ class MediaSearchRequestSerializer(serializers.Serializer):
         DeprecatedParam("lt", "license_type"),
         DeprecatedParam("pagesize", "page_size"),
         DeprecatedParam("provider", "source"),
+        DeprecatedParam("categories", "category"),
     ]
     fields_names = [
         "q",

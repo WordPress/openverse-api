@@ -239,7 +239,7 @@ def search(
     # names are identical.
     filters = [
         ("extension", None),
-        ("categories", None),
+        ("category", None),
         ("aspect_ratio", None),
         ("size", None),
         ("source", None),
