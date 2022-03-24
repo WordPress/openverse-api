@@ -308,7 +308,7 @@ VERBOSE_ES_RESPONSE = config("DEBUG_SCORES", default=False, cast=bool)
 USE_RANK_FEATURES = config("USE_RANK_FEATURES", default=True, cast=bool)
 
 # The scheme to use for the hyperlinks in the API responses
-API_LINK_SCHEME = config("API_LINK_SCHEME", default="https")
+API_LINK_SCHEME = config("API_LINK_SCHEME", default=None)
 
 # Proxy handling, for production
 if config("IS_PROXIED", default=True, cast=bool):
