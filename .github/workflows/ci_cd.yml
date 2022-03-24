@@ -165,7 +165,7 @@ jobs:
           docker load --input /tmp/analytics/analytics.tar
 
       - name: Run makemigrations
-        run: just dj makemigrations --check --noinput
+        run: just dj -T makemigrations --check --noinput
 
   push:
     name: Publish Docker images
