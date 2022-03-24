@@ -306,6 +306,9 @@ VERBOSE_ES_RESPONSE = config("DEBUG_SCORES", default=False, cast=bool)
 # Whether to boost results by authority and popularity
 USE_RANK_FEATURES = config("USE_RANK_FEATURES", default=True, cast=bool)
 
+# The scheme to use for the hyperlinks in the API responses
+API_LINK_SCHEME = config("API_LINK_SCHEME", default="https")
+
 # Proxy handling, for production
 if config("IS_PROXIED", default=True, cast=bool):
     # https://docs.djangoproject.com/en/4.0/ref/settings/#use-x-forwarded-host
