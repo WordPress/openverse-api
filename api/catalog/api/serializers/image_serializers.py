@@ -40,9 +40,6 @@ class ImageSearchRequestSerializer(
     category = serializers.MultipleChoiceField(
         label="category",
         choices=ImageCategories.choices,
-        help_text="A comma separated list of categories; available categories "
-        "include `illustration`, `photograph`, and "
-        "`digitized_artwork`.",
         required=False,
     )
     aspect_ratio = serializers.CharField(
