@@ -1,3 +1,4 @@
+from catalog.api.constants.categories import AudioCategories
 from catalog.api.docs.media_docs import fields_to_md
 from catalog.api.models import AudioReport
 from catalog.api.models.audio import Audio
@@ -60,8 +61,9 @@ class AudioSearchRequestSerializer(
     used to generate Swagger documentation.
     """
 
-    category = serializers.CharField(
+    category = serializers.MultipleChoiceField(
         label="category",
+        choices=AudioCategories.choices,
         help_text="A comma separated list of categories; available categories "
         "include `music`, `sound_effect`, `podcast`, `audiobook`, "
         "and `news`.",
@@ -73,19 +75,6 @@ class AudioSearchRequestSerializer(
         "include `short`, and `long`.",
         required=False,
     )
-
-    @staticmethod
-    def validate_categories(value):
-        valid_categories = {
-            "music",
-            "sound_effect",
-            "podcast",
-            "news",
-            "audiobook",
-            "pronunciation",
-        }
-        _validate_enum("category", valid_categories, value)
-        return value.lower()
 
     @staticmethod
     def validate_duration(value):

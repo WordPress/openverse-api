@@ -171,7 +171,9 @@ def _apply_filter(
 
     if serializer_field in search_params.data:
         filters = []
-        for arg in search_params.data[serializer_field].split(","):
+        field_data = search_params.data[serializer_field]
+        args = field_data.split(",") if isinstance(field_data, str) else field_data
+        for arg in args:
             _param = es_field or serializer_field
             args = {"name_or_query": "term", _param: arg}
             filters.append(Q(**args))
