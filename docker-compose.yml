@@ -126,8 +126,8 @@ services:
   proxy:
     image: nginx:alpine
     ports:
-      - "80:80"
-      - "443:443"
+      - "9080:9080"
+      - "9443:9443"
     depends_on:
       - web
     volumes:
