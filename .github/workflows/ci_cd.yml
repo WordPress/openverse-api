@@ -134,8 +134,8 @@ jobs:
       - name: Run API tests
         run: just api-test -T
 
-      - name: Print API test failure logs
-        if: ${{ failure() }}
+      - name: Print API test logs
+        if: ${{ always() }}
         run: just logs
 
 <<<<<<< HEAD
@@ -143,8 +143,8 @@ jobs:
       - name: Run analytics tests
         run: just nl-test -T
 
-      - name: Print analytics test failure logs
-        if: ${{ failure() }}
+      - name: Print analytics test logs
+        if: ${{ always() }}
         run: just logs
 
 >>>>>>> 39f83ee6 (Log for any failure)
