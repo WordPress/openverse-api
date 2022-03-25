@@ -137,32 +137,18 @@ jobs:
       - name: Run API tests
         run: just api-test -T
 
-      - name: Save API test logs
+      - name: Print API test logs
         if: ${{ always() }}
-        run: just logs > api_logs
-
-      - name: Upload API test logs
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: api_logs
-          path: api_logs
+        run: just logs
 
 <<<<<<< HEAD
 =======
       - name: Run analytics tests
         run: just nl-test -T
 
-      - name: Save analytics test logs
+      - name: Print analytics test logs
         if: ${{ always() }}
-        run: just logs > nl_logs
-
-      - name: Upload analytics test logs
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: nl_logs
-          path: nl_logs
+        run: just logs
 
 >>>>>>> 39f83ee6 (Log for any failure)
       - name: Make developer docs

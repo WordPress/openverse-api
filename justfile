@@ -44,7 +44,7 @@ recreate:
     @just up "--force-recreate --build"
 
 # Show logs of all, or named, Docker services
-logs services="" args="-f":
+logs services="" args="":
     docker-compose {{ DOCKER_FILE }} logs {{ args }} {{ services }}
 
 
