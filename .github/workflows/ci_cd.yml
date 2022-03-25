@@ -102,9 +102,12 @@ jobs:
       - name: Run ingestion-server tests
         run: just ing-testlocal
 
-      - name: Print ingestion test failure logs
-        if: failure()
-        run: cat ingestion/test/ingestion_logs.txt
+      - name: Upload ingestion test failure logs
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: ing_logs
+          path: ingestion/test/ingestion_logs.txt
 
   test-api:
     name: Run tests for the API
@@ -134,18 +137,32 @@ jobs:
       - name: Run API tests
         run: just api-test -T
 
-      - name: Print API test logs
+      - name: Save API test logs
         if: ${{ always() }}
-        run: just logs
+        run: just logs > api_logs
+
+      - name: Upload API test logs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: api_logs
+          path: api_logs
 
 <<<<<<< HEAD
 =======
       - name: Run analytics tests
         run: just nl-test -T
 
-      - name: Print analytics test logs
+      - name: Save analytics test logs
         if: ${{ always() }}
-        run: just logs
+        run: just logs > nl_logs
+
+      - name: Upload analytics test logs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: nl_logs
+          path: nl_logs
 
 >>>>>>> 39f83ee6 (Log for any failure)
       - name: Make developer docs
