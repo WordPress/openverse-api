@@ -87,6 +87,7 @@ class TaskResource(BaseTaskResource):
         # Inject shared memory
         progress = Value("d", 0.0)
         finish_time = Value("d", 0.0)
+        active_workers = Value("i", int(False)) # Tracks whether the task has any active distributed workers
         task = Task(
             model=model,
             task_type=TaskTypes[action],
@@ -94,10 +95,11 @@ class TaskResource(BaseTaskResource):
             progress=progress,
             task_id=task_id,
             finish_time=finish_time,
+            active_workers=active_workers,
             callback_url=callback_url,
         )
         task.start()
-        task_id = self.tracker.add_task(task, task_id, action, progress, finish_time)
+        task_id = self.tracker.add_task(task, task_id, action, progress, finish_time, active_workers)
         base_url = self._get_base_url(req)
         status_url = f"{base_url}/task/{task_id}"
         # Give the task a moment to start so we can detect immediate failure.
@@ -129,9 +131,11 @@ class TaskStatus(BaseTaskResource):
     def on_get(self, req, resp, task_id):
         """Check the status of a single task."""
         task = self.tracker.id_task[task_id]
-        active = task.is_alive()
 
         percent_completed = self.tracker.id_progress[task_id].value
+        active_workers = bool(self.tracker.id_active_workers[task_id].value)
+        active = task.is_alive() or active_workers
+
         resp.media = {
             "active": active,
             "percent_completed": percent_completed,
@@ -139,7 +143,7 @@ class TaskStatus(BaseTaskResource):
         }
 
 
-class WorkerFinishedResource:
+class WorkerFinishedResource(BaseTaskResource):
     """
     For notifying ingestion server that an indexing worker has finished its
     task.
@@ -147,21 +151,23 @@ class WorkerFinishedResource:
 
     @staticmethod
     def on_post(req, _):
-        target_index = worker_finished(str(req.remote_addr))
-        if target_index:
+        task_data = worker_finished(str(req.remote_addr))
+        if task_data:
             logging.info(
                 "All indexer workers finished! Attempting to promote index "
-                f"{target_index}"
+                f"{task_data['target_index']}"
             )
-            index_type = target_index.split("-")[0]
+            index_type = task_data['target_index'].split("-")[0]
             if index_type not in MEDIA_TYPES:
                 index_type = "image"
             slack.verbose(
                 f"`{index_type}`: Elasticsearch reindex complete | "
                 f"_Next: promote index as primary_"
             )
+            task_id = task_data['task_id']
+            active_workers = tracker.id_active_workers[task_id]
             f = indexer.TableIndexer.go_live
-            p = Process(target=f, args=(target_index, index_type))
+            p = Process(target=f, args=(task_data['target_index'], index_type, active_workers))
             p.start()
 
 
@@ -195,7 +201,7 @@ def create_api(log=True):
     _api.add_route("/", HealthResource())
     _api.add_route("/task", TaskResource(task_tracker))
     _api.add_route("/task/{task_id}", TaskStatus(task_tracker))
-    _api.add_route("/worker_finished", WorkerFinishedResource())
+    _api.add_route("/worker_finished", WorkerFinishedResource(task_tracker))
     _api.add_route("/state", StateResource())
 
     return _api

@@ -26,7 +26,7 @@ class WorkerStatus(enum.Enum):
     FINISHED = 1
 
 
-def register_indexing_job(worker_ips, target_index):
+def register_indexing_job(worker_ips, target_index, task_id):
     """
     Track the hosts that are running indexing jobs. Only one indexing job can
     run at a time.
@@ -35,6 +35,7 @@ def register_indexing_job(worker_ips, target_index):
     of relevant indexer-worker instances.
     :param target_index: The name of the Elasticsearch index that will be
     promoted to production after indexing is complete
+    :param task_id: The id of the data_refresh task scheduling these workers.
     :return: Return True if scheduling succeeds
     """
     with FileLock(lock_path), shelve.open(shelf_path, writeback=True) as db:
@@ -55,6 +56,7 @@ def register_indexing_job(worker_ips, target_index):
         db["worker_statuses"] = worker_statuses
         db["start_time"] = datetime.datetime.now()
         db["target_index"] = target_index
+        db["task_id"] = task_id
         return True
 
 
@@ -63,7 +65,8 @@ def worker_finished(worker_ip):
     The scheduler received a notification indicating an indexing worker has
     finished its task.
     :param worker_ip: The private IP of the worker.
-    :return: The target index if all workers are finished, else False.
+    :return: A dict containing the target index and task id if all workers are
+    finished, else False.
     """
     with FileLock(lock_path), shelve.open(shelf_path, writeback=True) as db:
         try:
@@ -79,7 +82,10 @@ def worker_finished(worker_ip):
             if db["worker_statuses"][worker_key] == WorkerStatus.RUNNING:
                 log.info(f"{worker_key} is still indexing")
                 return False
-        return db["target_index"]
+        return {
+            "target_index": db["target_index"],
+            "task_id": db["task_id"],
+        }
 
 
 def clear_state():
