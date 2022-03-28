@@ -68,7 +68,7 @@ class TaskTracker:
                     "error": percent_completed < 100 and not active,
                     "start_time": start_time,
                     "finish_time": finish_time,
-                    "active_workers": bool(active_workers)
+                    "active_workers": bool(active_workers),
                 }
             )
         sorted_results = sorted(results, key=lambda x: x["finish_time"])
@@ -90,7 +90,15 @@ class TaskTracker:
 
 class Task(Process):
     def __init__(
-        self, model, task_type, since_date, progress, task_id, finish_time, active_workers, callback_url
+        self,
+        model,
+        task_type,
+        since_date,
+        progress,
+        task_id,
+        finish_time,
+        active_workers,
+        callback_url,
     ):
         Process.__init__(self)
         self.model = model
@@ -107,7 +115,12 @@ class Task(Process):
             # Map task types to actions.
             elasticsearch = elasticsearch_connect()
             indexer = TableIndexer(
-                elasticsearch, self.model, self.task_id, self.progress, self.finish_time, self.active_workers
+                elasticsearch,
+                self.model,
+                self.task_id,
+                self.progress,
+                self.finish_time,
+                self.active_workers,
             )
             if self.task_type == TaskTypes.REINDEX:
                 slack.verbose(f"`{self.model}`: Beginning Elasticsearch reindex")

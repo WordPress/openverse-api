@@ -167,7 +167,15 @@ def get_last_item_ids(table):
 
 
 class TableIndexer:
-    def __init__(self, es_instance, tables, task_id=None, progress=None, finish_time=None, active_workers=None):
+    def __init__(
+        self,
+        es_instance,
+        tables,
+        task_id=None,
+        progress=None,
+        finish_time=None,
+        active_workers=None,
+    ):
         self.es = es_instance
         connections.connections.add_connection("default", self.es)
         self.tables_to_watch = tables
@@ -417,7 +425,9 @@ class TableIndexer:
                 index=destination_index, body=index_settings(model_name)
             )
             self.active_workers.value = int(True)
-            schedule_distributed_index(database_connect(), destination_index, self.task_id)
+            schedule_distributed_index(
+                database_connect(), destination_index, self.task_id
+            )
         else:
             self._index_table(model_name, dest_idx=destination_index)
             slack.verbose(
