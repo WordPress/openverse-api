@@ -144,6 +144,7 @@ jobs:
   push:
     name: Publish Docker images
     runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
     needs:
       - test-ing
       - test-api
@@ -174,14 +175,9 @@ jobs:
         run: |
           docker load --input /tmp/${{ matrix.image }}.tar
           docker tag openverse-${{ matrix.image }} \
-            ghcr.io/wordpress/openverse-${{ matrix.image }}:${{ github.sha }}
-          docker push --all-tags ghcr.io/wordpress/openverse-${{ matrix.image }}
-
-      - name: Tag image `${{ matrix.image }}` - release
-        if: github.event_name == 'release' && github.event.action == 'published'
-        run: |
-          docker tag openverse-${{ matrix.image }} \
             ghcr.io/wordpress/openverse-${{ matrix.image }}:latest
+          docker tag openverse-${{ matrix.image }} \
+            ghcr.io/wordpress/openverse-${{ matrix.image }}:${{ github.sha }}
           docker tag openverse-${{ matrix.image }} \
             ghcr.io/wordpress/openverse-${{ matrix.image }}:${{ github.ref_name }}
           docker push --all-tags ghcr.io/wordpress/openverse-${{ matrix.image }}
