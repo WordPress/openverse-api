@@ -8,7 +8,7 @@ data has been indexed, notify Ingestion Server and stop the instance.
 
 import logging as log
 import sys
-from multiprocessing import Process, Value
+from multiprocessing import Process
 
 import boto3
 import falcon
@@ -16,6 +16,7 @@ import requests
 from decouple import config
 from psycopg2.sql import SQL, Identifier, Literal
 
+from ingestion_server import slack
 from ingestion_server.constants.media_types import MEDIA_TYPES
 from ingestion_server.indexer import TableIndexer, elasticsearch_connect
 from ingestion_server.queries import get_existence_queries
@@ -82,7 +83,7 @@ def _launch_reindex(table, target_index, query, indexer, notify_url):
     except Exception as err:
         exception_type = f"{err.__class__.__module__}.{err.__class__.__name__}"
         slack.error(
-            f":x_red: Error in worker `{worker_ip}` while reindexing `{db["target_index"]}`"
+            f":x_red: Error in worker while reindexing `{target_index}`"
             f"(`{exception_type}`): \n"
             f"```\n{err}\n```"
         )
