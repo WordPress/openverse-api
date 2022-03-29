@@ -76,13 +76,15 @@ def _execute_indexing_task(target_index, start_id, end_id, notify_url):
 
 
 def _launch_reindex(table, target_index, query, indexer, notify_url):
+    error = False
     try:
         indexer.replicate(table, target_index, query)
     except Exception:
         log.error("Indexing error occurred: ", exc_info=True)
+        error = True
 
     log.info(f"Notifying {notify_url}")
-    requests.post(notify_url)
+    requests.post(notify_url, json={"error": error})
     _self_destruct()
     return
 

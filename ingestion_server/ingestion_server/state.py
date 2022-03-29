@@ -24,6 +24,7 @@ shelf_path = config("SHELF_PATH", default="db")
 class WorkerStatus(enum.Enum):
     RUNNING = 0
     FINISHED = 1
+    ERROR = 2
 
 
 def register_indexing_job(worker_ips, target_index, task_id):
@@ -60,18 +61,21 @@ def register_indexing_job(worker_ips, target_index, task_id):
         return True
 
 
-def worker_finished(worker_ip):
+def worker_finished(worker_ip, error):
     """
     The scheduler received a notification indicating an indexing worker has
     finished its task.
     :param worker_ip: The private IP of the worker.
+    :param error: Whether this worker had an error during processing.
     :return: A dict containing the target index, task_id, and the percent of
     workers that have completed.
     """
     with FileLock(lock_path), shelve.open(shelf_path, writeback=True) as db:
         try:
             _ = db["worker_statuses"][worker_ip]
-            db["worker_statuses"][worker_ip] = WorkerStatus.FINISHED
+            db["worker_statuses"][worker_ip] = (
+                WorkerStatus.FINISHED if not error else WorkerStatus.ERROR
+            )
             log.info(f"Received worker_finished signal from {worker_ip}")
         except KeyError:
             log.error(
@@ -79,15 +83,17 @@ def worker_finished(worker_ip):
                 "we are not tracking it."
             )
         total_workers = len(db["worker_statuses"])
-        running_workers = 0
+        finished_workers = 0
         for worker_key in db["worker_statuses"]:
-            if db["worker_statuses"][worker_key] == WorkerStatus.RUNNING:
+            status = db["worker_statuses"][worker_key]
+            if status == WorkerStatus.RUNNING:
                 log.info(f"{worker_key} is still indexing")
-                running_workers += 1
+            elif status == WorkerStatus.FINISHED:
+                finished_workers += 1
         return {
             "target_index": db["target_index"],
             "task_id": db["task_id"],
-            "percent_completed": (running_workers / total_workers) * 100
+            "percent_completed": (finished_workers / total_workers) * 100,
         }
 
 

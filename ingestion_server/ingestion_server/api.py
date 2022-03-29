@@ -154,7 +154,7 @@ class WorkerFinishedResource(BaseTaskResource):
     """
 
     def on_post(self, req, _):
-        task_data = worker_finished(str(req.remote_addr))
+        task_data = worker_finished(str(req.remote_addr), req.media["error"])
         task_id = task_data["task_id"]
         # Update progress
         self.tracker.id_progress[task_id] = task_data['percent_completed']
