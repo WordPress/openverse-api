@@ -83,17 +83,17 @@ def worker_finished(worker_ip, error):
                 "we are not tracking it."
             )
         total_workers = len(db["worker_statuses"])
-        finished_workers = 0
+        completed_workers = 0
         for worker_key in db["worker_statuses"]:
             status = db["worker_statuses"][worker_key]
             if status == WorkerStatus.RUNNING:
                 log.info(f"{worker_key} is still indexing")
             elif status == WorkerStatus.FINISHED:
-                finished_workers += 1
+                completed_workers += 1
         return {
             "target_index": db["target_index"],
             "task_id": db["task_id"],
-            "percent_completed": (finished_workers / total_workers) * 100,
+            "percent_completed": (completed_workers / total_workers) * 100,
         }
 
 
