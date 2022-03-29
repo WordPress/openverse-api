@@ -65,8 +65,8 @@ def worker_finished(worker_ip):
     The scheduler received a notification indicating an indexing worker has
     finished its task.
     :param worker_ip: The private IP of the worker.
-    :return: A dict containing the target index and task id if all workers are
-    finished, else False.
+    :return: A dict containing the target index, task_id, and the percent of
+    workers that have completed.
     """
     with FileLock(lock_path), shelve.open(shelf_path, writeback=True) as db:
         try:
@@ -78,13 +78,16 @@ def worker_finished(worker_ip):
                 "An indexer worker notified us it finished its task, but "
                 "we are not tracking it."
             )
+        total_workers = len(db["worker_statuses"])
+        running_workers = 0
         for worker_key in db["worker_statuses"]:
             if db["worker_statuses"][worker_key] == WorkerStatus.RUNNING:
                 log.info(f"{worker_key} is still indexing")
-                return False
+                running_workers += 1
         return {
             "target_index": db["target_index"],
             "task_id": db["task_id"],
+            "percent_completed": (running_workers / total_workers) * 100
         }
 
 

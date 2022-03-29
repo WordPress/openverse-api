@@ -155,7 +155,11 @@ class WorkerFinishedResource(BaseTaskResource):
 
     def on_post(self, req, _):
         task_data = worker_finished(str(req.remote_addr))
-        if task_data:
+        task_id = task_data["task_id"]
+        # Update progress
+        self.tracker.id_progress[task_id] = task_data['percent_completed']
+
+        if task_data['percent_completed'] == 100:
             logging.info(
                 "All indexer workers finished! Attempting to promote index "
                 f"{task_data['target_index']}"
@@ -167,7 +171,6 @@ class WorkerFinishedResource(BaseTaskResource):
                 f"`{index_type}`: Elasticsearch reindex complete | "
                 f"_Next: promote index as primary_"
             )
-            task_id = task_data["task_id"]
             active_workers = self.tracker.id_active_workers[task_id]
             f = indexer.TableIndexer.go_live
             p = Process(

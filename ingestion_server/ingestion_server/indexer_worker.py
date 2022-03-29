@@ -52,8 +52,6 @@ def _execute_indexing_task(target_index, start_id, end_id, notify_url):
     if table_name not in MEDIA_TYPES:
         table_name = "image"
     elasticsearch = elasticsearch_connect()
-    progress = Value("d", 0.0)
-    finish_time = Value("d", 0.0)
 
     deleted, mature = get_existence_queries(table_name)
     query = SQL(
@@ -68,7 +66,7 @@ def _execute_indexing_task(target_index, start_id, end_id, notify_url):
         end_id=Literal(end_id),
     )
     log.info(f"Querying {query}")
-    indexer = TableIndexer(elasticsearch, table_name, progress, finish_time)
+    indexer = TableIndexer(elasticsearch, table_name)
     p = Process(
         target=_launch_reindex,
         args=(table_name, target_index, query, indexer, notify_url),
