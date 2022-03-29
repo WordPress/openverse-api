@@ -53,7 +53,7 @@ if lb_url := config("LOAD_BALANCER_URL", default=""):
 
 if DEBUG:
     ALLOWED_HOSTS += [
-        "dev.openverse.engineering",  # used in local development
+        "dev.openverse.test",  # used in local development
         "localhost",
         "127.0.0.1",
         "0.0.0.0",

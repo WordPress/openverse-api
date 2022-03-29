@@ -4,10 +4,10 @@ To emulate the proxying behavior of production, we have set up an NGINX proxy th
 
 This proxy uses certificates from the `nginx/certs/` directory. These certificates can be generated using `mkcert` with the `just cert` command.
 
-Additionally, to test with the dev hostname `dev.openverse.engineering`, add the following line to your hosts file.
+Additionally, to test with the dev hostname `dev.openverse.test`, add the following line to your hosts file.
 
 ```text
-127.0.0.1 dev.openverse.engineering
+127.0.0.1 dev.openverse.test
 ```
 
-Visiting `http://dev.openverse.engineering:9080` in your browser should permanently redirect you to `https://dev.openverse.engineering:9443`.
+Visiting `http://dev.openverse.test:9080` in your browser should permanently redirect you to `https://dev.openverse.test:9443`.

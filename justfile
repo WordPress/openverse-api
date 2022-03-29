@@ -87,7 +87,7 @@ cert:
     mkcert \
       -cert-file nginx/certs/openverse.crt \
       -key-file nginx/certs/openverse.key \
-      dev.openverse.engineering localhost 127.0.0.1 ::1
+      dev.openverse.test localhost 127.0.0.1 ::1
 
 #################
 # Elasticsearch #
