@@ -157,9 +157,9 @@ class WorkerFinishedResource(BaseTaskResource):
         task_data = worker_finished(str(req.remote_addr), req.media["error"])
         task_id = task_data["task_id"]
         # Update progress
-        self.tracker.id_progress[task_id] = task_data['percent_completed']
+        self.tracker.id_progress[task_id] = task_data["percent_completed"]
 
-        if task_data['percent_completed'] == 100:
+        if task_data["percent_completed"] == 100:
             logging.info(
                 "All indexer workers finished! Attempting to promote index "
                 f"{task_data['target_index']}"
