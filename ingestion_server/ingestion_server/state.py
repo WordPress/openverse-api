@@ -12,6 +12,7 @@ import datetime
 import enum
 import logging as log
 import shelve
+from collections import namedtuple
 
 from decouple import config
 from filelock import FileLock
@@ -25,6 +26,12 @@ class WorkerStatus(enum.Enum):
     RUNNING = 0
     FINISHED = 1
     ERROR = 2
+
+
+TaskData = namedtuple(
+    "TaskData",
+    ["target_index", "task_id", "percent_successful", "percent_completed"]
+)
 
 
 def register_indexing_job(worker_ips, target_index, task_id):
@@ -67,8 +74,8 @@ def worker_finished(worker_ip, error):
     finished its task.
     :param worker_ip: The private IP of the worker.
     :param error: Whether this worker had an error during processing.
-    :return: A dict containing the target index, task_id, and the percent of
-    workers that have completed.
+    :return: TaskData namedtuple containing the target index, task_id, and the
+    percent of workers that have completed and that were successful.
     """
     with FileLock(lock_path), shelve.open(shelf_path, writeback=True) as db:
         try:
@@ -84,17 +91,20 @@ def worker_finished(worker_ip, error):
             )
         total_workers = len(db["worker_statuses"])
         completed_workers = 0
+        running_workers = 0
         for worker_key in db["worker_statuses"]:
             status = db["worker_statuses"][worker_key]
             if status == WorkerStatus.RUNNING:
                 log.info(f"{worker_key} is still indexing")
+                running_workers += 1
             elif status == WorkerStatus.FINISHED:
                 completed_workers += 1
-        return {
-            "target_index": db["target_index"],
-            "task_id": db["task_id"],
-            "percent_completed": (completed_workers / total_workers) * 100,
-        }
+        return TaskData(
+            db["target_index"],
+            db["task_id"],
+            (completed_workers / total_workers) * 100,
+            ((total_workers - running_workers) / total_workers) * 100
+        )
 
 
 def clear_state():

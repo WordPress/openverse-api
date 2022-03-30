@@ -160,28 +160,36 @@ class WorkerFinishedResource(BaseTaskResource):
 
     def on_post(self, req, _):
         task_data = worker_finished(str(req.remote_addr), req.media["error"])
-        task_id = task_data["task_id"]
-        # Update progress
-        self.tracker.id_progress[task_id] = task_data["percent_completed"]
+        task_id = task_data.task_id
+        target_index = task_data.target_index
+        active_workers = self.tracker.id_active_workers[task_id]
 
-        if task_data["percent_completed"] == 100:
+        # Update progress
+        self.tracker.id_progress[task_id] = task_data.percent_successful
+
+        if task_data.percent_successful == 100:
             logging.info(
-                "All indexer workers finished! Attempting to promote index "
-                f"{task_data['target_index']}"
+                "All indexer workers succeeded! Attempting to promote index "
+                f"{target_index}"
             )
-            index_type = task_data["target_index"].split("-")[0]
+            index_type = target_index.split("-")[0]
             if index_type not in MEDIA_TYPES:
                 index_type = "image"
             slack.verbose(
                 f"`{index_type}`: Elasticsearch reindex complete | "
                 f"_Next: promote index as primary_"
             )
-            active_workers = self.tracker.id_active_workers[task_id]
             f = indexer.TableIndexer.go_live
             p = Process(
-                target=f, args=(task_data["target_index"], index_type, active_workers)
+                target=f, args=(target_index, index_type, active_workers)
             )
             p.start()
+        elif task_data.percent_completed == 100:
+            # All workers finished, but not all were successful. Mark
+            # workers as complete and do not attempt to go live with the new
+            # indices.
+            active_workers.value = int(False)
+
 
 
 class StateResource:
