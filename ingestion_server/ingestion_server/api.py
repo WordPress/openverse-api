@@ -179,16 +179,13 @@ class WorkerFinishedResource(BaseTaskResource):
                 f"_Next: promote index as primary_"
             )
             f = indexer.TableIndexer.go_live
-            p = Process(
-                target=f, args=(target_index, index_type, active_workers)
-            )
+            p = Process(target=f, args=(target_index, index_type, active_workers))
             p.start()
         elif task_data.percent_completed == 100:
             # All workers finished, but not all were successful. Mark
             # workers as complete and do not attempt to go live with the new
             # indices.
             active_workers.value = int(False)
-
 
 
 class StateResource:

@@ -29,8 +29,7 @@ class WorkerStatus(enum.Enum):
 
 
 TaskData = namedtuple(
-    "TaskData",
-    ["target_index", "task_id", "percent_successful", "percent_completed"]
+    "TaskData", ["target_index", "task_id", "percent_successful", "percent_completed"]
 )
 
 
@@ -103,7 +102,7 @@ def worker_finished(worker_ip, error):
             db["target_index"],
             db["task_id"],
             (completed_workers / total_workers) * 100,
-            ((total_workers - running_workers) / total_workers) * 100
+            ((total_workers - running_workers) / total_workers) * 100,
         )
 
 
