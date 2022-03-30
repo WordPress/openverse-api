@@ -134,9 +134,8 @@ class TaskResource(BaseTaskResource):
 class TaskStatus(BaseTaskResource):
     def on_get(self, req, resp, task_id):
         """Check the status of a single task."""
-        try:
-            task = self.tracker.id_task[task_id]
-        except KeyError:
+        task = self.tracker.id_task.get(task_id)
+        if task is None:
             resp.status = falcon.HTTP_404
             resp.media = {"message": f"No task found with id {task_id}"}
             return
