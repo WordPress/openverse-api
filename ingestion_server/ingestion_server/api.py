@@ -164,7 +164,7 @@ class WorkerFinishedResource(BaseTaskResource):
         target_index = task_data.target_index
         active_workers = self.tracker.id_active_workers[task_id]
 
-        # Update progress
+        # Update global task progress based on worker results
         self.tracker.id_progress[task_id] = task_data.percent_successful
 
         if task_data.percent_successful == 100:
