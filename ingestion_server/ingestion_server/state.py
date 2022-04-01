@@ -12,7 +12,7 @@ import datetime
 import enum
 import logging as log
 import shelve
-from collections import namedtuple
+from typing import NamedTuple
 
 from decouple import config
 from filelock import FileLock
@@ -28,9 +28,11 @@ class WorkerStatus(enum.Enum):
     ERROR = 2
 
 
-TaskData = namedtuple(
-    "TaskData", ["target_index", "task_id", "percent_successful", "percent_completed"]
-)
+class TaskData(NamedTuple):
+    target_index: int
+    task_id: str
+    percent_successful: float
+    percent_completed: float
 
 
 def register_indexing_job(worker_ips, target_index, task_id):
@@ -99,10 +101,10 @@ def worker_finished(worker_ip, error):
             elif status == WorkerStatus.FINISHED:
                 completed_workers += 1
         return TaskData(
-            db["target_index"],
-            db["task_id"],
-            (completed_workers / total_workers) * 100,
-            ((total_workers - running_workers) / total_workers) * 100,
+            target_index=db["target_index"],
+            task_id=db["task_id"],
+            percent_successful=(completed_workers / total_workers) * 100,
+            percent_completed=((total_workers - running_workers) / total_workers) * 100,
         )
 
 
