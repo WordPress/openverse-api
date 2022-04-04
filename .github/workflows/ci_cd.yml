@@ -102,12 +102,9 @@ jobs:
       - name: Run ingestion-server tests
         run: just ing-testlocal
 
-      - name: Upload ingestion test failure logs
+      - name: Print ingestion test failure logs
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: ing_logs
-          path: ingestion/test/ingestion_logs.txt
+        run: cat ingestion/test/ingestion_logs.txt
 
   test-api:
     name: Run tests for the API
