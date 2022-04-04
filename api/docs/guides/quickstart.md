@@ -83,7 +83,6 @@ The command `just up` spawns the following services:
 - [NGINX](http://nginx.org)
 - **web** (`api/`)
 - **ingestion_server** and **indexer_worker** (`ingestion_server/`)
-- **analytics** (`analytics/`)
 
 The last three are subprojects of this monorepo.
 
