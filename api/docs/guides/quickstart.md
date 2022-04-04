@@ -84,7 +84,7 @@ The command `just up` spawns the following services:
 - **web** (`api/`)
 - **ingestion_server** and **indexer_worker** (`ingestion_server/`)
 
-The last three are subprojects of this monorepo.
+The last two are subprojects of this monorepo.
 
 ## Troubleshooting
 
