@@ -13,8 +13,12 @@ default:
 @_loop condition message timeout="5m" time="5":
     timeout --foreground {{ timeout }} bash -c 'while [ {{ condition }} ]; do \
       echo "{{ message }}" && sleep {{ time }}; \
-    done'
-
+    done'; \
+    EXIT_CODE=$?; \
+    if [[ $EXIT_CODE -eq 124 ]]; then \
+      echo "Timed out"; \
+      exit $EXIT_CODE; \
+    fi
 
 ##########
 # Docker #
