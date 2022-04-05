@@ -72,12 +72,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+
       - name: Setup just
         uses: extractions/setup-just@v1
+
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
           python-version: "3.10"
+
       - name: Cache Python dependencies
         uses: actions/cache@v2
         with:
@@ -85,6 +88,7 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/Pipfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-pip-
+
       - name: Install Python deps for ingestion-server
         run: |
           pip install -U pip
@@ -102,8 +106,8 @@ jobs:
       - name: Run ingestion-server tests
         run: just ing-testlocal
 
-      - name: Print ingestion test failure logs
-        if: ${{ failure() }}
+      - name: Print ingestion test failures
+        if: ${{ always() }}
         run: cat ingestion/test/ingestion_logs.txt
 
   test-api:
@@ -134,22 +138,13 @@ jobs:
       - name: Run API tests
         run: just api-test -T
 
-      - name: Print API test logs
-        if: ${{ always() }}
+      - name: Print API test failure logs
+        if: {{ failure() }}
         run: just logs
 
-<<<<<<< HEAD
-=======
-      - name: Run analytics tests
-        run: just nl-test -T
-
-      - name: Print analytics test logs
-        if: ${{ always() }}
-        run: just logs
-
->>>>>>> 39f83ee6 (Log for any failure)
       - name: Make developer docs
         run: just sphinx-make -T
+
       - name: Upload developer docs
         uses: actions/upload-artifact@v2
         with:
