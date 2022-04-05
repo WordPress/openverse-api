@@ -63,9 +63,7 @@ class AudioSearchRequestSerializer(
 
     category = serializers.CharField(
         label="category",
-        help_text="A comma separated list of categories; available categories "
-        "include `music`, `sound_effect`, `podcast`, `audiobook`, "
-        "and `news`.",
+        help_text=AUDIO_CATEGORIES.make_help_text(),
         required=False,
     )
     duration = serializers.CharField(

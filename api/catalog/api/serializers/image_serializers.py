@@ -39,9 +39,7 @@ class ImageSearchRequestSerializer(
     # Ref: ingestion_server/ingestion_server/categorize.py#Category
     category = serializers.CharField(
         label="category",
-        help_text="A comma separated list of categories; available categories "
-        "include `illustration`, `photograph`, and "
-        "`digitized_artwork`.",
+        help_text=IMAGE_CATEGORIES.make_help_text(),
         required=False,
     )
     aspect_ratio = serializers.CharField(
