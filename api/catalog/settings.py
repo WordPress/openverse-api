@@ -53,6 +53,7 @@ if lb_url := config("LOAD_BALANCER_URL", default=""):
 
 if DEBUG:
     ALLOWED_HOSTS += [
+        "dev.openverse.test",  # used in local development
         "localhost",
         "127.0.0.1",
         "0.0.0.0",
@@ -305,6 +306,20 @@ VERBOSE_ES_RESPONSE = config("DEBUG_SCORES", default=False, cast=bool)
 
 # Whether to boost results by authority and popularity
 USE_RANK_FEATURES = config("USE_RANK_FEATURES", default=True, cast=bool)
+
+# The scheme to use for the hyperlinks in the API responses
+API_LINK_SCHEME = config("API_LINK_SCHEME", default=None)
+
+# Proxy handling, for production
+if config("IS_PROXIED", default=True, cast=bool):
+    # https://docs.djangoproject.com/en/4.0/ref/settings/#use-x-forwarded-host
+    USE_X_FORWARDED_HOST = True
+    # https://docs.djangoproject.com/en/4.0/ref/settings/#secure-proxy-ssl-header
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# Trusted origins for CSRF
+# https://docs.djangoproject.com/en/4.0/releases/4.0/#csrf-trusted-origins-changes-4-0
+CSRF_TRUSTED_ORIGINS = ["https://*.openverse.engineering"]
 
 SENTRY_DSN = config(
     "SENTRY_DSN",

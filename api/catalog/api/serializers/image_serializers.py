@@ -1,23 +1,32 @@
-from catalog.api.controllers.search_controller import get_sources
 from catalog.api.docs.media_docs import fields_to_md
 from catalog.api.models import Image, ImageReport
+from catalog.api.serializers.base import SchemableHyperlinkedIdentityField
 from catalog.api.serializers.media_serializers import (
     MediaSearchRequestSerializer,
     MediaSearchSerializer,
     MediaSerializer,
     _add_protocol,
     _validate_enum,
+    get_search_request_source_serializer,
 )
 from rest_framework import serializers
 
 
-class ImageSearchRequestSerializer(MediaSearchRequestSerializer):
+ImageSearchRequestSourceSerializer = get_search_request_source_serializer(
+    "image"
+)  # class
+
+
+class ImageSearchRequestSerializer(
+    ImageSearchRequestSourceSerializer,
+    MediaSearchRequestSerializer,
+):
     """Parse and validate search query string parameters."""
 
     fields_names = [
         *MediaSearchRequestSerializer.fields_names,
-        "source",
-        "categories",
+        *ImageSearchRequestSourceSerializer.field_names,
+        "category",
         "aspect_ratio",
         "size",
     ]
@@ -26,16 +35,9 @@ class ImageSearchRequestSerializer(MediaSearchRequestSerializer):
     used to generate Swagger documentation.
     """
 
-    source = serializers.CharField(
-        label="provider",
-        help_text="A comma separated list of data sources to search. Valid "
-        "inputs: "
-        f"`{list(get_sources('image').keys())}`",
-        required=False,
-    )
     # Ref: ingestion_server/ingestion_server/categorize.py#Category
-    categories = serializers.CharField(
-        label="categories",
+    category = serializers.CharField(
+        label="category",
         help_text="A comma separated list of categories; available categories "
         "include `illustration`, `photograph`, and "
         "`digitized_artwork`.",
@@ -53,14 +55,6 @@ class ImageSearchRequestSerializer(MediaSearchRequestSerializer):
         " include `small`, `medium`, or `large`.",
         required=False,
     )
-
-    @staticmethod
-    def validate_source(input_sources):
-        allowed_sources = list(get_sources("image").keys())
-        input_sources = input_sources.split(",")
-        input_sources = [x for x in input_sources if x in allowed_sources]
-        input_sources = ",".join(input_sources)
-        return input_sources.lower()
 
     @staticmethod
     def validate_categories(value):
@@ -101,19 +95,19 @@ class ImageSerializer(MediaSerializer):
     )
 
     # Hyperlinks
-    thumbnail = serializers.HyperlinkedIdentityField(
+    thumbnail = SchemableHyperlinkedIdentityField(
         read_only=True,
         view_name="image-thumb",
         lookup_field="identifier",
         help_text="A direct link to the miniature image.",
     )
-    detail_url = serializers.HyperlinkedIdentityField(
+    detail_url = SchemableHyperlinkedIdentityField(
         read_only=True,
         view_name="image-detail",
         lookup_field="identifier",
         help_text="A direct link to the detail view of this image.",
     )
-    related_url = serializers.HyperlinkedIdentityField(
+    related_url = SchemableHyperlinkedIdentityField(
         view_name="image-related",
         lookup_field="identifier",
         read_only=True,

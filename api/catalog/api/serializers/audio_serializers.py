@@ -1,12 +1,13 @@
-from catalog.api.controllers.search_controller import get_sources
 from catalog.api.docs.media_docs import fields_to_md
 from catalog.api.models import AudioReport
 from catalog.api.models.audio import Audio
+from catalog.api.serializers.base import SchemableHyperlinkedIdentityField
 from catalog.api.serializers.media_serializers import (
     MediaSearchRequestSerializer,
     MediaSearchSerializer,
     MediaSerializer,
     _validate_enum,
+    get_search_request_source_serializer,
 )
 from elasticsearch_dsl.response import Hit
 from rest_framework import serializers
@@ -37,13 +38,21 @@ class AudioSetSerializer(serializers.Serializer):
     )
 
 
-class AudioSearchRequestSerializer(MediaSearchRequestSerializer):
+AudioSearchRequestSourceSerializer = get_search_request_source_serializer(
+    "audio"
+)  # class
+
+
+class AudioSearchRequestSerializer(
+    AudioSearchRequestSourceSerializer,
+    MediaSearchRequestSerializer,
+):
     """Parse and validate search query string parameters."""
 
     fields_names = [
         *MediaSearchRequestSerializer.fields_names,
-        "source",
-        "categories",
+        *AudioSearchRequestSourceSerializer.field_names,
+        "category",
         "duration",
     ]
     """
@@ -51,15 +60,8 @@ class AudioSearchRequestSerializer(MediaSearchRequestSerializer):
     used to generate Swagger documentation.
     """
 
-    source = serializers.CharField(
-        label="provider",
-        help_text="A comma separated list of data sources to search. Valid "
-        "inputs: "
-        f"`{list(get_sources('audio').keys())}`",
-        required=False,
-    )
-    categories = serializers.CharField(
-        label="categories",
+    category = serializers.CharField(
+        label="category",
         help_text="A comma separated list of categories; available categories "
         "include `music`, `sound_effect`, `podcast`, `audiobook`, "
         "and `news`.",
@@ -73,14 +75,6 @@ class AudioSearchRequestSerializer(MediaSearchRequestSerializer):
     )
 
     @staticmethod
-    def validate_source(input_sources):
-        allowed_sources = list(get_sources("audio").keys())
-        input_sources = input_sources.split(",")
-        input_sources = [x for x in input_sources if x in allowed_sources]
-        input_sources = ",".join(input_sources)
-        return input_sources.lower()
-
-    @staticmethod
     def validate_categories(value):
         valid_categories = {
             "music",
@@ -88,6 +82,7 @@ class AudioSearchRequestSerializer(MediaSearchRequestSerializer):
             "podcast",
             "news",
             "audiobook",
+            "pronunciation",
         }
         _validate_enum("category", valid_categories, value)
         return value.lower()
@@ -148,25 +143,25 @@ class AudioSerializer(MediaSerializer):
     )
 
     # Hyperlinks
-    thumbnail = serializers.HyperlinkedIdentityField(
+    thumbnail = SchemableHyperlinkedIdentityField(
         read_only=True,
         view_name="audio-thumb",
         lookup_field="identifier",
         help_text="A direct link to the miniature artwork.",
     )
-    waveform = serializers.HyperlinkedIdentityField(
+    waveform = SchemableHyperlinkedIdentityField(
         read_only=True,
         view_name="audio-waveform",
         lookup_field="identifier",
         help_text="A direct link to the waveform peaks.",
     )
-    detail_url = serializers.HyperlinkedIdentityField(
+    detail_url = SchemableHyperlinkedIdentityField(
         read_only=True,
         view_name="audio-detail",
         lookup_field="identifier",
         help_text="A direct link to the detail view of this audio file.",
     )
-    related_url = serializers.HyperlinkedIdentityField(
+    related_url = SchemableHyperlinkedIdentityField(
         read_only=True,
         view_name="audio-related",
         lookup_field="identifier",

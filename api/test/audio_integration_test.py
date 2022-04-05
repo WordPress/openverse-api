@@ -9,8 +9,11 @@ from test.media_integration import (
     detail,
     report,
     search,
+    search_all_excluded,
+    search_by_category,
     search_consistency,
     search_quotes,
+    search_source_and_excluded,
     search_special_chars,
     stats,
     thumb,
@@ -30,6 +33,19 @@ def audio_fixture():
 
 def test_search(audio_fixture):
     search(audio_fixture)
+
+
+def test_search_category_filtering(audio_fixture):
+    search_by_category("audio", "music", audio_fixture)
+    search_by_category("audio", "pronunciation", audio_fixture)
+
+
+def test_search_all_excluded():
+    search_all_excluded("audio", ["jamendo", "wikimedia_audio"])
+
+
+def test_search_source_and_excluded():
+    search_source_and_excluded("audio")
 
 
 def test_search_quotes():

@@ -56,7 +56,6 @@ logs services="" args="-f":
 env:
     cp api/env.template api/.env
     cp ingestion_server/env.template ingestion_server/.env
-    cp analytics/env.template analytics/.env
 
 # Load sample data into the Docker Compose services
 init: up wait-for-es wait-for-ing wait-for-web
@@ -81,6 +80,13 @@ precommit:
 lint:
     cd api && pipenv run pre-commit run --all-files
 
+# Make locally trusted certificates
+cert:
+    mkdir -p nginx/certs/
+    mkcert \
+      -cert-file nginx/certs/openverse.crt \
+      -key-file nginx/certs/openverse.key \
+      dev.openverse.test localhost 127.0.0.1 ::1
 
 #################
 # Elasticsearch #
@@ -164,17 +170,24 @@ _api-install:
     '"$(just web-health)" != "200"' \
     "Waiting for the API to be healthy..."
 
+@_api-up: up wait-for-es wait-for-ing wait-for-web
+    exit 0
+
 # Run API tests inside Docker
-api-test docker_args="" tests="": up wait-for-es wait-for-ing wait-for-web
-    docker-compose exec {{ docker_args }} web ./test/run_test.sh {{ tests }}
+@api-test docker_args="" tests="": _api-up
+    docker-compose exec {{ docker_args }} ./test/run_test.sh {{ tests }}
 
 # Run API tests locally
 api-testlocal args="":
     cd api && pipenv run ./test/run_test.sh {{ args }}
 
-# Run Django administrative commands
-dj args="":
+# Run Django administrative commands locally
+dj-local +args:
     cd api && pipenv run python manage.py {{ args }}
+
+# Run Django administrative commands in the docker container
+@dj docker_args="" +args="": _api-up
+    docker-compose exec {{ docker_args }} web python manage.py {{ args }}
 
 # Make a test cURL request to the API
 stats media="images":
@@ -183,18 +196,6 @@ stats media="images":
 # Attach to ipython
 ipython:
     docker-compose exec web ipython
-
-
-#############
-# Analytics #
-#############
-
-# Install dependencies for analytics
-_nl-install:
-    cd analytics && pipenv install --dev
-
-nl-test args="":
-    docker-compose exec {{ args }} analytics ./test/run_test.sh
 
 
 ##########

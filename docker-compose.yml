@@ -113,15 +113,15 @@ services:
     stdin_open: true
     tty: true
 
-  analytics:
-    build: ./analytics/
-    image: openverse-analytics
+  proxy:
+    image: nginx:alpine
     ports:
-      - "8090:8090"
+      - "9080:9080"
+      - "9443:9443"
+    depends_on:
+      - web
     volumes:
-      - ./analytics:/analytics
-    env_file:
-      - ./analytics/env.docker
+      - ./nginx:/etc/nginx/conf.d
 
 volumes:
   api-postgres:
