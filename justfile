@@ -47,6 +47,9 @@ recreate:
 logs services="" args="-f":
     docker-compose {{ DOCKER_FILE }} logs {{ args }} {{ services }}
 
+# Write the logs for Docker services to a file
+write-logs services="" path="log.log" args="--no-color":
+    docker-compose {{ DOCKER_FILE }} logs {{ args }} {{ services }} > {{ path }}
 
 ########
 # Init #
