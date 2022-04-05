@@ -74,7 +74,7 @@ class AudioSearchRequestSerializer(
     )
 
     @staticmethod
-    def validate_categories(value):
+    def validate_category(value):
         _validate_enum("category", AUDIO_CATEGORIES, value)
         return value.lower()
 

@@ -56,7 +56,7 @@ class ImageSearchRequestSerializer(
     )
 
     @staticmethod
-    def validate_categories(value):
+    def validate_category(value):
         _validate_enum("category", IMAGE_CATEGORIES, value)
         return value.lower()
 
