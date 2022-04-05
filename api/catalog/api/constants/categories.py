@@ -5,7 +5,7 @@ class Categories(set):
         """
         formatted = [f"`{category}`" for category in self]
         # Add an "and" at the end of the list
-        if formatted:
+        if len(formatted) > 1:
             formatted[-1] = f"and {formatted[-1]}"
         help_text = (
             "A comma separated list of categories; available categories include: "
