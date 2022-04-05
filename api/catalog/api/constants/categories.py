@@ -1,16 +1,15 @@
-from django.db import models
+AUDIO_CATEGORIES = {
+    "audiobook",
+    "music",
+    "news",
+    "podcast",
+    "pronunciation",
+    "sound_effect",
+}
 
 
-class AudioCategories(models.TextChoices):
-    AUDIOBOOK = "audiobook", "Audiobooks"
-    MUSIC = "music", "Music"
-    NEWS = "news", "News"
-    PODCAST = "podcast", "Podcasts"
-    PRONUNCIATION = "pronunciation", "Pronunciations"
-    SOUND_EFFECT = "sound_effect", "Sound Effects"
-
-
-class ImageCategories(models.TextChoices):
-    DIGITIZED_ARTWORK = "digitized_artwork", "Digitized Artworks"
-    ILLUSTRATION = "illustration", "Illustrations"
-    PHOTOGRAPH = "photograph", "Photographs"
+IMAGE_CATEGORIES = {
+    "digitized_artwork",
+    "illustration",
+    "photograph",
+}

@@ -1,4 +1,4 @@
-from catalog.api.constants.categories import ImageCategories
+from catalog.api.constants.categories import IMAGE_CATEGORIES
 from catalog.api.docs.media_docs import fields_to_md
 from catalog.api.models import Image, ImageReport
 from catalog.api.serializers.base import SchemableHyperlinkedIdentityField
@@ -37,9 +37,11 @@ class ImageSearchRequestSerializer(
     """
 
     # Ref: ingestion_server/ingestion_server/categorize.py#Category
-    category = serializers.MultipleChoiceField(
+    category = serializers.CharField(
         label="category",
-        choices=ImageCategories.choices,
+        help_text="A comma separated list of categories; available categories "
+        "include `illustration`, `photograph`, and "
+        "`digitized_artwork`.",
         required=False,
     )
     aspect_ratio = serializers.CharField(
@@ -54,6 +56,11 @@ class ImageSearchRequestSerializer(
         " include `small`, `medium`, or `large`.",
         required=False,
     )
+
+    @staticmethod
+    def validate_categories(value):
+        _validate_enum("category", IMAGE_CATEGORIES, value)
+        return value.lower()
 
     @staticmethod
     def validate_aspect_ratio(value):
