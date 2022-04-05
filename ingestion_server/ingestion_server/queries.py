@@ -52,8 +52,6 @@ def get_fdw_query(
 
     return SQL(
         """
-        CREATE EXTENSION IF NOT EXISTS postgres_fdw;
-
         DROP SERVER IF EXISTS upstream CASCADE;
         CREATE SERVER upstream FOREIGN DATA WRAPPER postgres_fdw
           OPTIONS (host {host}, dbname {dbname}, port {port});
