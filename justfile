@@ -15,7 +15,7 @@ default:
       echo "{{ message }}" && sleep {{ time }}; \
     done'; \
     EXIT_CODE=$?; \
-    if [[ $EXIT_CODE -eq 124 ]]; then \
+    if [ $EXIT_CODE -eq 124 ]; then \
       echo "Timed out"; \
       exit $EXIT_CODE; \
     fi
