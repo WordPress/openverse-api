@@ -33,6 +33,16 @@ def get_existence_queries(table):
     return exists_in_deleted_table, exists_in_mature_table
 
 
+def get_create_ext_query():
+    """
+    Get the query for creating the ``postgres_fdw`` extension, if it does not exist.
+
+    :return: the SQL query for creating the FDW extension
+    """
+
+    return "CREATE EXTENSION IF NOT EXISTS postgres_fdw;"
+
+
 def get_fdw_query(
     host: str, port: int, dbname: str, user: str, password: str, table: str
 ):

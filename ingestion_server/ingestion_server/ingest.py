@@ -30,6 +30,7 @@ from ingestion_server.constants.internal_types import ApproachType
 from ingestion_server.indexer import database_connect
 from ingestion_server.queries import (
     get_copy_data_query,
+    get_create_ext_query,
     get_fdw_query,
     get_go_live_query,
 )
@@ -292,9 +293,9 @@ def reload_upstream(
     with downstream_db, downstream_db.cursor() as downstream_cur:
         # Step 2: Create the FDW extension if it does not exist
         log.info("(Re)initializing foreign data wrapper")
-        create_fdw = "CREATE EXTENSION IF NOT EXISTS postgres_fdw;"
         try:
-            downstream_cur.execute(create_fdw)
+            create_ext = get_create_ext_query()
+            downstream_cur.execute(create_ext)
         except psycopg2.errors.UniqueViolation:
             log.warning("Extension already exists, possible race condition.")
 
