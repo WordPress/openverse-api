@@ -10,6 +10,7 @@ from catalog.api.docs.image_docs import (
     ImageRelated,
     ImageSearch,
     ImageStats,
+    ImageThumbnail,
 )
 from catalog.api.models import Image
 from catalog.api.serializers.image_serializers import (
@@ -20,6 +21,7 @@ from catalog.api.serializers.image_serializers import (
     OembedSerializer,
     WatermarkRequestSerializer,
 )
+from catalog.api.serializers.media_serializers import MediaThumbnailRequestSerializer
 from catalog.api.utils.exceptions import get_api_exception
 from catalog.api.utils.throttle import OneThousandPerMinute
 from catalog.api.utils.watermark import watermark
@@ -42,7 +44,7 @@ log = logging.getLogger(__name__)
 @method_decorator(swagger_auto_schema(**ImageRelated.swagger_setup), "related")
 @method_decorator(swagger_auto_schema(**ImageComplain.swagger_setup), "report")
 @method_decorator(swagger_auto_schema(**ImageOembed.swagger_setup), "oembed")
-@method_decorator(swagger_auto_schema(auto_schema=None), "thumbnail")
+@method_decorator(swagger_auto_schema(**ImageThumbnail.swagger_setup), "thumbnail")
 @method_decorator(swagger_auto_schema(auto_schema=None), "watermark")
 class ImageViewSet(MediaViewSet):
     """
@@ -91,6 +93,7 @@ class ImageViewSet(MediaViewSet):
         detail=True,
         url_path="thumb",
         url_name="thumb",
+        serializer_class=MediaThumbnailRequestSerializer,
         throttle_classes=[OneThousandPerMinute],
     )
     def thumbnail(self, request, *_, **__):

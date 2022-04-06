@@ -1,6 +1,5 @@
 import json
 import logging as log
-from distutils.util import strtobool
 from urllib.error import HTTPError
 from urllib.parse import urlencode
 from urllib.request import urlopen
@@ -129,15 +128,10 @@ class MediaViewSet(ReadOnlyModelViewSet):
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
     def thumbnail(self, image_url, request, *_, **__):
-        full_size_param = request.query_params.get("full_size", "false").lower()
-        is_full_size = strtobool(full_size_param)
-        compressed_param = request.query_params.get(
-            "compressed",
-            "false" if is_full_size else "true",
-        ).lower()
-        is_compressed = strtobool(compressed_param)
-
-        return self._get_proxied_image(image_url, is_full_size, is_compressed)
+        serializer = self.get_serializer(data=request.query_params)
+        if not serializer.is_valid():
+            raise get_api_exception("Invalid input.", 400)
+        return self._get_proxied_image(image_url, **serializer.validated_data)
 
     # Helper functions
 
