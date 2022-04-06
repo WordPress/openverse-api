@@ -111,11 +111,11 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ing_logs
-          path: ingestion/test/ingestion_logs.txt
+          path: ingestion_server/test/ingestion_logs.txt
 
       - name: Print ingestion test logs
         if: ${{ always() }}
-        run: cat ingestion/test/ingestion_logs.txt
+        run: cat ingestion_server/test/ingestion_logs.txt
 
   test-api:
     name: Run tests for the API
