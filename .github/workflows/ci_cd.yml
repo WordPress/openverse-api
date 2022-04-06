@@ -106,7 +106,14 @@ jobs:
       - name: Run ingestion-server tests
         run: just ing-testlocal
 
-      - name: Print ingestion test failures
+      - name: Upload ingestion test logs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: ing_logs
+          path: ingestion/test/ingestion_logs.txt
+
+      - name: Print ingestion test logs
         if: ${{ always() }}
         run: cat ingestion/test/ingestion_logs.txt
 
@@ -138,9 +145,18 @@ jobs:
       - name: Run API tests
         run: just api-test -T
 
-      - name: Print API test failure logs
-        if: {{ failure() }}
-        run: just logs
+      - name: Print API test logs
+        if: ${{ always() }}
+        run: |
+          just logs > api_logs
+          cat api_logs
+
+      - name: Upload API test logs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: api_logs
+          path: api_logs
 
       - name: Make developer docs
         run: just sphinx-make -T
