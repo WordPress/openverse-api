@@ -47,9 +47,6 @@ recreate:
 logs services="" args="-f":
     docker-compose {{ DOCKER_FILE }} logs {{ args }} {{ services }}
 
-# Write the logs for Docker services to a file
-write-logs services="" path="log.log" args="--no-color":
-    docker-compose {{ DOCKER_FILE }} logs {{ args }} {{ services }} > {{ path }}
 
 ########
 # Init #
@@ -73,7 +70,6 @@ init: up wait-for-es wait-for-ing wait-for-web
 @install:
     just _api-install
     just _ing-install
-    just _nl-install
 
 # Setup pre-commit as a Git hook
 precommit:
@@ -178,7 +174,7 @@ _api-install:
 
 # Run API tests inside Docker
 @api-test docker_args="" tests="": _api-up
-    docker-compose exec {{ docker_args }} ./test/run_test.sh {{ tests }}
+    docker-compose exec {{ docker_args }} web ./test/run_test.sh {{ tests }}
 
 # Run API tests locally
 api-testlocal args="":

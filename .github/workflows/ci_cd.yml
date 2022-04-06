@@ -137,21 +137,6 @@ jobs:
           name: docs
           path: api/build/html/
 
-      - name: Write logs
-        if: always()
-        run: |
-          mkdir logs/
-          just write-logs web logs/web.log
-          just write-logs ingestion_server logs/ingestion_server.log
-          just write-logs indexer_worker logs/indexer_worker.log
-
-      - name: Upload logs
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: logs
-          path: logs/
-
   check-migrations:
     name: Check for uncommited Django migrations
     runs-on: ubuntu-latest
