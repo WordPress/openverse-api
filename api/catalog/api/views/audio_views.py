@@ -64,11 +64,7 @@ class AudioViewSet(MediaViewSet):
         if not image_url:
             raise get_api_exception("Could not find artwork.", 404)
 
-        is_full_size = request.query_params.get("full_size", False)
-        if is_full_size:
-            return self._get_proxied_image(image_url, None)
-        else:
-            return self._get_proxied_image(image_url)
+        return super().thumbnail(image_url, request)
 
     @action(
         detail=True,
