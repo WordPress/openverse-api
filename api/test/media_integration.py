@@ -105,6 +105,17 @@ def thumb(fixture):
     assert thumbnail_response.headers["Content-Type"].startswith("image/")
 
 
+def thumb_compression(fixture):
+    thumbnail_url = fixture["results"][0]["thumbnail"]
+
+    thumbnail_response = requests.get(thumbnail_url)
+    compressed_size = len(thumbnail_response.content)
+    thumbnail_response = requests.get(f"{thumbnail_url}?compressed=no")
+    actual_size = len(thumbnail_response.content)
+
+    assert compressed_size < actual_size
+
+
 def report(media_type, fixture):
     test_id = fixture["results"][0]["id"]
     response = requests.post(

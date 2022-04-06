@@ -17,6 +17,7 @@ from test.media_integration import (
     search_special_chars,
     stats,
     thumb,
+    thumb_compression,
 )
 
 import pytest
@@ -71,6 +72,10 @@ def test_audio_stats():
 
 def test_audio_thumb(audio_fixture):
     thumb(audio_fixture)
+
+
+def test_audio_thumb_compression(audio_fixture):
+    thumb_compression(audio_fixture)
 
 
 def test_audio_report(audio_fixture):
