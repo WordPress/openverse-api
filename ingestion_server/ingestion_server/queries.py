@@ -40,7 +40,7 @@ def get_create_ext_query():
     :return: the SQL query for creating the FDW extension
     """
 
-    return "CREATE EXTENSION IF NOT EXISTS postgres_fdw;"
+    return SQL("CREATE EXTENSION IF NOT EXISTS postgres_fdw;")
 
 
 def get_fdw_query(
