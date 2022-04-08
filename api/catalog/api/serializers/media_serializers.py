@@ -1,4 +1,3 @@
-import logging as log
 from collections import namedtuple
 from urllib.parse import urlparse
 
@@ -445,8 +444,6 @@ class MediaThumbnailRequestSerializer(serializers.Serializer):
     )
 
     def validate(self, data):
-        log.info(f"MediaThumbnailRequestSerializer data: {data}")
         if data.get("is_compressed") is None:
             data["is_compressed"] = not data["is_full_size"]
-        log.info(f"MediaThumbnailRequestSerializer validated data: {data}")
         return data
