@@ -1,0 +1,38 @@
+name: Publish Docker images on-demand
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: Image to push (either `api` or `ingestion_server`)
+        required: true
+
+jobs:
+  push:
+    name: Publish requested Docker image
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Log in to GitHub Docker Registry
+        uses: docker/login-action@v1
+        with:
+          registry: https://ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download image `${{ env.INPUT_IMAGE }}`
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ci_cd.yml
+          workflow_conclusion: success
+          pr: ${{github.event.pull_request.number}}
+          name: ${{ env.INPUT_IMAGE }}
+          path: /tmp
+
+      - name: Load and tag image `${{ env.INPUT_IMAGE }}`
+        run: |
+          docker load --input /tmp/${{ env.INPUT_IMAGE }}.tar
+          docker tag openverse-${{ env.INPUT_IMAGE }} \
+            ghcr.io/wordpress/openverse-${{ env.INPUT_IMAGE }}:${{ github.sha }}
+          docker push --all-tags ghcr.io/wordpress/openverse-${{ env.INPUT_IMAGE }}
