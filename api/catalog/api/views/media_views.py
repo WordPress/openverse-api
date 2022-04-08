@@ -197,21 +197,27 @@ class MediaViewSet(ReadOnlyModelViewSet):
         info_res, *_ = MediaViewSet._thumbnail_proxy_comm("info", {"url": image_url})
         info = json.loads(info_res.read())
 
-        path = "resize"
         params = {
             "url": image_url,
             "width": info["width"] if is_full_size else settings.THUMBNAIL_WIDTH_PX,
         }
+
         if is_compressed:
             params |= {
                 "quality": settings.THUMBNAIL_JPG_QUALITY,
                 "compression": settings.THUMBNAIL_PNG_COMPRESSION,
-                "type": "auto",  # uses ``Accept`` header to determine output type
             }
         else:
-            params |= {"quality": 100, "compression": 0}
+            params |= {
+                "quality": 100,
+                "compression": 0,
+            }
+
+        if "webp" in accept_header:
+            params["type"] = "auto"  # Use ``Accept`` header to determine output type.
+
         img_res, res_status, content_type = MediaViewSet._thumbnail_proxy_comm(
-            path, params, [("Accept", accept_header)]
+            "resize", params, [("Accept", accept_header)]
         )
         response = HttpResponse(
             img_res.read(), status=res_status, content_type=content_type
