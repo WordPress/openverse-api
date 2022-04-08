@@ -248,7 +248,7 @@ class ImageThumbnail:
 thumbnail is an API endpoint to retrieve the scaled down and compressed thumbnail
 of an image.
 
-{refer_sample}"""  # noqa
+{refer_sample}"""
 
     swagger_setup = {
         "operation_id": "image_thumbnail",

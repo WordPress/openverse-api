@@ -215,7 +215,7 @@ class AudioThumbnail:
 thumbnail is an API endpoint to retrieve the scaled down and compressed thumbnail
 of the artwork of an audio track or its audio set.
 
-{refer_sample}"""  # noqa
+{refer_sample}"""
 
     swagger_setup = {
         "operation_id": "audio_thumbnail",
