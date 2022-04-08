@@ -116,6 +116,17 @@ def thumb_compression(fixture):
     assert compressed_size < actual_size
 
 
+def thumb_webp(fixture):
+    thumbnail_url = fixture["results"][0]["thumbnail"]
+
+    thumbnail_response = requests.get(thumbnail_url, headers={"Accept": "image/*,*/*"})
+    assert thumbnail_response.headers["Content-Type"] != "image/webp"
+    thumbnail_response = requests.get(
+        thumbnail_url, headers={"Accept": "image/webp,image/*,*/*"}
+    )
+    assert thumbnail_response.headers["Content-Type"] == "image/webp"
+
+
 def report(media_type, fixture):
     test_id = fixture["results"][0]["id"]
     response = requests.post(

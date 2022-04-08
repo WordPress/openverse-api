@@ -18,6 +18,7 @@ from test.media_integration import (
     stats,
     thumb,
     thumb_compression,
+    thumb_webp,
 )
 from urllib.parse import urlencode
 
@@ -75,6 +76,10 @@ def test_image_thumb(image_fixture):
 
 def test_image_thumb_compression(image_fixture):
     thumb_compression(image_fixture)
+
+
+def test_image_thumb_webp(image_fixture):
+    thumb_webp(image_fixture)
 
 
 def test_audio_report(image_fixture):
