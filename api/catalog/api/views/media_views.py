@@ -1,8 +1,9 @@
 import json
 import logging as log
+from typing import List
 from urllib.error import HTTPError
 from urllib.parse import urlencode
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 
 from catalog.api.controllers import search_controller
 from catalog.api.models import ContentProvider
@@ -131,7 +132,11 @@ class MediaViewSet(ReadOnlyModelViewSet):
         serializer = self.get_serializer(data=request.query_params)
         if not serializer.is_valid():
             raise get_api_exception("Invalid input.", 400)
-        return self._get_proxied_image(image_url, **serializer.validated_data)
+        return self._get_proxied_image(
+            image_url,
+            accept_header=request.headers.get("Accept", "image/*"),
+            **serializer.validated_data,
+        )
 
     # Helper functions
 
@@ -152,14 +157,24 @@ class MediaViewSet(ReadOnlyModelViewSet):
         return ip
 
     @staticmethod
-    def _thumbnail_proxy_comm(path: str, params: dict):
+    def _thumbnail_proxy_comm(
+        path: str,
+        params: dict,
+        headers: List[
+            tuple[str, str]
+        ] = None,  # ``List`` because there is a ``list`` function
+    ):
         proxy_url = settings.THUMBNAIL_PROXY_URL
         query_string = urlencode(params)
         upstream_url = f"{proxy_url}/{path}?{query_string}"
         log.debug(f"Image proxy upstream URL: {upstream_url}")
 
         try:
-            upstream_response = urlopen(upstream_url)
+            req = Request(upstream_url)
+            if headers:
+                for key, val in headers:
+                    req.add_header(key, val)
+            upstream_response = urlopen(req)
 
             res_status = upstream_response.status
             content_type = upstream_response.headers.get("Content-Type")
@@ -175,6 +190,7 @@ class MediaViewSet(ReadOnlyModelViewSet):
     @staticmethod
     def _get_proxied_image(
         image_url: str,
+        accept_header: str = "image/*",
         is_full_size: bool = False,
         is_compressed: bool = True,
     ):
@@ -190,11 +206,12 @@ class MediaViewSet(ReadOnlyModelViewSet):
             params |= {
                 "quality": settings.THUMBNAIL_JPG_QUALITY,
                 "compression": settings.THUMBNAIL_PNG_COMPRESSION,
+                "type": "auto",  # uses ``Accept`` header to determine output type
             }
         else:
             params |= {"quality": 100, "compression": 0}
         img_res, res_status, content_type = MediaViewSet._thumbnail_proxy_comm(
-            path, params
+            path, params, [("Accept", accept_header)]
         )
         response = HttpResponse(
             img_res.read(), status=res_status, content_type=content_type
