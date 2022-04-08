@@ -156,16 +156,17 @@ class MediaViewSet(ReadOnlyModelViewSet):
         proxy_url = settings.THUMBNAIL_PROXY_URL
         query_string = urlencode(params)
         upstream_url = f"{proxy_url}/{path}?{query_string}"
-        log.info(f"Upstream URL: {upstream_url}")
+        log.debug(f"Image proxy upstream URL: {upstream_url}")
 
         try:
             upstream_response = urlopen(upstream_url)
 
             res_status = upstream_response.status
-            log.info(f"Response status: {res_status}")
-
             content_type = upstream_response.headers.get("Content-Type")
-            log.info(f"Response Content-Type: {content_type}")
+            log.debug(
+                "Image proxy response "
+                f"status: {res_status}, content-type: {content_type}"
+            )
 
             return upstream_response, res_status, content_type
         except HTTPError:
