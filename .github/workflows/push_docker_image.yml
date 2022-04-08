@@ -31,8 +31,8 @@ jobs:
           path: /tmp
 
       - name: Load and tag image `${{ github.events.inputs.image }}`
-        with:
-          image: ${{ github.events.inputs.image }}
+        env:
+          INPUT_IMAGE: ${{ github.events.inputs.image }}
         run: |
           docker load --input /tmp/$INPUT_IMAGE.tar
           docker tag openverse-$INPUT_IMAGE \
