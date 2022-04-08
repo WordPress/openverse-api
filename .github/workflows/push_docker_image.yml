@@ -1,6 +1,5 @@
 name: Publish Docker images on-demand
 on:
-  pull_request: # DELETEME - only for testing
   workflow_dispatch:
     inputs:
       image:
@@ -22,18 +21,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download image `${{ env.INPUT_IMAGE }}`
+      - name: Download image `${{ github.events.inputs.image }}`
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: ci_cd.yml
           workflow_conclusion: success
           pr: ${{github.event.pull_request.number}}
-          name: ${{ env.INPUT_IMAGE }}
+          name: ${{ github.events.inputs.image }}
           path: /tmp
 
-      - name: Load and tag image `${{ env.INPUT_IMAGE }}`
+      - name: Load and tag image `${{ github.events.inputs.image }}`
+        with:
+          image: ${{ github.events.inputs.image }}
         run: |
-          docker load --input /tmp/${{ env.INPUT_IMAGE }}.tar
-          docker tag openverse-${{ env.INPUT_IMAGE }} \
-            ghcr.io/wordpress/openverse-${{ env.INPUT_IMAGE }}:${{ github.sha }}
-          docker push --all-tags ghcr.io/wordpress/openverse-${{ env.INPUT_IMAGE }}
+          docker load --input /tmp/$INPUT_IMAGE.tar
+          docker tag openverse-$INPUT_IMAGE \
+            ghcr.io/wordpress/openverse-$INPUT_IMAGE:${{ github.sha }}
+          docker push --all-tags ghcr.io/wordpress/openverse-$INPUT_IMAGE
