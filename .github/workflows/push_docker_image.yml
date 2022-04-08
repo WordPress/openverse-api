@@ -21,18 +21,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download image `${{ github.events.inputs.image }}`
+      - name: Download image `${{ github.event.inputs.image }}`
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: ci_cd.yml
           workflow_conclusion: success
           pr: ${{github.event.pull_request.number}}
-          name: ${{ github.events.inputs.image }}
+          name: ${{ github.event.inputs.image }}
           path: /tmp
 
-      - name: Load and tag image `${{ github.events.inputs.image }}`
+      - name: Load and tag image `${{ github.event.inputs.image }}`
         env:
-          INPUT_IMAGE: ${{ github.events.inputs.image }}
+          INPUT_IMAGE: ${{ github.event.inputs.image }}
         run: |
           docker load --input /tmp/$INPUT_IMAGE.tar
           docker tag openverse-$INPUT_IMAGE \
