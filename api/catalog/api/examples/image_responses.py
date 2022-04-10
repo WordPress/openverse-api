@@ -144,6 +144,6 @@ image_complain_201_example = {
     "application/json": {
         "identifier": identifier,
         "reason": "mature",
-        "description": "This image contains sensitive content",
+        "description": "Image contains sensitive content",
     }
 }
