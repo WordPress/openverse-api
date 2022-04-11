@@ -3,7 +3,7 @@ class Categories(set):
         """
         Generate help text that wraps each category in backticks.
         """
-        formatted = [f"`{category}`" for category in self]
+        formatted = [f"`{category}`" for category in sorted(self)]
         # Add an "and" at the end of the list
         if len(formatted) > 1:
             formatted[-1] = f"and {formatted[-1]}"
