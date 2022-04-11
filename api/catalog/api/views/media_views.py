@@ -1,6 +1,5 @@
 import json
 import logging as log
-from typing import List
 from urllib.error import HTTPError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -159,9 +158,7 @@ class MediaViewSet(ReadOnlyModelViewSet):
     def _thumbnail_proxy_comm(
         path: str,
         params: dict,
-        headers: List[
-            tuple[str, str]
-        ] = None,  # ``List`` because there is a ``list`` function
+        headers: tuple[tuple[str, str]] = (),
     ):
         proxy_url = settings.THUMBNAIL_PROXY_URL
         query_string = urlencode(params)
@@ -170,10 +167,9 @@ class MediaViewSet(ReadOnlyModelViewSet):
 
         try:
             req = Request(upstream_url)
-            if headers:
-                for key, val in headers:
-                    req.add_header(key, val)
-            upstream_response = urlopen(req)
+            for key, val in headers:
+                req.add_header(key, val)
+            upstream_response = urlopen(req, timeout=5)
 
             res_status = upstream_response.status
             content_type = upstream_response.headers.get("Content-Type")
@@ -195,7 +191,9 @@ class MediaViewSet(ReadOnlyModelViewSet):
     ):
         width = settings.THUMBNAIL_WIDTH_PX
         if is_full_size:
-            info_res, *_ = MediaViewSet._thumbnail_proxy_comm("info", {"url": image_url})
+            info_res, *_ = MediaViewSet._thumbnail_proxy_comm(
+                "info", {"url": image_url}
+            )
             info = json.loads(info_res.read())
             width = info["width"]
 
@@ -219,7 +217,7 @@ class MediaViewSet(ReadOnlyModelViewSet):
             params["type"] = "auto"  # Use ``Accept`` header to determine output type.
 
         img_res, res_status, content_type = MediaViewSet._thumbnail_proxy_comm(
-            "resize", params, [("Accept", accept_header)]
+            "resize", params, (("Accept", accept_header),)
         )
         response = HttpResponse(
             img_res.read(), status=res_status, content_type=content_type
