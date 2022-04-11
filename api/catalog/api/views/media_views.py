@@ -130,8 +130,7 @@ class MediaViewSet(ReadOnlyModelViewSet):
 
     def thumbnail(self, image_url, request, *_, **__):
         serializer = self.get_serializer(data=request.query_params)
-        if not serializer.is_valid():
-            raise get_api_exception("Invalid input.", 400)
+        serializer.is_valid(raise_exception=True)
         return self._get_proxied_image(
             image_url,
             accept_header=request.headers.get("Accept", "image/*"),
