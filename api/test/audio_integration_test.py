@@ -18,6 +18,7 @@ from test.media_integration import (
     stats,
     thumb,
     thumb_compression,
+    thumb_full_size,
     thumb_webp,
 )
 
@@ -81,6 +82,10 @@ def test_audio_thumb_compression(audio_fixture):
 
 def test_audio_thumb_webp(audio_fixture):
     thumb_webp(audio_fixture)
+
+
+def test_audio_thumb_full_size(audio_fixture):
+    thumb_full_size(audio_fixture)
 
 
 def test_audio_report(audio_fixture):

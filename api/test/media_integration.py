@@ -4,9 +4,11 @@ These are not tests and cannot be invoked.
 """
 
 import json
+from io import BytesIO
 from test.constants import API_URL
 
 import requests
+from PIL import Image
 
 
 def search(fixture):
@@ -125,6 +127,22 @@ def thumb_webp(fixture):
         thumbnail_url, headers={"Accept": "image/webp,image/*,*/*"}
     )
     assert thumbnail_response.headers["Content-Type"] == "image/webp"
+
+
+def thumb_full_size(fixture):
+    def _get_image_dimen(url: str) -> tuple[int, int]:
+        response = requests.get(url)
+        image = Image.open(BytesIO(response.content))
+        return image.size
+
+    thumbnail_url = fixture["results"][0]["thumbnail"]
+    full_w, full_h = _get_image_dimen(f"{thumbnail_url}?full_size=yes")
+    scaled_w, scaled_h = _get_image_dimen(thumbnail_url)
+    if full_w > 600:
+        assert scaled_w == 600
+        assert full_w > scaled_w
+    else:
+        assert scaled_w == full_w  # h2non/imaginary will not scale up
 
 
 def report(media_type, fixture):
