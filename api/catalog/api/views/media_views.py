@@ -194,12 +194,15 @@ class MediaViewSet(ReadOnlyModelViewSet):
         is_full_size: bool = False,
         is_compressed: bool = True,
     ):
-        info_res, *_ = MediaViewSet._thumbnail_proxy_comm("info", {"url": image_url})
-        info = json.loads(info_res.read())
+        width = settings.THUMBNAIL_WIDTH_PX
+        if is_full_size:
+            info_res, *_ = MediaViewSet._thumbnail_proxy_comm("info", {"url": image_url})
+            info = json.loads(info_res.read())
+            width = info["width"]
 
         params = {
             "url": image_url,
-            "width": info["width"] if is_full_size else settings.THUMBNAIL_WIDTH_PX,
+            "width": width,
         }
 
         if is_compressed:
