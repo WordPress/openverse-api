@@ -179,8 +179,8 @@ class MediaViewSet(ReadOnlyModelViewSet):
             )
 
             return upstream_response, res_status, content_type
-        except HTTPError:
-            raise get_api_exception("Failed to render thumbnail.")
+        except HTTPError as exc:
+            raise get_api_exception(f"Failed to render thumbnail: {exc}")
 
     @staticmethod
     def _get_proxied_image(
