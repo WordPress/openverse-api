@@ -12,7 +12,7 @@ services:
       - api-postgres:/var/lib/postgresql/data
 
   thumbnails:
-    image: h2non/imaginary:latest
+    image: ghcr.io/wordpress/openverse-imaginary:latest
     ports:
       - "8222:8222"
     environment:
