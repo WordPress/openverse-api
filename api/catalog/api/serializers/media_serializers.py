@@ -88,8 +88,6 @@ class TagSerializer(serializers.Serializer):
 
 
 def get_search_request_source_serializer(media_type):
-    data_sources = get_sources(media_type).keys()
-
     class MediaSearchRequestSourceSerializer(serializers.Serializer):
         """
         This serializer parses and validates the source/not_source fields from the query
@@ -106,7 +104,9 @@ def get_search_request_source_serializer(media_type):
         """
 
         _field_attrs = {
-            "help_text": make_comma_separated_help_text(data_sources, "data sources"),
+            "help_text": make_comma_separated_help_text(
+                get_sources(media_type).keys(), "data sources"
+            ),
             "required": False,
         }
 
@@ -117,7 +117,7 @@ def get_search_request_source_serializer(media_type):
 
         @staticmethod
         def validate_source_field(input_sources):
-            allowed_sources = list(data_sources)
+            allowed_sources = list(get_sources(media_type).keys())
             input_sources = input_sources.split(",")
             input_sources = [x for x in input_sources if x in allowed_sources]
             input_sources = ",".join(input_sources)
