@@ -1,9 +1,5 @@
 import pytest
-from catalog.api.utils.help_text import CommaSeparatedField
-
-
-class ExampleCommaSeparatedField(CommaSeparatedField):
-    name = "items"
+from catalog.api.utils.help_text import make_comma_separated_help_text
 
 
 @pytest.mark.parametrize(
@@ -27,6 +23,5 @@ class ExampleCommaSeparatedField(CommaSeparatedField):
     ],
 )
 def test_make_help_text(items, expected):
-    category_class = ExampleCommaSeparatedField(items)
-    actual = category_class.make_help_text()
+    actual = make_comma_separated_help_text(items, "items")
     assert actual == expected

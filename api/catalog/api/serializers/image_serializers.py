@@ -10,6 +10,7 @@ from catalog.api.serializers.media_serializers import (
     _validate_enum,
     get_search_request_source_serializer,
 )
+from catalog.api.utils.help_text import make_comma_separated_help_text
 from rest_framework import serializers
 
 
@@ -39,7 +40,7 @@ class ImageSearchRequestSerializer(
     # Ref: ingestion_server/ingestion_server/categorize.py#Category
     category = serializers.CharField(
         label="category",
-        help_text=IMAGE_CATEGORIES.make_help_text(),
+        help_text=make_comma_separated_help_text(IMAGE_CATEGORIES, "categories"),
         required=False,
     )
     aspect_ratio = serializers.CharField(

@@ -10,6 +10,7 @@ from catalog.api.serializers.media_serializers import (
     _validate_enum,
     get_search_request_source_serializer,
 )
+from catalog.api.utils.help_text import make_comma_separated_help_text
 from elasticsearch_dsl.response import Hit
 from rest_framework import serializers
 
@@ -63,7 +64,7 @@ class AudioSearchRequestSerializer(
 
     category = serializers.CharField(
         label="category",
-        help_text=AUDIO_CATEGORIES.make_help_text(),
+        help_text=make_comma_separated_help_text(AUDIO_CATEGORIES, "categories"),
         required=False,
     )
     duration = serializers.CharField(

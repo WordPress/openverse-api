@@ -3,13 +3,9 @@ from urllib.parse import urlparse
 
 import catalog.api.licenses as license_helpers
 from catalog.api.controllers.search_controller import get_sources
-from catalog.api.utils.help_text import CommaSeparatedField
+from catalog.api.utils.help_text import make_comma_separated_help_text
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
-
-
-class DataSources(CommaSeparatedField):
-    name = "data sources"
 
 
 def _validate_enum(enum_name, valid_values: set, given_values: str):
@@ -110,7 +106,7 @@ def get_search_request_source_serializer(media_type):
         """
 
         _field_attrs = {
-            "help_text": DataSources(data_sources).make_help_text(),
+            "help_text": make_comma_separated_help_text(data_sources, "data sources"),
             "required": False,
         }
 
