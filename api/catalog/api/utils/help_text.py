@@ -1,9 +1,15 @@
 from typing import Iterable
 
 
-def make_comma_separated_help_text(items: Iterable, name: str) -> str:
+def make_comma_separated_help_text(items: Iterable[str], name: str) -> str:
     """
-    Generate help text that wraps each category in backticks.
+    Generate help text that describes a comma separated list of items with the name
+    provided. Items are wrapped in backticks, and lists with more than one item will
+    have an "and" added before the final item.
+
+    :param items: iterable of available options for this field
+    :param name: plural name of the list of items (e.g. "categories", "aspect ratios")
+    :return: generated help text
     """
     formatted = [f"`{item}`" for item in sorted(items)]
     # Add an "and" at the end of the list
