@@ -70,7 +70,7 @@ class ImageSearchRequestSerializer(
 
     @staticmethod
     def validate_size(value):
-        _validate_enum("category", IMAGE_SIZES, value)
+        _validate_enum("size", IMAGE_SIZES, value)
         return value.lower()
 
 
