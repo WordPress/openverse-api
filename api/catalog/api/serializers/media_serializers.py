@@ -172,21 +172,21 @@ class MediaSearchRequestSerializer(serializers.Serializer):
 
     q = serializers.CharField(
         label="query",
-        help_text="A query string that should not exceed 200 characters in " "length",
+        help_text="A query string that should not exceed 200 characters in length",
         required=False,
     )
     license = serializers.CharField(
         label="licenses",
-        help_text="A comma-separated list of licenses. Example: `by,cc0`. "
-        "Valid inputs: "
-        f"`{list(license_helpers.LICENSE_GROUPS['all'])}`",
+        help_text=make_comma_separated_help_text(
+            license_helpers.LICENSE_GROUPS["all"], "licenses"
+        ),
         required=False,
     )
     license_type = serializers.CharField(
         label="license type",
-        help_text="A list of license types. "
-        "Valid inputs: "
-        f"`{list(license_helpers.LICENSE_GROUPS.keys())}`",
+        help_text=make_comma_separated_help_text(
+            license_helpers.LICENSE_GROUPS.keys(), "license types"
+        ),
         required=False,
     )
     creator = serializers.CharField(

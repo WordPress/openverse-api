@@ -1,4 +1,4 @@
-from catalog.api.constants.categories import AUDIO_CATEGORIES
+from catalog.api.constants.field_values import AUDIO_CATEGORIES, DURATION
 from catalog.api.docs.media_docs import fields_to_md
 from catalog.api.models import AudioReport
 from catalog.api.models.audio import Audio
@@ -69,8 +69,7 @@ class AudioSearchRequestSerializer(
     )
     duration = serializers.CharField(
         label="duration",
-        help_text="A comma separated list of audio lengths; available lengths "
-        "include `short`, and `long`.",
+        help_text=make_comma_separated_help_text(DURATION, "audio lengths"),
         required=False,
     )
 
@@ -81,8 +80,7 @@ class AudioSearchRequestSerializer(
 
     @staticmethod
     def validate_duration(value):
-        valid_durations = {"short", "long"}  # TODO: Finalise duration filters
-        _validate_enum("duration", valid_durations, value)
+        _validate_enum("duration", DURATION, value)
         return value.lower()
 
 

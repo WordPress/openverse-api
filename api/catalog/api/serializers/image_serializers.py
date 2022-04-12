@@ -1,4 +1,8 @@
-from catalog.api.constants.categories import IMAGE_CATEGORIES
+from catalog.api.constants.field_values import (
+    ASPECT_RATIOS,
+    IMAGE_CATEGORIES,
+    IMAGE_SIZES,
+)
 from catalog.api.docs.media_docs import fields_to_md
 from catalog.api.models import Image, ImageReport
 from catalog.api.serializers.base import SchemableHyperlinkedIdentityField
@@ -45,14 +49,12 @@ class ImageSearchRequestSerializer(
     )
     aspect_ratio = serializers.CharField(
         label="aspect_ratio",
-        help_text="A comma separated list of aspect ratios; available aspect "
-        "ratios include `tall`, `wide`, and `square`.",
+        help_text=make_comma_separated_help_text(ASPECT_RATIOS, "aspect ratios"),
         required=False,
     )
     size = serializers.CharField(
         label="size",
-        help_text="A comma separated list of image sizes; available sizes"
-        " include `small`, `medium`, or `large`.",
+        help_text=make_comma_separated_help_text(IMAGE_SIZES, "image sizes"),
         required=False,
     )
 
@@ -63,8 +65,12 @@ class ImageSearchRequestSerializer(
 
     @staticmethod
     def validate_aspect_ratio(value):
-        valid_ratios = {"tall", "wide", "square"}
-        _validate_enum("aspect ratio", valid_ratios, value)
+        _validate_enum("aspect ratio", ASPECT_RATIOS, value)
+        return value.lower()
+
+    @staticmethod
+    def validate_size(value):
+        _validate_enum("category", IMAGE_SIZES, value)
         return value.lower()
 
 
