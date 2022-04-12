@@ -1,17 +1,8 @@
-class Categories(set):
-    def make_help_text(self) -> str:
-        """
-        Generate help text that wraps each category in backticks.
-        """
-        formatted = [f"`{category}`" for category in sorted(self)]
-        # Add an "and" at the end of the list
-        if len(formatted) > 1:
-            formatted[-1] = f"and {formatted[-1]}"
-        help_text = (
-            "A comma separated list of categories; available categories include: "
-            f"{', '.join(formatted)}."
-        )
-        return help_text
+from catalog.api.utils.help_text import CommaSeparatedField
+
+
+class Categories(CommaSeparatedField):
+    name = "categories"
 
 
 AUDIO_CATEGORIES = Categories(

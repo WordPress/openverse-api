@@ -3,8 +3,13 @@ from urllib.parse import urlparse
 
 import catalog.api.licenses as license_helpers
 from catalog.api.controllers.search_controller import get_sources
+from catalog.api.utils.help_text import CommaSeparatedField
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
+
+
+class DataSources(CommaSeparatedField):
+    name = "data sources"
 
 
 def _validate_enum(enum_name, valid_values: set, given_values: str):
@@ -87,6 +92,8 @@ class TagSerializer(serializers.Serializer):
 
 
 def get_search_request_source_serializer(media_type):
+    data_sources = get_sources(media_type).keys()
+
     class MediaSearchRequestSourceSerializer(serializers.Serializer):
         """
         This serializer parses and validates the source/not_source fields from the query
@@ -103,10 +110,7 @@ def get_search_request_source_serializer(media_type):
         """
 
         _field_attrs = {
-            "help_text": (
-                "A comma separated list of data sources to search. "
-                f"Valid inputs: {format_enums(get_sources(media_type).keys())}"
-            ),
+            "help_text": DataSources(data_sources).make_help_text(),
             "required": False,
         }
 
@@ -117,7 +121,7 @@ def get_search_request_source_serializer(media_type):
 
         @staticmethod
         def validate_source_field(input_sources):
-            allowed_sources = list(get_sources(media_type).keys())
+            allowed_sources = list(data_sources)
             input_sources = input_sources.split(",")
             input_sources = [x for x in input_sources if x in allowed_sources]
             input_sources = ",".join(input_sources)
