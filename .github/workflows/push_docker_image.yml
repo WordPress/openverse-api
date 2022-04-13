@@ -5,8 +5,8 @@ on:
       image:
         description: Image to push (either `api` or `ingestion_server`)
         required: true
-      pr:
-        description: PR that the image is built from
+      commit:
+        description: Commit that the image is built from
         required: true
 
 jobs:
@@ -29,7 +29,7 @@ jobs:
         with:
           workflow: ci_cd.yml
           workflow_conclusion: success
-          pr: ${{ github.event.inputs.pr }}
+          commit: ${{ github.event.inputs.commit }}
           name: ${{ github.event.inputs.image }}
           path: /tmp
 
@@ -39,5 +39,5 @@ jobs:
         run: |
           docker load --input /tmp/$INPUT_IMAGE.tar
           docker tag openverse-$INPUT_IMAGE \
-            ghcr.io/wordpress/openverse-$INPUT_IMAGE:${{ github.sha }}
+            ghcr.io/wordpress/openverse-$INPUT_IMAGE:${{ github.event.inputs.commit }}
           docker push --all-tags ghcr.io/wordpress/openverse-$INPUT_IMAGE
