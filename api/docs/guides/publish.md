@@ -30,7 +30,7 @@ This is useful for cases where one or more Docker images need to be tested on a 
 This action also **requires that the CI/CD workflow has previously run on the specified commit**.
 This typically requires a PR in order to initiate.
 
-Note that this action can only run on commits that were made within the last 90 days [due to GitHub's default artifact retention policy](https://docs.github.com/en/organizations/managing-organization-settings/configuring-the-retention-period-for-github-actions-artifacts-and-logs-in-your-organization).
+Note that this action can only run on commits that had successful CI/CD runs in the last 90 days [due to GitHub's default artifact retention policy](https://docs.github.com/en/organizations/managing-organization-settings/configuring-the-retention-period-for-github-actions-artifacts-and-logs-in-your-organization).
 
 ### Steps
 
