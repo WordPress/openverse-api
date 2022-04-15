@@ -143,7 +143,7 @@ jobs:
         run: just init
 
       - name: Run API tests
-        run: just api-test -T
+        run: just api-test
 
       - name: Print API test logs
         if: always()
@@ -160,7 +160,7 @@ jobs:
 
       - name: Make developer docs
         if: github.event_name == 'push' && github.repository == 'WordPress/openverse-api'
-        run: just sphinx-make -T
+        run: just sphinx-make
 
       - name: Upload developer docs
         if: github.event_name == 'push' && github.repository == 'WordPress/openverse-api'
@@ -192,7 +192,7 @@ jobs:
           docker load --input /tmp/ingestion_server/ingestion_server.tar
 
       - name: Run makemigrations
-        run: just dj -T makemigrations --check --noinput
+        run: just dj makemigrations --check --noinput
 
   push:
     name: Publish Docker images
