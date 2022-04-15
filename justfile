@@ -53,6 +53,11 @@ recreate:
 logs services="" args=(if IS_CI != "" { "" } else { "-f" }):
     docker-compose {{ DOCKER_FILE }} logs {{ args }} {{ services }}
 
+EXEC_DEFAULTS := if IS_CI == "" { "" } else { "-T" }
+
+# Execute statement in service containers using Docker Compose
+exec +args:
+    docker-compose exec {{ EXEC_DEFAULTS }} {{ args }}
 
 ########
 # Init #
