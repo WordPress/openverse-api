@@ -184,8 +184,8 @@ _api-install:
     exit 0
 
 # Run API tests inside Docker
-@api-test docker_args="" tests="": _api-up
-    docker-compose exec {{ docker_args }} web ./test/run_test.sh {{ tests }}
+@api-test tests="": _api-up
+    just exec web ./test/run_test.sh {{ tests }}
 
 # Run API tests locally
 api-testlocal args="":
@@ -196,8 +196,8 @@ dj-local +args:
     cd api && pipenv run python manage.py {{ args }}
 
 # Run Django administrative commands in the docker container
-@dj docker_args="" +args="": _api-up
-    docker-compose exec {{ docker_args }} web python manage.py {{ args }}
+@dj +args="": _api-up
+    just exec web python manage.py {{ args }}
 
 # Make a test cURL request to the API
 stats media="images":
@@ -213,12 +213,12 @@ ipython:
 ##########
 
 # Compile Sphinx documentation into HTML output
-sphinx-make args="" service="web": up wait-for-es wait-for-ing wait-for-web
-    docker-compose exec {{ args }} {{ service }} sphinx-build -M html docs/ build/
+sphinx-make service="web": up wait-for-es wait-for-ing wait-for-web
+    just exec {{ service }} sphinx-build -M html docs/ build/
 
 # Serve Sphinx documentation via a live-reload server
 sphinx-live service="web" port="3000": up wait-for-es wait-for-ing wait-for-web
-    docker-compose exec {{ service }} sphinx-autobuild --host 0.0.0.0 --port {{ port }} docs/ build/html/
+    just exec {{ service }} sphinx-autobuild --host 0.0.0.0 --port {{ port }} docs/ build/html/
 
 # Serve the Sphinx documentation from the HTML output directory
 sphinx-serve dir="api" port="3001":
