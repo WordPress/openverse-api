@@ -203,9 +203,9 @@ dj-local +args:
 stats media="images":
     curl "http://localhost:8000/v1/{{ media }}/stats/"
 
-# Attach to ipython
+# Get Django shell with IPython
 ipython:
-    docker-compose exec web ipython
+    just dj shell
 
 
 ##########
