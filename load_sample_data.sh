@@ -81,7 +81,7 @@ docker-compose exec -T "$UPSTREAM_DB_SERVICE_NAME" /bin/bash -c "psql -U deploy 
 	AS
 		SELECT DISTINCT
 			audio_set ->> 'foreign_identifier'  :: varchar(1000) as foreign_identifier,
-			cast(audio_set ->> 'title'               as varchar(2000)) as title,
+			audio_set ->> 'title'              :: varchar(2000)) as title,
 			cast(audio_set ->> 'foreign_landing_url' as varchar(1000)) as foreign_landing_url,
 			cast(audio_set ->> 'creator'             as varchar(2000)) as creator,
 			cast(audio_set ->> 'creator_url'         as varchar(2000)) as creator_url,
