@@ -70,7 +70,7 @@ class AudioSearchRequestSerializer(
         required=False,
     )
     length = serializers.CharField(
-        label="duration",
+        label="length",
         help_text=make_comma_separated_help_text(LENGTHS, "audio lengths"),
         required=False,
     )
@@ -82,6 +82,7 @@ class AudioSearchRequestSerializer(
 
     @staticmethod
     def validate_length(value):
+        print(f"Validating length: {value}")
         _validate_enum("length", LENGTHS, value)
         return value.lower()
 
