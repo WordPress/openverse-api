@@ -25,7 +25,8 @@ IMAGE_SIZES = {
     "large",
 }
 
-DURATION = {
+LENGTHS = {
     "short",
+    "medium",
     "long",
 }
