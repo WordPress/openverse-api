@@ -320,7 +320,7 @@ class Audio(Media):
         attrs = Audio.get_instance_attrs(row, schema)
         popularity = attrs["standardized_popularity"]
 
-        length = Audio.get_length(row[schema['duration']])
+        length = Audio.get_length(row[schema["duration"]])
 
         return Audio(
             bit_rate=row[schema["bit_rate"]],
