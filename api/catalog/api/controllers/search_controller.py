@@ -19,6 +19,7 @@ from elasticsearch_dsl.query import Query
 from elasticsearch_dsl.response import Hit, Response
 
 import catalog.api.models as models
+from catalog.api.constants.field_values import RANGES
 from catalog.api.serializers.media_serializers import MediaSearchRequestSerializer
 from catalog.api.utils.dead_link_mask import get_query_hash, get_query_mask
 from catalog.api.utils.validate_images import validate_images
@@ -152,7 +153,7 @@ def _apply_filter(
     search_params: MediaSearchRequestSerializer,
     serializer_field: str,
     es_field: Optional[str] = None,
-    behaviour: Literal["filter", "exclude"] = "filter",
+    behaviour: Literal["filter", "exclude", "range"] = "filter",
 ):
     """
     Parse and apply a filter from the search parameters serializer. The
@@ -164,17 +165,20 @@ def _apply_filter(
     :param search_params: the serializer instance containing user input
     :param serializer_field: the name of the parameter field in ``search_params``
     :param es_field: the corresponding parameter name in Elasticsearch
-    :param behaviour: whether to accept (``filter``) or reject (``exclude``) the hit
+    :param behaviour: whether to accept boolean value (``filter``), a range of values (``range``)
+     or reject (``exclude``) the hit
     :return: the input ``Search`` object with the filters applied
     """
 
     if serializer_field in search_params.data:
+        name_or_query = "range" if behaviour == "range" else "query"
         filters = []
         for arg in search_params.data[serializer_field].split(","):
-            _param = es_field or serializer_field
-            args = {"name_or_query": "term", _param: arg}
+            _field = es_field or serializer_field
+            field_value = RANGES[_field][arg] if behaviour == "range" else arg
+            args = {"name_or_query": name_or_query, _field: field_value}
             filters.append(Q(**args))
-        method = getattr(s, behaviour)
+        method = getattr(s, "filter") if behaviour == "range" else getattr(s, behaviour)
         return method("bool", should=filters)
     else:
         return s
@@ -240,8 +244,6 @@ def search(
         ("extension", None),
         ("category", None),
         ("categories", "category"),
-        ("length", None),
-        ("duration", "length"),
         ("aspect_ratio", None),
         ("size", None),
         ("source", None),
@@ -251,6 +253,16 @@ def search(
     for serializer_field, es_field in filters:
         if serializer_field in search_params.data:
             s = _apply_filter(s, search_params, serializer_field, es_field)
+
+    # Apply range filters. Each tuple pairs a filter's parameter name in the API
+    # with its corresponding field in Elasticsearch. "None" means that the
+    # names are identical.
+    range_filters = [
+        ("duration", None),
+    ]
+    for serializer_field, es_field in range_filters:
+        if serializer_field in search_params.data:
+            s = _apply_filter(s, search_params, serializer_field, es_field, "range")
 
     exclude = [
         ("excluded_source", "source"),
