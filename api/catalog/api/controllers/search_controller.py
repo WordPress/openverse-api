@@ -165,8 +165,8 @@ def _apply_filter(
     :param search_params: the serializer instance containing user input
     :param serializer_field: the name of the parameter field in ``search_params``
     :param es_field: the corresponding parameter name in Elasticsearch
-    :param behaviour: whether to accept boolean value (``filter``), a range of values (``range``)
-     or reject (``exclude``) the hit
+    :param behaviour: whether to accept boolean value (``filter``),
+    a range of values (``range``) or reject (``exclude``) the hit
     :return: the input ``Search`` object with the filters applied
     """
 
