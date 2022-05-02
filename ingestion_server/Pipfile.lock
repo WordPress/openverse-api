@@ -42,11 +42,11 @@
         },
         "botocore": {
             "hashes": [
-                "sha256:0a7b56eda54af6cb210894113f59fb0e2aaf07893d839de292d9c7b07f626dde",
-                "sha256:71cf60ccb024d3c925424d28eba9ca953fc13f36a345dca177b080971ed1141a"
+                "sha256:9f2f143fe8581eb9c43c0934b7daf706067afa409171a80b103f458977fcfbd4",
+                "sha256:bcbacc0ec0a1f44cbf7e6d8112af8096eed41bec75e90af06f8bf61f20d820aa"
             ],
             "markers": "python_version >= '3.6'",
-            "version": "==1.25.4"
+            "version": "==1.25.5"
         },
         "bottle": {
             "hashes": [
@@ -316,11 +316,11 @@
         },
         "tldextract": {
             "hashes": [
-                "sha256:3d4b6a2105600b7d0290ea237bf30b6b0dc763e50fcbe40e849a019bd6dbcbff",
-                "sha256:427703b65db54644f7b81d3dcb79bf355c1a7c28a12944e5cc6787531ccc828a"
+                "sha256:1d57830dbf3806c1ecb973099f75124f45eea7432817e78e6c6ddad0beef185d",
+                "sha256:ac9304cdf80b09c37eea965799e0d9ac0aa1ccb6531fae548aabe09baf1a2549"
             ],
             "index": "pypi",
-            "version": "==3.2.0"
+            "version": "==3.2.1"
         },
         "tomli": {
             "hashes": [
