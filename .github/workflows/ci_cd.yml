@@ -273,7 +273,7 @@ jobs:
           docker load --input /tmp/ingestion_server/ingestion_server.tar
 
       - name: Make developer docs
-        run: just sphinx-make -T
+        run: just sphinx-make
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@bbdfb200618d235585ad98e965f4aafc39b4c501 # v3.7.3
@@ -329,7 +329,7 @@ jobs:
           docker load --input /tmp/ingestion_server/ingestion_server.tar
 
       - name: Build docs
-        run: just sphinx-make -T
+        run: just sphinx-make
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
