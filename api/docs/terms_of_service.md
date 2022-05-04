@@ -1,4 +1,4 @@
-# Openverse API Terms of Use
+# Openverse API Terms of Service
 
 _Effective as of 4 May 2022_
 
