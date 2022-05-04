@@ -293,7 +293,7 @@ jobs:
         id: preview-comment
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body-includes: Developer docs previews
+          body-includes: API Developer Docs Preview
 
       - uses: peter-evans/create-or-update-comment@v2
         if: steps.preview-comment.outputs.comment-id != 0
