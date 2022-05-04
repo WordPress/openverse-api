@@ -312,6 +312,22 @@ jobs:
             **API Developer Docs Preview**: _Updating_
             (This comment will be automatically updated with the preview URLs once it is ready)
 
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup just
+        uses: extractions/setup-just@v1
+
+      - name: Download all images
+        uses: actions/download-artifact@v2
+        with:
+          path: /tmp
+
+      - name: Load all images
+        run: |
+          docker load --input /tmp/api/api.tar
+          docker load --input /tmp/ingestion_server/ingestion_server.tar
+
       - name: Build docs
         run: just sphinx-make -T
 
