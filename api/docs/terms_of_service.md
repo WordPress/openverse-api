@@ -17,7 +17,7 @@ In connection with your use of the Openverse API:
   - You must not scrape the content in the Openverse Catalog;
   - You must not use multiple machines to circumvent rate limits or otherwise take measures to bypass our technical or security measures;
   - You must not operate in a way that negatively affects other users of the API or impedes the WordPress Foundation's ability to provide its services;
-  - You must respect and comply with the terms and conditions applicable to the content and metadata accessible through the Openverse API, including by providing proper attribution to CC-licensed works and respecting the terms and conditions of platforms hosting CC-licensed works.
+  - You must respect and comply with the terms and conditions applicable to the content and metadata accessible through the Openverse API, including by providing proper attribution to [CC-licensed](https://creativecommons.org/licenses/) works and respecting the terms and conditions of platforms hosting CC-licensed works.
   - You must not, and the products you develop must not, encourage others to violate any laws, regulations, or rights of any other person or entity, including intellectual property rights.
 
 ## 3. Content and Data Available through the API
