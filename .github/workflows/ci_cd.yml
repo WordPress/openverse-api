@@ -336,7 +336,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./api/build/html/
-          destination_dir: /_preview/${{ github.event.pull_request.number }}
+          destination_dir: _preview/${{ github.event.pull_request.number }}
           keep_files: true
 
       - uses: peter-evans/find-comment@v2
