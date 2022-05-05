@@ -1,10 +1,29 @@
+from typing import Any, Optional
+
+
+def _text_keyword(ignore_above: Optional[int] = 256) -> dict:
+    """
+    Return the schema for a ``text`` field that must be broken down into ``keyword``
+    fields.
+
+    :param ignore_above: the limit above which text will not be stored or indexed
+    :return: the schema for a text field to break into keywords
+    """
+
+    keyword_field = {"type": "keyword"}
+    if ignore_above is not None:
+        keyword_field["ignore_above"] = ignore_above
+    return {"fields": {"keyword": keyword_field}, "type": "text"}
+
+
 def index_settings(table_name):
     """
     Return the Elasticsearch mapping for a given table in the database.
 
     :param table_name: The name of the table in the upstream database.
-    :return:
+    :return: the dictionary of settings to use when creating the index
     """
+
     settings = {
         "index": {
             "number_of_shards": 18,
@@ -47,99 +66,83 @@ def index_settings(table_name):
             },
         },
     }
-    common_mappings = {
-        "properties": {
-            "id": {"type": "long"},
-            "identifier": {
-                "fields": {"keyword": {"type": "keyword", "ignore_above": 256}},
-                "type": "text",
-            },
-            "title": {
-                "type": "text",
-                "similarity": "boolean",
-                "fields": {"keyword": {"type": "keyword", "ignore_above": 256}},
-                "analyzer": "custom_english",
-            },
-            "foreign_landing_url": {
-                "fields": {"keyword": {"ignore_above": 256, "type": "keyword"}},
-                "type": "text",
-            },
-            "description": {
-                "fields": {"keyword": {"type": "keyword", "similarity": "boolean"}},
-                "type": "text",
-                "analyzer": "custom_english",
-            },
-            "creator": {
-                "type": "text",
-                "fields": {"keyword": {"type": "keyword", "ignore_above": 256}},
-            },
-            "url": {
-                "fields": {"keyword": {"type": "keyword", "ignore_above": 256}},
-                "type": "text",
-            },
-            "extension": {
-                "fields": {"keyword": {"ignore_above": 8, "type": "keyword"}},
-                "type": "text",
-            },
-            "license": {
-                "fields": {"keyword": {"ignore_above": 256, "type": "keyword"}},
-                "type": "text",
-            },
-            "license_version": {
-                "type": "text",
-                "fields": {"keyword": {"type": "keyword", "ignore_above": 256}},
-            },
-            "license_url": {
-                "fields": {"keyword": {"type": "keyword", "ignore_above": 256}},
-                "type": "text",
-            },
-            "provider": {
-                "type": "text",
-                "fields": {"keyword": {"type": "keyword", "ignore_above": 256}},
-            },
-            "source": {
-                "fields": {"keyword": {"ignore_above": 256, "type": "keyword"}},
-                "type": "text",
-            },
-            "created_on": {"type": "date"},
-            "tags": {
-                "properties": {
-                    "accuracy": {"type": "float"},
-                    "name": {
-                        "type": "text",
-                        "fields": {"keyword": {"type": "keyword", "ignore_above": 256}},
-                        "analyzer": "custom_english",
-                    },
-                }
-            },
-            "mature": {"type": "boolean"},
-            "standardized_popularity": {"type": "rank_feature"},
-            "authority_boost": {"type": "rank_feature"},
-            "authority_penalty": {
-                "type": "rank_feature",
-                "positive_score_impact": False,
-            },
-            "max_boost": {"type": "rank_feature"},
-            "min_boost": {"type": "rank_feature"},
-            "category": {"type": "keyword"},
-        }
+
+    common_properties: dict[str, Any] = {
+        "id": {"type": "long"},
+        "title": _text_keyword()
+        | {
+            "similarity": "boolean",
+            "analyzer": "custom_english",
+        },
+        "description": _text_keyword()
+        | {
+            "similarity": "boolean",
+            "analyzer": "custom_english",
+        },
+        "created_on": {"type": "date"},
+        "tags": {
+            "properties": {
+                "accuracy": {"type": "float"},
+                "name": _text_keyword()
+                | {
+                    "analyzer": "custom_english",
+                },
+            }
+        },
+        "mature": {"type": "boolean"},
+        "category": {"type": "keyword"},
     }
+
+    text_keywords = [
+        "identifier",
+        "creator",
+        "creator_url",
+        ("extension", 8),
+        "url",
+        "foreign_landing_url",
+        "license",
+        "license_version",
+        "license_url",
+        "provider",
+        "source",
+    ]
+    for text_keyword in text_keywords:
+        if isinstance(text_keyword, tuple):
+            text_keyword, ignore_above = text_keyword
+            field = _text_keyword(ignore_above)
+        else:
+            field = _text_keyword()
+        common_properties[text_keyword] = field
+
+    # Configure positive and negative rank features
+    rank_features = [
+        "standardized_popularity",
+        "min_boost",
+        "max_boost",
+        "authority_boost",
+        ("authority_penalty", False),
+    ]
+    for rank_feature in rank_features:
+        positive_score_impact = True
+        if isinstance(rank_feature, tuple):
+            rank_feature, positive_score_impact = rank_feature
+        field = {"type": "rank_feature", "positive_score_impact": positive_score_impact}
+        common_properties[rank_feature] = field
+
     media_properties = {
         "image": {
-            "aspect_ratio": {
-                "fields": {"keyword": {"type": "keyword"}},
-                "type": "text",
-            },
-            "size": {"fields": {"keyword": {"type": "keyword"}}, "type": "text"},
+            field: _text_keyword() for field in ["thumbnail", "aspect_ratio", "size"]
         },
-        "audio": {
-            "bit_rate": {"type": "integer"},
-            "sample_rate": {"type": "integer"},
-            "genres": {"fields": {"keyword": {"type": "keyword"}}, "type": "text"},
-            "duration": {"type": "integer"},
+        "audio": {"genres": _text_keyword()}
+        | {
+            field: {"type": "integer"}
+            for field in ["bit_rate", "sample_rate", "duration"]
         },
     }
-    media_mappings = common_mappings.copy()
-    media_mappings["properties"].update(media_properties[table_name])
+
+    media_mappings = {
+        "dynamic": "strict",  # prevent fields from being silently added
+        "properties": common_properties | media_properties[table_name],
+    }
     result = {"settings": settings.copy(), "mappings": media_mappings}
     return result
