@@ -33,7 +33,7 @@ class AudioSetSerializer(serializers.Serializer):
     )
 
     url = serializers.URLField(help_text="The actual URL to the media file.")
-    filesize = serializers.IntegerField(
+    filesize = serializers.CharField(
         required=False, help_text="Number in bytes, e.g. 1024."
     )
     filetype = serializers.CharField(

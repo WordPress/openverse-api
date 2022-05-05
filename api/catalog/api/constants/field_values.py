@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from elasticsearch_dsl import Range
-
 
 AUDIO_CATEGORIES = {
     "audiobook",
@@ -30,10 +28,9 @@ IMAGE_SIZES = {
     "large",
 }
 
-RANGES = {
-    "duration": {
-        "short": Range(lte=4 * 60 * 1e3),
-        "medium": Range(gt=4 * 60 * 1e3, lte=20 * 60 * 1e3),
-        "long": Range(gt=20 * 60 * 1e3),
-    }
+LENGTHS = {
+    "shortest",
+    "short",
+    "medium",
+    "long",
 }
