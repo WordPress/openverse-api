@@ -11,6 +11,7 @@ from catalog.api.models.mixins import (
     IdentifierMixin,
     MediaMixin,
 )
+from catalog.api.utils.attribution import get_attribution_text
 from catalog.api.utils.licenses import get_license_url
 
 
@@ -77,24 +78,20 @@ class AbstractMedia(
 
     @property
     def attribution(self):
-        _license = str(self.license)
-        license_version = str(self.license_version)
-        if self.title:
-            title = f'"{self.title}"'
-        else:
-            title = "This work"
-        if self.creator:
-            creator = f"by {self.creator} "
-        else:
-            creator = ""
-        attribution = ATTRIBUTION.format(
-            title=title,
-            creator=creator,
-            _license=_license.upper(),
-            version=license_version,
-            license_url=str(self.license_url),
+        """
+        Get the plain-text English attribution for a media item. Refer to the frontend
+        source code for an internationalised implementation.
+
+        :return: the plain-text English-language attribution for a creative work
+        """
+
+        return get_attribution_text(
+            self.title,
+            self.creator,
+            self.license.lower(),
+            self.license_version,
+            self.license_url,
         )
-        return attribution
 
     class Meta:
         """
