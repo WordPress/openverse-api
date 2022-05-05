@@ -1,6 +1,6 @@
 # Openverse API Terms of Service
 
-_Effective as of 4 May 2022_
+_Effective as of 5 May 2022_
 
 ## 1. Your Agreement to the Terms
 
