@@ -82,7 +82,6 @@ class AudioSearchRequestSerializer(
 
     @staticmethod
     def validate_length(value):
-        print(f"Validating length: {value}")
         _validate_enum("length", LENGTHS, value)
         return value.lower()
 
