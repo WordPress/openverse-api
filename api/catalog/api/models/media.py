@@ -5,13 +5,13 @@ from django.db import models
 from django.utils.html import format_html
 
 import catalog.api.controllers.search_controller as search_controller
-from catalog.api.licenses import ATTRIBUTION, get_license_url
 from catalog.api.models.base import OpenLedgerModel
 from catalog.api.models.mixins import (
     ForeignIdentifierMixin,
     IdentifierMixin,
     MediaMixin,
 )
+from catalog.api.utils.licenses import get_license_url
 
 
 PENDING = "pending_review"
@@ -70,9 +70,10 @@ class AbstractMedia(
 
     @property
     def license_url(self):
-        _license = str(self.license)
-        license_version = str(self.license_version)
-        return get_license_url(_license, license_version)
+        if self.meta_data and (url := self.meta_data.get("license_url")):
+            return url
+        else:
+            return get_license_url(self.license.lower(), self.license_version)
 
     @property
     def attribution(self):
