@@ -34,16 +34,16 @@ def get_attribution_text(
         "creator": "",
     }
     if license_url:
-        view_legal = "To view {terms-copy}, visit {url}."
+        view_legal_temp = "To view {terms-copy}, visit {url}."
         view_legal_parts = {
             "terms-copy": "the terms" if is_pd else "a copy of this license",
             "url": license_url,
         }
-        attribution_parts["view-legal"] = view_legal.format(**view_legal_parts)
+        attribution_parts["view-legal"] = view_legal_temp.format(**view_legal_parts)
     if creator:
-        creator = "by {creator-name}"
+        creator_temp = "by {creator-name}"
         creator_parts = {"creator-name": creator}
-        attribution_parts["creator"] = creator.format(**creator_parts)
+        attribution_parts["creator"] = creator_temp.format(**creator_parts)
     attribution = attribution.format(**attribution_parts)
 
     return attribution.strip().replace("  ", " ")
