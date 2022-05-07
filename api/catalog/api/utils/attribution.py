@@ -31,14 +31,18 @@ def get_attribution_text(
 
     is_pd = is_public_domain(_license)
 
+    title = f'"{title}"' if title else "This work"
+    _license = get_full_license_name(_license, license_version)
+
     attribution = "{title} {creator} {marked-licensed} {license}. {view-legal}"
     attribution_parts = {
-        "title": f'"{title}"' if title else "This work",
+        "title": title,
         "marked-licensed": "is marked with" if is_pd else "is licensed under",
-        "license": get_full_license_name(_license, license_version),
+        "license": _license,
         "view-legal": "",
         "creator": "",
     }
+
     if license_url:
         view_legal_temp = "To view {terms-copy}, visit {url}."
         view_legal_parts = {
@@ -46,10 +50,12 @@ def get_attribution_text(
             "url": license_url,
         }
         attribution_parts["view-legal"] = view_legal_temp.format(**view_legal_parts)
+
     if creator:
         creator_temp = "by {creator-name}"
         creator_parts = {"creator-name": creator}
         attribution_parts["creator"] = creator_temp.format(**creator_parts)
+
     attribution = attribution.format(**attribution_parts)
 
     return attribution.strip().replace("  ", " ")
