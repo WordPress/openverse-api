@@ -368,9 +368,8 @@ class MediaSerializer(serializers.Serializer):
     )
     attribution = serializers.CharField(
         required=False,
-        help_text="The Creative Commons attribution of the work. Use this to "
-        "give credit to creators to their works and fulfill "
-        "legal attribution requirements.",
+        help_text="The attribution of the work in English as plain-text. Use this to"
+        "credit creators for their work and fulfill legal attribution requirements.",
     )
 
     def get_license(self, obj):
