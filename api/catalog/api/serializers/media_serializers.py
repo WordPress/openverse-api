@@ -16,7 +16,7 @@ def _validate_enum(enum_name, valid_values: set, given_values: str):
     :param given_values: A comma separated list of values.
     :return: whether the input is valid
     """
-    input_values = [x.lower() for x in given_values.split(",")]
+    input_values = given_values.lower().split(",")
     for value in input_values:
         if value not in valid_values:
             raise serializers.ValidationError(
@@ -26,7 +26,7 @@ def _validate_enum(enum_name, valid_values: set, given_values: str):
 
 
 def _validate_lt(value):
-    license_types = [x.lower() for x in value.split(",")]
+    license_types = value.lower().split(",")
     license_groups = []
     for _type in license_types:
         if _type not in LICENSE_GROUPS:
@@ -38,7 +38,7 @@ def _validate_lt(value):
 
 
 def _validate_li(value):
-    licenses = [x.upper() for x in value.split(",")]
+    licenses = value.lower().split(",")
     for _license in licenses:
         if _license not in LICENSE_GROUPS["all"]:
             raise serializers.ValidationError(f"License '{_license}' does not exist.")
