@@ -9,20 +9,20 @@ from catalog.api.utils.attribution import get_attribution_text
     "args, expectation",
     [
         (
-            ("Title", "Creator", "XY", "0.0", "https://license/url"),
+            ("Title", "Creator", "xy", "0.0", "https://license/url"),
             '"Title" by Creator is licensed under CC XY 0.0. '
             "To view a copy of this license, visit https://license/url.",
         ),
         (
-            ("", "Creator", "XY", "0.0", "https://license/url"),  # No title
+            ("", "Creator", "xy", "0.0", "https://license/url"),  # No title
             "This work by Creator is licensed under",
         ),
         (
-            ("Title", "", "XY", "0.0", "https://license/url"),  # No creator
+            ("Title", "", "xy", "0.0", "https://license/url"),  # No creator
             '"Title" is licensed under CC XY 0.0.',
         ),
         (
-            ("Title", "Creator", "XY", "0.0", ""),  # No URL
+            ("Title", "Creator", "xy", "0.0", ""),  # No URL
             r'^"Title" by Creator is licensed under CC XY 0.0.$',
         ),
         (
