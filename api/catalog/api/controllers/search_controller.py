@@ -237,16 +237,20 @@ def search(
     # with its corresponding field in Elasticsearch. "None" means that the
     # names are identical.
     filters = [
-        ("extension", None),
-        ("category", None),
+        "extension",
+        "category",
         ("categories", "category"),
-        ("aspect_ratio", None),
-        ("size", None),
-        ("source", None),
-        ("license", None),
+        "aspect_ratio",
+        "size",
+        "source",
+        "license",
         ("license_type", "license"),
     ]
-    for serializer_field, es_field in filters:
+    for filter_basis in filters:
+        if isinstance(filter_basis, tuple):
+            serializer_field, es_field = filter_basis
+        else:
+            serializer_field = es_field = filter_basis
         if serializer_field in search_params.data:
             s = _apply_filter(s, search_params, serializer_field, es_field)
 
