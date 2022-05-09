@@ -243,8 +243,8 @@ def search(
         ("aspect_ratio", None),
         ("size", None),
         ("source", None),
-        ("license", "license__keyword"),
-        ("license_type", "license__keyword"),
+        ("license", None),
+        ("license_type", None),
     ]
     for serializer_field, es_field in filters:
         if serializer_field in search_params.data:
@@ -393,7 +393,7 @@ def get_sources(index):
             "aggs": {
                 "unique_sources": {
                     "terms": {
-                        "field": "source.keyword",
+                        "field": "source",
                         "size": size,
                         "order": {"_key": "desc"},
                     }
