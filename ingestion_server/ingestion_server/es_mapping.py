@@ -69,16 +69,6 @@ def index_settings(table_name):
 
     common_properties: dict[str, Any] = {
         "id": {"type": "long"},
-        "title": _text_keyword()
-        | {
-            "similarity": "boolean",
-            "analyzer": "custom_english",
-        },
-        "description": _text_keyword()
-        | {
-            "similarity": "boolean",
-            "analyzer": "custom_english",
-        },
         "created_on": {"type": "date"},
         "mature": {"type": "boolean"},
         "tags": {
@@ -130,6 +120,17 @@ def index_settings(table_name):
             rank_feature, positive_score_impact = rank_feature
         field = {"type": "rank_feature", "positive_score_impact": positive_score_impact}
         common_properties[rank_feature] = field
+
+    english_fields = [
+        "title",
+        "description",
+    ]
+    for english_field in english_fields:
+        field = _text_keyword() | {
+            "similarity": "boolean",
+            "analyzer": "custom_english",
+        }
+        common_properties[english_field] = field
 
     media_properties = {
         "image": {
