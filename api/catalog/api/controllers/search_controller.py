@@ -244,7 +244,7 @@ def search(
         ("size", None),
         ("source", None),
         ("license", None),
-        ("license_type", None),
+        ("license_type", "license"),
     ]
     for serializer_field, es_field in filters:
         if serializer_field in search_params.data:
