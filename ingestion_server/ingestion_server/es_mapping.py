@@ -96,13 +96,9 @@ def index_settings(table_name):
     text_keywords = [
         "identifier",
         "creator",
-        "creator_url",
         ("extension", 8),
-        "url",
-        "foreign_landing_url",
         "license",
         "license_version",
-        "license_url",
         "provider",
         "source",
     ]
@@ -141,7 +137,7 @@ def index_settings(table_name):
     }
 
     media_mappings = {
-        "dynamic": "strict",  # prevent fields from being silently added
+        "dynamic": False,  # extra fields are stored in ``_source`` but not indexed
         "properties": common_properties | media_properties[table_name],
     }
     result = {"settings": settings.copy(), "mappings": media_mappings}
