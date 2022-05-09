@@ -80,6 +80,7 @@ def index_settings(table_name):
             "analyzer": "custom_english",
         },
         "created_on": {"type": "date"},
+        "mature": {"type": "boolean"},
         "tags": {
             "properties": {
                 "accuracy": {"type": "float"},
@@ -89,18 +90,23 @@ def index_settings(table_name):
                 },
             }
         },
-        "mature": {"type": "boolean"},
-        "category": {"type": "keyword"},
     }
+
+    keywords = [
+        "license",
+        "license_version",
+        "provider",
+        "source",
+        "category",
+    ]
+    for keyword in keywords:
+        field = {"type": "keyword"}
+        common_properties[keyword] = field
 
     text_keywords = [
         "identifier",
         "creator",
         ("extension", 8),
-        "license",
-        "license_version",
-        "provider",
-        "source",
     ]
     for text_keyword in text_keywords:
         if isinstance(text_keyword, tuple):
