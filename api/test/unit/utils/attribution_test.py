@@ -33,6 +33,10 @@ from catalog.api.utils.attribution import get_attribution_text
             ("Title", "Creator", "cc0", "0.0", "https://license/url"),  # CC0
             '"Title" by Creator is marked with CC0 0.0.',
         ),
+        (
+            (None, None, "xy", None, None),
+            "This work is licensed under CC XY.",  # almost nothing known about the work
+        ),
     ],
 )
 def test_attribution_text(args: tuple[str, str, str, str, str], expectation: str):
