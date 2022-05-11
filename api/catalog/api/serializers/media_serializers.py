@@ -25,33 +25,6 @@ def _validate_enum(enum_name, valid_values: set, given_values: str):
     return given_values.lower()
 
 
-def _validate_lt(value):
-    license_types = value.lower().split(",")
-    license_groups = []
-    for _type in license_types:
-        if _type not in LICENSE_GROUPS:
-            raise serializers.ValidationError(f"License type '{_type}' does not exist.")
-        license_groups.append(LICENSE_GROUPS[_type])
-    intersected = set.intersection(*license_groups)
-
-    return ",".join(intersected)
-
-
-def _validate_li(value):
-    licenses = value.lower().split(",")
-    for _license in licenses:
-        if _license not in LICENSE_GROUPS["all"]:
-            raise serializers.ValidationError(f"License '{_license}' does not exist.")
-    return value.lower()
-
-
-def _validate_page(value):
-    if value < 1:
-        return 1
-    else:
-        return value
-
-
 def _add_protocol(url: str):
     """
     Some fields in the database contain incomplete URLs, leading to unexpected
@@ -240,12 +213,29 @@ class MediaSearchRequestSerializer(serializers.Serializer):
     @staticmethod
     def validate_license(value):
         """Checks whether license is a valid license code."""
-        return _validate_li(value)
+
+        licenses = value.lower().split(",")
+        for _license in licenses:
+            if _license not in LICENSE_GROUPS["all"]:
+                raise serializers.ValidationError(
+                    f"License '{_license}' does not exist."
+                )
+        return value.lower()
 
     @staticmethod
     def validate_license_type(value):
         """Checks whether license type is a known collection of licenses."""
-        return _validate_lt(value)
+
+        license_types = value.lower().split(",")
+        license_groups = []
+        for _type in license_types:
+            if _type not in LICENSE_GROUPS:
+                raise serializers.ValidationError(
+                    f"License type '{_type}' does not exist."
+                )
+            license_groups.append(LICENSE_GROUPS[_type])
+        intersected = set.intersection(*license_groups)
+        return ",".join(intersected)
 
     def validate_creator(self, value):
         return self._truncate(value)
