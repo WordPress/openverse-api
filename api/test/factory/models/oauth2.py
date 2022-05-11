@@ -4,7 +4,7 @@ import factory
 from factory.django import DjangoModelFactory
 from oauth2_provider.models import AccessToken
 
-from catalog.api.models.oauth import ThrottledApplication
+from catalog.api.models.oauth import ThrottledApplication, OAuth2Registration, OAuth2Verification
 
 
 class ThrottledApplicationFactory(DjangoModelFactory):
@@ -17,6 +17,24 @@ class ThrottledApplicationFactory(DjangoModelFactory):
     authorization_grant_type = Faker(
         "random_choice_field", choices=ThrottledApplication.GRANT_TYPES
     )
+
+
+class OAuth2RegistrationFactory(DjangoModelFactory):
+    class Meta:
+        model = OAuth2Registration
+
+    name = Faker("company")
+    description = Faker("catch_phrase")
+    email = Faker("email")
+
+
+class OAuth2VerificationFactory(DjangoModelFactory):
+    class Meta:
+        model = OAuth2Verification
+
+    associated_application = factory.SubFactory(ThrottledApplicationFactory)
+    email = Faker("email")
+    code = Faker("md5")
 
 
 class AccessTokenFactory(DjangoModelFactory):
