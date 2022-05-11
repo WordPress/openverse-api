@@ -1,0 +1,40 @@
+{
+  "analysis": {
+    "analyzer": {
+      "custom_english": {
+        "filter": [
+          "stem_overrides",
+          "english_possessive_stemmer",
+          "lowercase",
+          "english_stop",
+          "english_stemmer"
+        ],
+        "tokenizer": "standard"
+      }
+    },
+    "filter": {
+      "english_possessive_stemmer": {
+        "language": "possessive_english",
+        "type": "stemmer"
+      },
+      "english_stemmer": {
+        "language": "english",
+        "type": "stemmer"
+      },
+      "english_stop": {
+        "stopwords": "_english_",
+        "type": "stop"
+      },
+      "stem_overrides": {
+        "rules": [
+          "animals => animal",
+          "animal => animal",
+          "anime => anime",
+          "animate => animate",
+          "animated => animate"
+        ],
+        "type": "stemmer_override"
+      }
+    }
+  }
+}

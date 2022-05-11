@@ -1,22 +1,55 @@
-from typing import Any, Optional
+import json
+from pathlib import Path
 
 
-def _text_keyword(ignore_above: Optional[int] = 256) -> dict:
+def _get_json_file(json_path: Path) -> dict:
     """
-    Return the schema for a ``text`` field that must be broken down into ``keyword``
-    fields.
+    Read and parse the JSON file at the given path.
 
-    :param ignore_above: the limit above which text will not be stored or indexed
-    :return: the schema for a text field to break into keywords
+    :param json_path: the path to the JSON file to be read
+    :return: the parsed contents of the JSON file
     """
 
-    keyword_field = {"type": "keyword"}
-    if ignore_above is not None:
-        keyword_field["ignore_above"] = ignore_above
-    return {"fields": {"keyword": keyword_field}, "type": "text"}
+    with json_path.open("r", encoding="utf-8") as json_file:
+        return json.load(json_file)
 
 
-def index_settings(table_name):
+def _get_mapping(name: str = "common") -> dict:
+    """
+    Get the field mappings for the ES index from the given JSON file. The name of the
+    JSON file is ideally the same as the table or index name.
+
+    :param name: the name of the JSON file to read, preferably named after the index
+    :return: the parsed contents of the JSON file
+    """
+
+    json_path = Path(__file__).parent / "indices" / "mappings" / f"{name}.json"
+    return _get_json_file(json_path)
+
+
+def _get_settings() -> dict:
+    """
+    Get the settings from the ``settings.json`` file combined with some index specific
+    settings such as number of shards and replicas, and refresh interval.
+
+    :return: the settings for the ES mapping
+    """
+
+    json_path = Path(__file__).parent / "indices" / "settings.json"
+    return _get_json_file(json_path) | {
+        "index": {
+            "number_of_shards": 18,
+            "number_of_replicas": 0,
+            "refresh_interval": "-1",
+        },
+    }
+
+
+settings = _get_settings()
+common_properties = _get_mapping()
+
+
+def index_settings(table_name: str) -> dict:
     """
     Return the Elasticsearch mapping for a given table in the database.
 
@@ -24,128 +57,9 @@ def index_settings(table_name):
     :return: the dictionary of settings to use when creating the index
     """
 
-    settings = {
-        "index": {
-            "number_of_shards": 18,
-            "number_of_replicas": 0,
-            "refresh_interval": "-1",
-        },
-        "analysis": {
-            "filter": {
-                "stem_overrides": {
-                    "type": "stemmer_override",
-                    "rules": [
-                        # Override unwanted 'anim' stems
-                        "animals => animal",
-                        "animal => animal",
-                        "anime => anime",
-                        "animate => animate",
-                        "animated => animate",
-                    ],
-                },
-                "english_stop": {"type": "stop", "stopwords": "_english_"},
-                "english_stemmer": {"type": "stemmer", "language": "english"},
-                "english_possessive_stemmer": {
-                    "type": "stemmer",
-                    "language": "possessive_english",
-                },
-            },
-            "analyzer": {
-                "custom_english": {
-                    "tokenizer": "standard",
-                    "filter": [
-                        # Stem overrides must appear before the primary
-                        # language stemmer.
-                        "stem_overrides",
-                        "english_possessive_stemmer",
-                        "lowercase",
-                        "english_stop",
-                        "english_stemmer",
-                    ],
-                }
-            },
-        },
-    }
-
-    common_properties: dict[str, Any] = {
-        "id": {"type": "long"},
-        "created_on": {"type": "date"},
-        "mature": {"type": "boolean"},
-        "tags": {
-            "properties": {
-                "accuracy": {"type": "float"},
-                "name": _text_keyword()
-                | {
-                    "analyzer": "custom_english",
-                },
-            }
-        },
-    }
-
-    keywords = [
-        "license",
-        "license_version",
-        "provider",
-        "source",
-        "category",
-    ]
-    for keyword in keywords:
-        field = {"type": "keyword"}
-        common_properties[keyword] = field
-
-    text_keywords = [
-        "identifier",
-        "creator",
-        ("extension", 8),
-    ]
-    for text_keyword in text_keywords:
-        if isinstance(text_keyword, tuple):
-            text_keyword, ignore_above = text_keyword
-            field = _text_keyword(ignore_above)
-        else:
-            field = _text_keyword()
-        common_properties[text_keyword] = field
-
-    # Configure positive and negative rank features
-    rank_features = [
-        "standardized_popularity",
-        "min_boost",
-        "max_boost",
-        "authority_boost",
-        ("authority_penalty", False),
-    ]
-    for rank_feature in rank_features:
-        positive_score_impact = True
-        if isinstance(rank_feature, tuple):
-            rank_feature, positive_score_impact = rank_feature
-        field = {"type": "rank_feature", "positive_score_impact": positive_score_impact}
-        common_properties[rank_feature] = field
-
-    english_fields = [
-        "title",
-        "description",
-    ]
-    for english_field in english_fields:
-        field = _text_keyword() | {
-            "similarity": "boolean",
-            "analyzer": "custom_english",
-        }
-        common_properties[english_field] = field
-
-    media_properties = {
-        "image": {
-            field: _text_keyword() for field in ["thumbnail", "aspect_ratio", "size"]
-        },
-        "audio": {"genres": _text_keyword()}
-        | {
-            field: {"type": "integer"}
-            for field in ["bit_rate", "sample_rate", "duration"]
-        },
-    }
-
-    media_mappings = {
+    mappings = {
         "dynamic": False,  # extra fields are stored in ``_source`` but not indexed
-        "properties": common_properties | media_properties[table_name],
+        "properties": common_properties | _get_mapping(table_name),
     }
-    result = {"settings": settings.copy(), "mappings": media_mappings}
+    result = {"settings": settings, "mappings": mappings}
     return result

@@ -1,0 +1,108 @@
+{
+  "authority_boost": {
+    "type": "rank_feature"
+  },
+  "authority_penalty": {
+    "positive_score_impact": false,
+    "type": "rank_feature"
+  },
+  "category": {
+    "type": "keyword"
+  },
+  "created_on": {
+    "type": "date"
+  },
+  "creator": {
+    "fields": {
+      "keyword": {
+        "ignore_above": 256,
+        "type": "keyword"
+      }
+    },
+    "type": "text"
+  },
+  "description": {
+    "analyzer": "custom_english",
+    "fields": {
+      "keyword": {
+        "ignore_above": 256,
+        "type": "keyword"
+      }
+    },
+    "similarity": "boolean",
+    "type": "text"
+  },
+  "extension": {
+    "fields": {
+      "keyword": {
+        "ignore_above": 8,
+        "type": "keyword"
+      }
+    },
+    "type": "text"
+  },
+  "id": {
+    "type": "long"
+  },
+  "identifier": {
+    "fields": {
+      "keyword": {
+        "ignore_above": 256,
+        "type": "keyword"
+      }
+    },
+    "type": "text"
+  },
+  "license": {
+    "type": "keyword"
+  },
+  "license_version": {
+    "type": "keyword"
+  },
+  "mature": {
+    "type": "boolean"
+  },
+  "max_boost": {
+    "type": "rank_feature"
+  },
+  "min_boost": {
+    "type": "rank_feature"
+  },
+  "provider": {
+    "type": "keyword"
+  },
+  "source": {
+    "type": "keyword"
+  },
+  "standardized_popularity": {
+    "type": "rank_feature"
+  },
+  "tags": {
+    "properties": {
+      "accuracy": {
+        "type": "float"
+      },
+      "name": {
+        "analyzer": "custom_english",
+        "fields": {
+          "keyword": {
+            "ignore_above": 256,
+            "type": "keyword"
+          }
+        },
+        "type": "text"
+      }
+    }
+  },
+  "title": {
+    "analyzer": "custom_english",
+    "fields": {
+      "keyword": {
+        "ignore_above": 256,
+        "type": "keyword"
+      }
+    },
+    "similarity": "boolean",
+    "type": "text"
+  }
+}
