@@ -5,6 +5,7 @@ from rest_framework import serializers
 from catalog.api.constants.licenses import LICENSE_GROUPS
 from catalog.api.controllers import search_controller
 from catalog.api.models.media import AbstractMedia
+from catalog.api.serializers.base import BaseModelSerializer
 from catalog.api.serializers.fields import SchemableHyperlinkedIdentityField
 from catalog.api.utils.help_text import make_comma_separated_help_text
 from catalog.api.utils.url import add_protocol
@@ -234,7 +235,7 @@ class MediaSearchSerializer(serializers.Serializer):
     # ``results`` field added by child serializers
 
 
-class MediaSerializer(serializers.ModelSerializer):
+class MediaSerializer(BaseModelSerializer):
     """
     This serializer serializes a single media file. The class should be
     inherited by all individual media serializers.
@@ -308,21 +309,6 @@ class MediaSerializer(serializers.ModelSerializer):
             output[url_field] = add_protocol(output[url_field])
 
         return output
-
-    def build_property_field(self, field_name, model_class):
-        """
-        Overrides the built-in property field builder to use docstrings as the Swagger
-        help text for fields.
-
-        :param field_name: the name of the property for which the field is being built
-        :param model_class: the ``class`` instance for the Django model
-        :return: the Field subclass to use and the keyword arguments to pass to it
-        """
-
-        klass, kwargs = super().build_property_field(field_name, model_class)
-        if doc := getattr(model_class, field_name).__doc__:
-            kwargs.setdefault("help_text", doc)
-        return klass, kwargs
 
 
 #######################
