@@ -114,7 +114,7 @@ class AudioSerializer(AudioHyperlinksSerializer, MediaSerializer):
         """
 
     audio_set = AudioSetSerializer(
-        required=False,
+        allow_null=True,
         help_text="Reference to set of which this track is a part.",
         read_only=True,
     )
