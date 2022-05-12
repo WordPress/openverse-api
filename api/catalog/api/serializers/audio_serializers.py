@@ -161,10 +161,12 @@ class AudioSerializer(MediaSerializer):
     )
 
     # Add-on data
-    peaks = serializers.SerializerMethodField()
+    peaks = serializers.SerializerMethodField(
+        help_text="The list of peaks used to generate the waveform for the audio."
+    )
 
     @staticmethod
-    def get_peaks(obj):
+    def get_peaks(obj) -> list[int]:
         if isinstance(obj, Hit):
             obj = Audio.objects.get(identifier=obj.identifier)
         return obj.get_waveform()
