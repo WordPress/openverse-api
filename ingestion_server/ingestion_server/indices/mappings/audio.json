@@ -1,14 +1,5 @@
 {
-  "bit_rate": {
-    "type": "integer"
-  },
-  "duration": {
-    "type": "integer"
-  },
   "genres": {
     "type": "keyword"
-  },
-  "sample_rate": {
-    "type": "integer"
   }
 }
