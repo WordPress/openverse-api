@@ -102,21 +102,23 @@ class Media(SyncableDocType):
             "id": row[schema["id"]],
             "identifier": row[schema["identifier"]],
             "title": row[schema["title"]],
-            "foreign_landing_url": row[schema["foreign_landing_url"]],
             "description": Media.parse_description(meta),
+            "foreign_landing_url": row[schema["foreign_landing_url"]],
+            "url": row[schema["url"]],
             "creator": row[schema["creator"]],
             "creator_url": row[schema["creator_url"]],
-            "url": row[schema["url"]],
-            "extension": Media.get_extension(row[schema["url"]]),
             "license": row[schema["license"]].lower(),
             "license_version": row[schema["license_version"]],
             "license_url": Media.get_license_url(meta),
             "provider": row[schema["provider"]],
             "source": row[schema["source"]],
-            "created_on": row[schema["created_on"]],
+            "filesize": row[schema["filesize"]],
+            "filetype": row[schema["filetype"]],
+            "extension": Media.get_extension(row[schema["url"]]),
             "tags": Media.parse_detailed_tags(row[schema["tags"]]),
             "mature": Media.get_maturity(meta, row[schema["mature"]]),
             "standardized_popularity": popularity,
+            "created_on": row[schema["created_on"]],
         }
 
     @staticmethod
@@ -258,12 +260,12 @@ class Image(Media):
         popularity = attrs["standardized_popularity"]
 
         return Image(
-            thumbnail=row[schema["thumbnail"]],
             category=category,
             height=height,
             width=width,
             aspect_ratio=aspect_ratio,
             size=size,
+            thumbnail=row[schema["thumbnail"]],
             authority_boost=authority_boost,
             max_boost=max(popularity or 1, authority_boost or 1),
             min_boost=min(popularity or 1, authority_boost or 1),
@@ -323,11 +325,11 @@ class Audio(Media):
         popularity = attrs["standardized_popularity"]
 
         return Audio(
+            category=row[schema["category"]],
+            genres=row[schema["genres"]],
+            duration=row[schema["duration"]],
             bit_rate=row[schema["bit_rate"]],
             sample_rate=row[schema["sample_rate"]],
-            genres=row[schema["genres"]],
-            category=row[schema["category"]],
-            duration=row[schema["duration"]],
             authority_boost=authority_boost,
             max_boost=max(popularity or 1, authority_boost or 1),
             min_boost=min(popularity or 1, authority_boost or 1),
