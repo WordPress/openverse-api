@@ -91,7 +91,7 @@ class OAuthGroup:
     verification: OAuth2Verification
 
 
-def cohesive_verification(email=None) -> OAuthGroup:
+def cohesive_verification(email=None, verified=False) -> OAuthGroup:
     """
     Generate a registration, application, and verification.
 
@@ -103,7 +103,10 @@ def cohesive_verification(email=None) -> OAuthGroup:
 
     registration = OAuth2RegistrationFactory.create(**options)
 
-    application = ThrottledApplicationFactory.create(name=registration.name)
+    application = ThrottledApplicationFactory.create(
+        name=registration.name,
+        verified=verified
+    )
 
     verification = OAuth2VerificationFactory.create(
         email=registration.email, associated_application=application
@@ -275,3 +278,12 @@ def test_should_not_delete_or_send_if_dry_run(cleanable_email, captured_emails, 
         assert ThrottledApplication.objects.filter(pk=cleaned.application.pk).exists() == True
 
     assert redis.sismember("resendoauthverification:processed", keep.registration.email) == False
+
+
+@pytest.mark.django_db
+def test_should_not_send_for_verified_emails(cleanable_email, captured_emails):
+    verified = cohesive_verification(verified=True)
+
+    call_resendoauthverification(dry_run=False)
+    assert count_captured_emails_for_group(captured_emails, verified) == 0
+    assert_cleaned_and_sent(cleanable_email, captured_emails)
