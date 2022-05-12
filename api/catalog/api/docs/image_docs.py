@@ -31,18 +31,16 @@ from catalog.api.serializers.error_serializers import (
     InputErrorSerializer,
     NotFoundErrorSerializer,
 )
-from catalog.api.serializers.provider_serializers import ProviderSerializer
-from catalog.api.serializers.request.image import (
+from catalog.api.serializers.image_serializers import (
     ImageReportSerializer,
     ImageSearchRequestSerializer,
-    OembedRequestSerializer,
-)
-from catalog.api.serializers.request.media import MediaThumbnailRequestSerializer
-from catalog.api.serializers.response.image import (
     ImageSearchSerializer,
     ImageSerializer,
+    OembedRequestSerializer,
     OembedSerializer,
 )
+from catalog.api.serializers.media_serializers import MediaThumbnailRequestSerializer
+from catalog.api.serializers.provider_serializers import ProviderSerializer
 
 
 class ImageSearch(MediaSearch):

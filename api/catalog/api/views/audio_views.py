@@ -15,15 +15,13 @@ from catalog.api.docs.audio_docs import (
     AudioThumbnail,
 )
 from catalog.api.models import Audio
-from catalog.api.serializers.request.audio import (
+from catalog.api.serializers.audio_serializers import (
     AudioReportSerializer,
     AudioSearchRequestSerializer,
-)
-from catalog.api.serializers.request.media import MediaThumbnailRequestSerializer
-from catalog.api.serializers.response.audio import (
     AudioSerializer,
     AudioWaveformSerializer,
 )
+from catalog.api.serializers.media_serializers import MediaThumbnailRequestSerializer
 from catalog.api.utils.exceptions import get_api_exception
 from catalog.api.utils.throttle import OneThousandPerMinute
 from catalog.api.views.media_views import MediaViewSet
