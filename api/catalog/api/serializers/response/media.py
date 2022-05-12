@@ -2,8 +2,23 @@ from rest_framework import serializers
 
 from catalog.api.models.media import AbstractMedia
 from catalog.api.serializers.base import SchemableHyperlinkedIdentityField
-from catalog.api.serializers.response.tag import TagSerializer
 from catalog.api.utils.url import add_protocol
+
+
+class TagSerializer(serializers.Serializer):
+    """
+    This output serializer serializes a singular tag.
+    """
+
+    name = serializers.CharField(
+        required=True,
+        help_text="The name of a detailed tag.",
+    )
+    accuracy = serializers.FloatField(
+        required=False,
+        help_text="The accuracy of a machine-generated tag. Human-generated "
+        "tags do not have an accuracy field.",
+    )
 
 
 class MediaSearchSerializer(serializers.Serializer):

@@ -22,15 +22,14 @@ from catalog.api.docs.image_docs import (
     ImageThumbnail,
 )
 from catalog.api.models import Image
-from catalog.api.serializers.image_serializers import (
+from catalog.api.serializers.request.image import (
     ImageReportSerializer,
     ImageSearchRequestSerializer,
-    ImageSerializer,
     OembedRequestSerializer,
-    OembedSerializer,
     WatermarkRequestSerializer,
 )
 from catalog.api.serializers.request.media import MediaThumbnailRequestSerializer
+from catalog.api.serializers.response.image import ImageSerializer, OembedSerializer
 from catalog.api.utils.exceptions import get_api_exception
 from catalog.api.utils.throttle import OneThousandPerMinute
 from catalog.api.utils.watermark import watermark

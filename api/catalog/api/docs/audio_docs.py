@@ -24,18 +24,20 @@ from catalog.api.examples import (
     audio_stats_200_example,
     audio_stats_curl,
 )
-from catalog.api.serializers.audio_serializers import (
-    AudioReportSerializer,
-    AudioSearchRequestSerializer,
-    AudioSearchSerializer,
-    AudioSerializer,
-)
 from catalog.api.serializers.error_serializers import (
     InputErrorSerializer,
     NotFoundErrorSerializer,
 )
 from catalog.api.serializers.provider_serializers import ProviderSerializer
+from catalog.api.serializers.request.audio import (
+    AudioReportSerializer,
+    AudioSearchRequestSerializer,
+)
 from catalog.api.serializers.request.media import MediaThumbnailRequestSerializer
+from catalog.api.serializers.response.audio import (
+    AudioSearchSerializer,
+    AudioSerializer,
+)
 
 
 class AudioSearch(MediaSearch):
