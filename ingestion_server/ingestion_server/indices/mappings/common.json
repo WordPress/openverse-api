@@ -33,25 +33,13 @@
     "type": "text"
   },
   "extension": {
-    "fields": {
-      "keyword": {
-        "ignore_above": 8,
-        "type": "keyword"
-      }
-    },
-    "type": "text"
+    "type": "keyword"
   },
   "id": {
     "type": "long"
   },
   "identifier": {
-    "fields": {
-      "keyword": {
-        "ignore_above": 256,
-        "type": "keyword"
-      }
-    },
-    "type": "text"
+    "type": "keyword"
   },
   "license": {
     "type": "keyword"
