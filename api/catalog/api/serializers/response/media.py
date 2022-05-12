@@ -11,7 +11,6 @@ class TagSerializer(serializers.Serializer):
     """
 
     name = serializers.CharField(
-        required=True,
         help_text="The name of a detailed tag.",
     )
     accuracy = serializers.FloatField(

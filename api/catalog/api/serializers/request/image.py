@@ -79,7 +79,6 @@ class OembedRequestSerializer(serializers.Serializer):
 
     url = serializers.CharField(
         help_text="The link to an image.",
-        required=True,
     )
 
     @staticmethod
