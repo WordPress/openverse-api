@@ -39,8 +39,8 @@ from catalog.api.serializers.image_serializers import (
     OembedRequestSerializer,
     OembedSerializer,
 )
-from catalog.api.serializers.media_serializers import MediaThumbnailRequestSerializer
 from catalog.api.serializers.provider_serializers import ProviderSerializer
+from catalog.api.serializers.request.media import MediaThumbnailRequestSerializer
 
 
 class ImageSearch(MediaSearch):

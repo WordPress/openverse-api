@@ -19,7 +19,7 @@ from elasticsearch_dsl.query import Query
 from elasticsearch_dsl.response import Hit, Response
 
 import catalog.api.models as models
-from catalog.api.serializers.media_serializers import MediaSearchRequestSerializer
+from catalog.api.serializers.request.media import MediaSearchRequestSerializer
 from catalog.api.utils.dead_link_mask import get_query_hash, get_query_mask
 from catalog.api.utils.validate_images import validate_images
 

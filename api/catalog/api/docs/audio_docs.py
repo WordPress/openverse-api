@@ -34,8 +34,8 @@ from catalog.api.serializers.error_serializers import (
     InputErrorSerializer,
     NotFoundErrorSerializer,
 )
-from catalog.api.serializers.media_serializers import MediaThumbnailRequestSerializer
 from catalog.api.serializers.provider_serializers import ProviderSerializer
+from catalog.api.serializers.request.media import MediaThumbnailRequestSerializer
 
 
 class AudioSearch(MediaSearch):
