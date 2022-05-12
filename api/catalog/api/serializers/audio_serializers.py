@@ -10,6 +10,7 @@ from catalog.api.serializers.fields import (
     SchemableHyperlinkedIdentityField,
 )
 from catalog.api.serializers.media_serializers import (
+    MediaReportRequestSerializer,
     MediaSearchRequestSerializer,
     MediaSearchSerializer,
     MediaSerializer,
@@ -55,25 +56,11 @@ class AudioSearchRequestSerializer(
     )
 
 
-class AudioReportSerializer(serializers.ModelSerializer):
+class AudioReportSerializer(MediaReportRequestSerializer):
     class Meta:
         model = AudioReport
-        fields = ["identifier", "reason", "description"]
-        read_only_fields = ["identifier"]
-
-    def create(self, validated_data):
-        if (
-            validated_data["reason"] == "other"
-            and (
-                "description" not in validated_data
-                or len(validated_data["description"])
-            )
-            < 20
-        ):
-            raise serializers.ValidationError(
-                "Description must be at least be 20 characters long"
-            )
-        return AudioReport.objects.create(**validated_data)
+        fields = MediaReportRequestSerializer.Meta.fields
+        read_only_fields = MediaReportRequestSerializer.Meta.read_only_fields
 
 
 ########################

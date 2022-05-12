@@ -194,6 +194,23 @@ class MediaThumbnailRequestSerializer(serializers.Serializer):
         return data
 
 
+class MediaReportRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = None
+        fields = ["identifier", "reason", "description"]
+        read_only_fields = ["identifier"]
+
+    def validate(self, attrs):
+        if (
+            attrs["reason"] == "other"
+            and ("description" not in attrs or len(attrs["description"])) < 20
+        ):
+            raise serializers.ValidationError(
+                "Description must be at least be 20 characters long"
+            )
+        return attrs
+
+
 ########################
 # Response serializers #
 ########################
