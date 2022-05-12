@@ -87,19 +87,19 @@ class AbstractMedia(
     meta_data = models.JSONField(blank=True, null=True)
 
     @property
-    def license_url(self):
+    def license_url(self) -> str:
+        """A direct link to the license deed or legal terms."""
+
         if self.meta_data and (url := self.meta_data.get("license_url")):
             return url
         else:
             return get_license_url(self.license.lower(), self.license_version)
 
     @property
-    def attribution(self):
+    def attribution(self) -> str:
         """
-        Get the plain-text English attribution for a media item. Refer to the frontend
-        source code for an internationalised implementation.
-
-        :return: the plain-text English-language attribution for a creative work
+        The plain-text English attribution for a media item. Use this to credit creators
+        for their work and fulfill legal attribution requirements.
         """
 
         return get_attribution_text(
