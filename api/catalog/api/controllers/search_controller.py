@@ -243,9 +243,18 @@ def search(
         "aspect_ratio",
         "size",
         "source",
-        "license",
-        ("license_type", "license"),
     ]
+    if settings.ES_INDEX_FORMAT == "old":
+        filters += [
+            ("license", "license__keyword"),
+            ("license_type", "license__keyword"),
+        ]
+    else:
+        filters += [
+            "license",
+            ("license_type", "license"),
+        ]
+
     for filter_basis in filters:
         if isinstance(filter_basis, tuple):
             serializer_field, es_field = filter_basis
@@ -397,7 +406,9 @@ def get_sources(index):
             "aggs": {
                 "unique_sources": {
                     "terms": {
-                        "field": "source",
+                        "field": "source.keyword"
+                        if settings.ES_INDEX_FORMAT == "old"
+                        else "source",
                         "size": size,
                         "order": {"_key": "desc"},
                     }
@@ -442,10 +453,6 @@ def _elasticsearch_connect():
     return _es
 
 
-es = _elasticsearch_connect()
-connections.connections.add_connection("default", es)
-
-
 def _get_result_and_page_count(
     response_obj: Response, results: List[Hit], page_size: int
 ) -> Tuple[int, int]:
@@ -467,3 +474,15 @@ def _get_result_and_page_count(
         result_count = len(results)
 
     return result_count, page_count
+
+
+es = _elasticsearch_connect()
+connections.connections.add_connection("default", es)
+
+# May 2022 Elasticsearch migration
+idx_dyn_map: dict[str, bool] = {}
+for idx_name in ["image", "audio"]:
+    idx = es.indices.get(index=idx_name)
+    idx_dyn_map[idx_name] = "dynamic" not in list(idx.values())[0]["mappings"]
+if not any(idx_dyn_map.values()):  # mappings are not dynamic in the new format
+    settings.ES_INDEX_FORMAT = "new"
