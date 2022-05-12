@@ -35,6 +35,8 @@ def create_mock_image(override=None):
         "view_count": 0,
         "height": 500,
         "width": 500,
+        "filesize": 123,
+        "filetype": "jpg",
         "mature": False,
         "meta_data": meta_data,
     }
