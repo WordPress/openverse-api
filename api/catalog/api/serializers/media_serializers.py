@@ -362,23 +362,20 @@ class MediaSerializer(serializers.Serializer):
         "credit creators for their work and fulfill legal attribution requirements.",
     )
 
-    def get_license(self, obj):
-        return obj.license.lower()
-
-    def validate_url(self, value):
-        return _add_protocol(value)
-
-    def validate_creator_url(self, value):
-        return _add_protocol(value)
-
-    def validate_foreign_landing_url(self, value):
-        return _add_protocol(value)
-
     def to_representation(self, *args, **kwargs):
-        repr = super().to_representation(*args, **kwargs)
-        if repr["tags"] is None:
-            repr["tags"] = []  # ``tags`` should always be a list, even if empty
-        return repr
+        output = super().to_representation(*args, **kwargs)
+        if output["tags"] is None:
+            output["tags"] = []  # ``tags`` should always be a list, even if empty
+
+        # Ensure license is lowercase
+        output["license"] = output["license"].lower()
+
+        # Ensure URLs have scheme
+        url_fields = ["url", "creator_url", "foreign_landing_url"]
+        for url_field in url_fields:
+            output[url_field] = _add_protocol(output[url_field])
+
+        return output
 
 
 class MediaSearchSerializer(serializers.Serializer):
