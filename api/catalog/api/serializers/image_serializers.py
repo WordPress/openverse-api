@@ -7,6 +7,7 @@ from catalog.api.constants.field_values import (
 )
 from catalog.api.docs.media_docs import fields_to_md
 from catalog.api.models import Image, ImageReport
+from catalog.api.serializers.base import BaseModelSerializer
 from catalog.api.serializers.fields import EnumCharField
 from catalog.api.serializers.media_serializers import (
     MediaSearchRequestSerializer,
@@ -140,15 +141,18 @@ class OembedRequestSerializer(serializers.Serializer):
         return add_protocol(value)
 
 
-class OembedSerializer(serializers.ModelSerializer):
-    """The embedded content from a specified image URL."""
+class OembedSerializer(BaseModelSerializer):
+    """
+    The embedded content from a specified image URL. This is essentially an
+    ``ImageSerializer`` with some changes to match the oEmbed spec: https://oembed.com.
+    """
 
     version = serializers.ReadOnlyField(
-        help_text="The image version.",
+        help_text="The oEmbed version number. This must be 1.0.",
         default="1.0",
     )
     type = serializers.ReadOnlyField(
-        help_text="Type of data.",
+        help_text="The resource type. This must be 'photo' for images.",
         default="photo",
     )
     width = serializers.SerializerMethodField(
@@ -157,17 +161,13 @@ class OembedSerializer(serializers.ModelSerializer):
     height = serializers.SerializerMethodField(
         help_text="The height of the image in pixels."
     )
-    title = serializers.CharField(help_text="The name of image.")
     author_name = serializers.CharField(
-        help_text="The name of author for image.",
+        help_text="The name of the media creator.",  # ``copied from ``Image``
         source="creator",
     )
     author_url = serializers.URLField(
-        help_text="A direct link to the author.",
+        help_text="A direct link to the media creator.",  # copied from ``Image``
         source="creator_url",
-    )
-    license_url = serializers.URLField(
-        help_text="A direct link to the license for image."
     )
 
     class Meta:
