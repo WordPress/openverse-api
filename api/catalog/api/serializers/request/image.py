@@ -6,7 +6,7 @@ from catalog.api.constants.field_values import (
     IMAGE_SIZES,
 )
 from catalog.api.models import ImageReport
-from catalog.api.serializers.base import EnumCharField
+from catalog.api.serializers.fields import EnumCharField
 from catalog.api.serializers.request.media import (
     MediaSearchRequestSerializer,
     get_search_request_source_serializer,

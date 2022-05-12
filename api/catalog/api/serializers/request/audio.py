@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from catalog.api.constants.field_values import AUDIO_CATEGORIES, DURATION
 from catalog.api.models import AudioReport
-from catalog.api.serializers.base import EnumCharField
+from catalog.api.serializers.fields import EnumCharField
 from catalog.api.serializers.request.media import (
     MediaSearchRequestSerializer,
     get_search_request_source_serializer,

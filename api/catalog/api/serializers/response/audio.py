@@ -4,7 +4,7 @@ from elasticsearch_dsl.response import Hit
 
 from catalog.api.docs.media_docs import fields_to_md
 from catalog.api.models import Audio, AudioSet
-from catalog.api.serializers.base import SchemableHyperlinkedIdentityField
+from catalog.api.serializers.fields import SchemableHyperlinkedIdentityField
 from catalog.api.serializers.response.media import (
     MediaSearchSerializer,
     MediaSerializer,

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from catalog.api.models.media import AbstractMedia
-from catalog.api.serializers.base import SchemableHyperlinkedIdentityField
+from catalog.api.serializers.fields import SchemableHyperlinkedIdentityField
 from catalog.api.utils.url import add_protocol
 
 
