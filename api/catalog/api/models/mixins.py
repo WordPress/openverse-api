@@ -9,8 +9,8 @@ class IdentifierMixin(models.Model):
     any model. Do not use this as the sole base class.
 
     The mixins adds
+
     - identifier: UUIDField
-    - foreign_identifier: CharField
     """
 
     identifier = models.UUIDField(
@@ -27,6 +27,10 @@ class ForeignIdentifierMixin(models.Model):
     """
     This mixin adds fields related to the external unique ID to any model. Do
     not use this as the sole base class.
+
+    This mixin adds
+
+    - foreign_identifier: CharField
     """
 
     foreign_identifier = models.CharField(
@@ -47,10 +51,13 @@ class MediaMixin(models.Model):
     the work and info about the artist. Do not use this as the sole base class.
 
     The mixin adds
+
     - title: CharField
     - foreign_landing_url: CharField
     - creator: CharField
     - creator_url: CharField
+    - thumbnail: URLField
+    - provider: CharField
     """
 
     title = models.CharField(
@@ -104,6 +111,12 @@ class FileMixin(models.Model):
     """
     This mixin adds fields related to file such as the file URL and size to any
     model. Do not use this as the sole base class.
+
+    This mixin adds
+
+    - url: URLField
+    - filesize: IntegerField
+    - filetype: CharField
     """
 
     url = models.URLField(
