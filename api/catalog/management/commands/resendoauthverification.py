@@ -1,7 +1,8 @@
+import argparse
 from dataclasses import dataclass
 
-from django.core.mail import send_mail
 from django.conf import settings
+from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import Q
 from rest_framework.reverse import reverse
@@ -61,6 +62,7 @@ class Command(BaseCommand):
             help="Count the records that will be removed but don't apply any changes.",
             type=bool,
             default=True,
+            action=argparse.BooleanOptionalAction,
         )
 
     @transaction.atomic
@@ -89,6 +91,8 @@ class Command(BaseCommand):
         application_to_verify = ThrottledApplication.objects.get(pk=application_ids[0])
 
         deleted_applications = 0
+        deleted_registrations = 0
+        deleted_verifications = 0
         if len(application_ids) > 1:
             applications_to_delete_ids = application_ids[1:]
             deleted_applications = len(applications_to_delete_ids)
@@ -118,7 +122,9 @@ class Command(BaseCommand):
             token = verification.code
             # We don't have access to `request.build_absolute_uri` so we
             # have to build it ourselves for the production endpoint
-            link = f"https://api.openverse.engineering/{reverse('verify-email', [token])}"
+            link = (
+                f"https://api.openverse.engineering/{reverse('verify-email', [token])}"
+            )
             verification_msg = verification_msg_template.format(link=link)
             send_mail(
                 subject="Verify your API credentials",
@@ -151,12 +157,12 @@ class Command(BaseCommand):
         redis = get_redis_connection("default")
 
         already_processed_emails = [
-            email.decode('utf-8') for email in redis.smembers(self.processed_key)
+            email.decode("utf-8") for email in redis.smembers(self.processed_key)
         ]
 
         emails_with_verified_applications = OAuth2Verification.objects.filter(
-            Q(associated_application__verified=True) |
-            Q(email__in=already_processed_emails)
+            Q(associated_application__verified=True)
+            | Q(email__in=already_processed_emails)
         ).values_list("email", flat=True)
 
         emails_with_zero_verified_applications = list(

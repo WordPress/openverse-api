@@ -1,18 +1,17 @@
+import smtplib
 from dataclasses import dataclass
 from io import StringIO
-from unittest import mock
-import smtplib
-
-from django.core.management import call_command
-
-import pytest
-from fakeredis import FakeRedis
-
 from test.factory.models.oauth2 import (
     OAuth2RegistrationFactory,
     OAuth2VerificationFactory,
     ThrottledApplicationFactory,
 )
+from unittest import mock
+
+from django.core.management import call_command
+
+import pytest
+from fakeredis import FakeRedis
 
 from catalog.api.models.oauth import (
     OAuth2Registration,
@@ -48,7 +47,7 @@ class CapturedEmail:
 @pytest.fixture
 def captured_emails(monkeypatch) -> list[CapturedEmail]:
     captured = []
-    
+
     def send_mail(*args, **kwargs):
         captured.append(
             CapturedEmail(
@@ -57,9 +56,7 @@ def captured_emails(monkeypatch) -> list[CapturedEmail]:
             )
         )
 
-    monkeypatch.setattr(
-        f"{command_module_path}.send_mail", send_mail
-    )
+    monkeypatch.setattr(f"{command_module_path}.send_mail", send_mail)
 
     yield captured
 
@@ -77,9 +74,7 @@ def failed_emails(monkeypatch) -> list[CapturedEmail]:
         )
         raise smtplib.SMTPAuthenticationError(1, "beep boop bad password")
 
-    monkeypatch.setattr(
-        f"{command_module_path}.send_mail", send_mail
-    )
+    monkeypatch.setattr(f"{command_module_path}.send_mail", send_mail)
 
     yield failed
 
@@ -104,8 +99,7 @@ def cohesive_verification(email=None, verified=False) -> OAuthGroup:
     registration = OAuth2RegistrationFactory.create(**options)
 
     application = ThrottledApplicationFactory.create(
-        name=registration.name,
-        verified=verified
+        name=registration.name, verified=verified
     )
 
     verification = OAuth2VerificationFactory.create(
@@ -126,17 +120,10 @@ class CleanableEmail:
 
 def make_cleanable_email():
     keep = cohesive_verification()
-    clean = [
-        cohesive_verification(
-            email=keep.registration.email
-        )
-        for _ in range(10)
-    ]
+    clean = [cohesive_verification(email=keep.registration.email) for _ in range(10)]
 
     return CleanableEmail(
-        email=keep.registration.email,
-        keep_group=keep,
-        clean_groups=clean
+        email=keep.registration.email, keep_group=keep, clean_groups=clean
     )
 
 
@@ -147,40 +134,49 @@ def cleanable_email():
 
 def is_group_captured(email: CapturedEmail, group: OAuthGroup) -> bool:
     return (
-        group.verification.code in email.message and
-        [group.registration.email] == email.recipient_list
+        group.verification.code in email.message
+        and [group.registration.email] == email.recipient_list
     )
 
 
 def count_captured_emails_for_group(
-    captured_emails: list[CapturedEmail],
-    oauth_group: OAuthGroup
+    captured_emails: list[CapturedEmail], oauth_group: OAuthGroup
 ) -> int:
     count = 0
     for email in captured_emails:
         if is_group_captured(email, oauth_group):
             count += 1
-    
+
     return count
-    
 
 
 def assert_one_email_sent(
-    captured_emails: list[CapturedEmail],
-    oauth_group: OAuthGroup
+    captured_emails: list[CapturedEmail], oauth_group: OAuthGroup
 ):
     assert count_captured_emails_for_group(captured_emails, oauth_group) == 1
 
-def assert_cleaned_and_sent(cleanable_email: CleanableEmail, captured_emails: list[CapturedEmail]):
+
+def assert_cleaned_and_sent(
+    cleanable_email: CleanableEmail, captured_emails: list[CapturedEmail]
+):
     keep = cleanable_email.keep_group
-    assert OAuth2Registration.objects.filter(pk=keep.registration.pk).exists() == True
-    assert OAuth2Verification.objects.filter(pk=keep.verification.pk).exists() == True
-    assert ThrottledApplication.objects.filter(pk=keep.application.pk).exists() == True
+    assert OAuth2Registration.objects.filter(pk=keep.registration.pk).exists() is True
+    assert OAuth2Verification.objects.filter(pk=keep.verification.pk).exists() is True
+    assert ThrottledApplication.objects.filter(pk=keep.application.pk).exists() is True
 
     for cleaned in cleanable_email.clean_groups:
-        assert OAuth2Registration.objects.filter(pk=cleaned.registration.pk).exists() == False
-        assert OAuth2Verification.objects.filter(pk=cleaned.verification.pk).exists() == False
-        assert ThrottledApplication.objects.filter(pk=cleaned.application.pk).exists() == False
+        assert (
+            OAuth2Registration.objects.filter(pk=cleaned.registration.pk).exists()
+            is False
+        )
+        assert (
+            OAuth2Verification.objects.filter(pk=cleaned.verification.pk).exists()
+            is False
+        )
+        assert (
+            ThrottledApplication.objects.filter(pk=cleaned.application.pk).exists()
+            is False
+        )
 
     assert_one_email_sent(captured_emails, keep)
 
@@ -203,10 +199,9 @@ def call_resendoauthverification(input_response="YES", **options):
     (
         None,
         "",
-        "no"
-        "NO",
+        "no" "NO",
         "yes",  # must be exactly YES
-    )
+    ),
 )
 def test_should_exit_if_wet_unconfirmed(return_value):
     with pytest.raises(SystemExit):
@@ -221,9 +216,7 @@ def test_should_continue_if_wet_confirmed_with_YES(captured_emails, cleanable_em
 
 @pytest.mark.django_db
 def test_should_clean_for_several_emails(captured_emails):
-    cleanables = [
-        make_cleanable_email() for _ in range(10)
-    ]
+    cleanables = [make_cleanable_email() for _ in range(10)]
     call_resendoauthverification(dry_run=False)
     for cleanable in cleanables:
         assert_cleaned_and_sent(cleanable, captured_emails)
@@ -231,9 +224,7 @@ def test_should_clean_for_several_emails(captured_emails):
 
 @pytest.mark.django_db
 def test_should_not_resend_for_already_sent(captured_emails):
-    cleanables = [
-        make_cleanable_email() for _ in range(10)
-    ]
+    cleanables = [make_cleanable_email() for _ in range(10)]
     call_resendoauthverification(dry_run=False)
     for cleanable in cleanables:
         assert_cleaned_and_sent(cleanable, captured_emails)
@@ -243,41 +234,72 @@ def test_should_not_resend_for_already_sent(captured_emails):
 
 
 @pytest.mark.django_db
-def test_should_not_count_email_as_sent_if_failed_and_rollback(failed_emails, cleanable_email, redis):
+def test_should_not_count_email_as_sent_if_failed_and_rollback(
+    failed_emails, cleanable_email, redis
+):
     call_resendoauthverification(dry_run=False)
-    assert count_captured_emails_for_group(failed_emails, cleanable_email.keep_group) == 1
+    assert (
+        count_captured_emails_for_group(failed_emails, cleanable_email.keep_group) == 1
+    )
 
     keep = cleanable_email.keep_group
-    assert OAuth2Registration.objects.filter(pk=keep.registration.pk).exists() == True
-    assert OAuth2Verification.objects.filter(pk=keep.verification.pk).exists() == True
-    assert ThrottledApplication.objects.filter(pk=keep.application.pk).exists() == True
+    assert OAuth2Registration.objects.filter(pk=keep.registration.pk).exists() is True
+    assert OAuth2Verification.objects.filter(pk=keep.verification.pk).exists() is True
+    assert ThrottledApplication.objects.filter(pk=keep.application.pk).exists() is True
 
     # Assert these all still exist
     for cleaned in cleanable_email.clean_groups:
-        assert OAuth2Registration.objects.filter(pk=cleaned.registration.pk).exists() == True
-        assert OAuth2Verification.objects.filter(pk=cleaned.verification.pk).exists() == True
-        assert ThrottledApplication.objects.filter(pk=cleaned.application.pk).exists() == True
+        assert (
+            OAuth2Registration.objects.filter(pk=cleaned.registration.pk).exists()
+            is True
+        )
+        assert (
+            OAuth2Verification.objects.filter(pk=cleaned.verification.pk).exists()
+            is True
+        )
+        assert (
+            ThrottledApplication.objects.filter(pk=cleaned.application.pk).exists()
+            is True
+        )
 
-    assert redis.sismember("resendoauthverification:processed", keep.registration.email) == False
+    assert (
+        redis.sismember("resendoauthverification:processed", keep.registration.email)
+        is False
+    )
 
 
 @pytest.mark.django_db
 def test_should_not_delete_or_send_if_dry_run(cleanable_email, captured_emails, redis):
     call_resendoauthverification(dry_run=True)
-    assert count_captured_emails_for_group(captured_emails, cleanable_email.keep_group) == 0
+    assert (
+        count_captured_emails_for_group(captured_emails, cleanable_email.keep_group)
+        == 0
+    )
 
     keep = cleanable_email.keep_group
-    assert OAuth2Registration.objects.filter(pk=keep.registration.pk).exists() == True
-    assert OAuth2Verification.objects.filter(pk=keep.verification.pk).exists() == True
-    assert ThrottledApplication.objects.filter(pk=keep.application.pk).exists() == True
+    assert OAuth2Registration.objects.filter(pk=keep.registration.pk).exists() is True
+    assert OAuth2Verification.objects.filter(pk=keep.verification.pk).exists() is True
+    assert ThrottledApplication.objects.filter(pk=keep.application.pk).exists() is True
 
     # Assert these all still exist (no clean up has happened)
     for cleaned in cleanable_email.clean_groups:
-        assert OAuth2Registration.objects.filter(pk=cleaned.registration.pk).exists() == True
-        assert OAuth2Verification.objects.filter(pk=cleaned.verification.pk).exists() == True
-        assert ThrottledApplication.objects.filter(pk=cleaned.application.pk).exists() == True
+        assert (
+            OAuth2Registration.objects.filter(pk=cleaned.registration.pk).exists()
+            is True
+        )
+        assert (
+            OAuth2Verification.objects.filter(pk=cleaned.verification.pk).exists()
+            is True
+        )
+        assert (
+            ThrottledApplication.objects.filter(pk=cleaned.application.pk).exists()
+            is True
+        )
 
-    assert redis.sismember("resendoauthverification:processed", keep.registration.email) == False
+    assert (
+        redis.sismember("resendoauthverification:processed", keep.registration.email)
+        is False
+    )
 
 
 @pytest.mark.django_db
