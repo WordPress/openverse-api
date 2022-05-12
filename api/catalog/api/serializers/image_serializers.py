@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from catalog.api.constants.field_order import field_pos_map
 from catalog.api.constants.field_values import (
     ASPECT_RATIOS,
     IMAGE_CATEGORIES,
@@ -83,12 +84,15 @@ class ImageSerializer(ImageHyperlinksSerializer, MediaSerializer):
 
     class Meta:
         model = Image
-        fields = [
-            *MediaSerializer.Meta.fields,
-            *ImageHyperlinksSerializer.field_names,
-            "height",
-            "width",
-        ]
+        fields = sorted(  # keep this list ordered logically
+            [
+                *MediaSerializer.Meta.fields,
+                *ImageHyperlinksSerializer.field_names,
+                "height",
+                "width",
+            ],
+            key=lambda val: field_pos_map.get(val, 999),
+        )
         """
         Keep the fields names in sync with the actual fields below as this list is
         used to generate Swagger documentation.

@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from elasticsearch_dsl.response import Hit
 
+from catalog.api.constants.field_order import field_pos_map
 from catalog.api.constants.field_values import AUDIO_CATEGORIES, DURATION
 from catalog.api.docs.media_docs import fields_to_md
 from catalog.api.models import Audio, AudioReport, AudioSet
@@ -92,18 +93,21 @@ class AudioSerializer(AudioHyperlinksSerializer, MediaSerializer):
 
     class Meta:
         model = Audio
-        fields = [  # keep this list ordered logically
-            *MediaSerializer.Meta.fields,
-            *AudioHyperlinksSerializer.field_names,
-            "audio_set",
-            "genres",
-            "duration",
-            "bit_rate",
-            "sample_rate",
-            "alt_files",
-            "waveform",
-            "peaks",
-        ]
+        fields = sorted(  # keep this list ordered logically
+            [
+                *MediaSerializer.Meta.fields,
+                *AudioHyperlinksSerializer.field_names,
+                "genres",
+                "alt_files",
+                "audio_set",
+                "duration",
+                "bit_rate",
+                "sample_rate",
+                "waveform",
+                "peaks",
+            ],
+            key=lambda val: field_pos_map.get(val, 999),
+        )
         """
         Keep the fields names in sync with the actual fields below as this list is
         used to generate Swagger documentation.

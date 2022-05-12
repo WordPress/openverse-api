@@ -260,26 +260,25 @@ class MediaSerializer(BaseModelSerializer):
 
     class Meta:
         model = AbstractMedia
-        fields = [  # keep this list ordered logically
+        fields = [
             "id",
             "title",
             "foreign_landing_url",
             "url",
             "creator",
             "creator_url",
-            "filesize",
-            "filetype",
             "license",
             "license_version",
             "license_url",  # property
             "provider",
             "source",
             "category",
+            "filesize",
+            "filetype",
             "tags",
-            "mature",
             "attribution",  # property
-            "thumbnail",
             "fields_matched",
+            "mature",
         ]
         """
         Keep the fields names in sync with the actual fields below as this list is
