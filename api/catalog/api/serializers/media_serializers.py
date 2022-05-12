@@ -318,7 +318,7 @@ class MediaSerializer(serializers.Serializer):
 
     # Fields corresponding to FileMixin
     url = serializers.URLField(help_text="The actual URL to the media file.")
-    filesize = serializers.CharField(
+    filesize = serializers.CharField(  # TODO: Change to IntegerField
         required=False, help_text="Number in bytes, e.g. 1024."
     )
     filetype = serializers.CharField(
