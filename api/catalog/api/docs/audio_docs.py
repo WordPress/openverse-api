@@ -25,7 +25,7 @@ from catalog.api.examples import (
     audio_stats_curl,
 )
 from catalog.api.serializers.audio_serializers import (
-    AudioReportSerializer,
+    AudioReportRequestSerializer,
     AudioSearchRequestSerializer,
     AudioSearchSerializer,
     AudioSerializer,
@@ -192,7 +192,7 @@ mature or sensitive content and others.
         "201": openapi.Response(
             description="OK",
             examples=audio_complain_201_example,
-            schema=AudioReportSerializer,
+            schema=AudioReportRequestSerializer,
         )
     }
 

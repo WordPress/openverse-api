@@ -57,7 +57,7 @@ class AudioSearchRequestSerializer(
     )
 
 
-class AudioReportSerializer(MediaReportRequestSerializer):
+class AudioReportRequestSerializer(MediaReportRequestSerializer):
     class Meta:
         model = AudioReport
         fields = MediaReportRequestSerializer.Meta.fields

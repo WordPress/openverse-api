@@ -32,7 +32,7 @@ from catalog.api.serializers.error_serializers import (
     NotFoundErrorSerializer,
 )
 from catalog.api.serializers.image_serializers import (
-    ImageReportSerializer,
+    ImageReportRequestSerializer,
     ImageSearchRequestSerializer,
     ImageSearchSerializer,
     ImageSerializer,
@@ -187,7 +187,7 @@ mature or sensitive content and others.
         "201": openapi.Response(
             description="OK",
             examples=image_complain_201_example,
-            schema=ImageReportSerializer,
+            schema=ImageReportRequestSerializer,
         )
     }
 
