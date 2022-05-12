@@ -36,6 +36,11 @@ base_image = {
     "thumbnail": f"{origin}/v1/images/{identifier}/thumb/",
     "detail_url": f"{origin}/v1/images/{identifier}/",
     "related_url": f"{origin}/v1/images/{identifier}/related/",
+    "filesize": None,
+    "filetype": None,
+    "height": None,
+    "width": None,
+    "fields_matched": [],
 }
 
 image_search_200_example = {
@@ -48,6 +53,7 @@ image_search_200_example = {
             base_image
             | {
                 "fields_matched": ["title"],
+                "mature": False,
             }
         ],
     },
@@ -86,7 +92,7 @@ image_detail_200_example = {
         "attribution": '"Train area in Copenhagen South / Tog område i Syd København" by Kristoffer Trolle is licensed under CC BY 2.0. To view a copy of this license, visit https://creativecommons.org/licenses/by/2.0/.',  # noqa: E501
         "height": 683,
         "width": 1024,
-        "filesize": "157497",
+        "filesize": 157497,
         "filetype": "jpg",
     }
 }
