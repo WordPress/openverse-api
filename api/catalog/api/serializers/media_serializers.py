@@ -298,8 +298,6 @@ class MediaSerializer(serializers.Serializer):
     used to generate Swagger documentation.
     """
 
-    requires_context = True
-
     # Fields corresponding to IdentifierMixin
     id = serializers.CharField(
         required=True,
