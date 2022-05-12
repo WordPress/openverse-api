@@ -20,7 +20,6 @@ from ingestion_server.es_mapping import index_settings
         (["image"], "aspect_ratio", {"type": "keyword"}),
         # audio-specific mappings
         (["audio"], "genres", {"type": "keyword"}),
-        (["audio"], "bit_rate", {"type": "integer"}),
     ],
 )
 def test_mappings(media_types: list[str], field_name: str, contents: dict):
