@@ -7,13 +7,13 @@ from catalog.api.constants.field_values import (
 )
 from catalog.api.docs.media_docs import fields_to_md
 from catalog.api.models import Image, ImageReport
-from catalog.api.serializers.base import SchemableHyperlinkedIdentityField
 from catalog.api.serializers.media_serializers import (
     MediaSearchRequestSerializer,
     MediaSearchSerializer,
     MediaSerializer,
     _add_protocol,
     _validate_enum,
+    get_hyperlinks_serializer,
     get_search_request_source_serializer,
 )
 from catalog.api.utils.help_text import make_comma_separated_help_text
@@ -75,50 +75,24 @@ class ImageSearchRequestSerializer(
         return value.lower()
 
 
-class ImageSerializer(MediaSerializer):
+ImageHyperlinksSerializer = get_hyperlinks_serializer("image")  # class
+
+
+class ImageSerializer(ImageHyperlinksSerializer, MediaSerializer):
     """A single image. Used in search results."""
 
-    fields_names = [
-        *MediaSerializer.fields_names,
-        "thumbnail",
-        "height",
-        "width",
-        "detail_url",
-        "related_url",
-    ]
-    """
-    Keep the fields names in sync with the actual fields below as this list is
-    used to generate Swagger documentation.
-    """
-
-    height = serializers.IntegerField(
-        required=False,
-        help_text="The height of the image in pixels. Not always available.",
-    )
-    width = serializers.IntegerField(
-        required=False,
-        help_text="The width of the image in pixels. Not always available.",
-    )
-
-    # Hyperlinks
-    thumbnail = SchemableHyperlinkedIdentityField(
-        read_only=True,
-        view_name="image-thumb",
-        lookup_field="identifier",
-        help_text="A direct link to the miniature image.",
-    )
-    detail_url = SchemableHyperlinkedIdentityField(
-        read_only=True,
-        view_name="image-detail",
-        lookup_field="identifier",
-        help_text="A direct link to the detail view of this image.",
-    )
-    related_url = SchemableHyperlinkedIdentityField(
-        view_name="image-related",
-        lookup_field="identifier",
-        read_only=True,
-        help_text="A link to an endpoint that provides similar images.",
-    )
+    class Meta:
+        model = Image
+        fields = [
+            *MediaSerializer.Meta.fields,
+            *ImageHyperlinksSerializer.field_names,
+            "height",
+            "width",
+        ]
+        """
+        Keep the fields names in sync with the actual fields below as this list is
+        used to generate Swagger documentation.
+        """
 
 
 class ImageSearchSerializer(MediaSearchSerializer):
@@ -132,7 +106,7 @@ class ImageSearchSerializer(MediaSearchSerializer):
         many=True,
         help_text=(
             "An array of images and their details such as "
-            f"{fields_to_md(ImageSerializer.fields_names)}."
+            f"{fields_to_md(ImageSerializer.Meta.fields)}."
         ),
     )
 

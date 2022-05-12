@@ -5,6 +5,8 @@ from rest_framework import serializers
 
 from catalog.api.constants.licenses import LICENSE_GROUPS
 from catalog.api.controllers import search_controller
+from catalog.api.models.media import AbstractMedia
+from catalog.api.serializers.base import SchemableHyperlinkedIdentityField
 from catalog.api.utils.help_text import make_comma_separated_help_text
 
 
@@ -55,6 +57,8 @@ def format_enums(values: list[str]) -> str:
 
 
 class TagSerializer(serializers.Serializer):
+    """ """
+
     name = serializers.CharField(required=True, help_text="The name of a detailed tag.")
     accuracy = serializers.FloatField(
         required=False,
@@ -86,9 +90,13 @@ def get_search_request_source_serializer(media_type):
             "required": False,
         }
 
-        source = serializers.CharField(label="provider", **_field_attrs)
+        source = serializers.CharField(
+            label="provider",
+            **_field_attrs,
+        )
         excluded_source = serializers.CharField(
-            label="excluded_provider", **_field_attrs
+            label="excluded_provider",
+            **_field_attrs,
         )
 
         @staticmethod
@@ -115,6 +123,45 @@ def get_search_request_source_serializer(media_type):
             return data
 
     return MediaSearchRequestSourceSerializer
+
+
+def get_hyperlinks_serializer(media_type):
+    class MediaHyperlinksSerializer(serializers.Serializer):
+        """
+        This serializer creates URLs pointing to other endpoints related with this media
+        item such as details and related media.
+        """
+
+        field_names = [
+            "thumbnail",  # Not suffixed with `_url` because it points to an image
+            "detail_url",
+            "related_url",
+        ]
+        """
+        Keep the fields names in sync with the actual fields below as this list is
+        used to generate Swagger documentation.
+        """
+
+        thumbnail = SchemableHyperlinkedIdentityField(
+            read_only=True,
+            view_name=f"{media_type}-thumb",
+            lookup_field="identifier",
+            help_text="A direct link to the miniature artwork.",
+        )
+        detail_url = SchemableHyperlinkedIdentityField(
+            read_only=True,
+            view_name=f"{media_type}-detail",
+            lookup_field="identifier",
+            help_text="A direct link to the detail view of this audio file.",
+        )
+        related_url = SchemableHyperlinkedIdentityField(
+            read_only=True,
+            view_name=f"{media_type}-related",
+            lookup_field="identifier",
+            help_text="A link to an endpoint that provides similar audio files.",
+        )
+
+    return MediaHyperlinksSerializer
 
 
 class MediaSearchRequestSerializer(serializers.Serializer):
@@ -268,106 +315,70 @@ class MediaSearchRequestSerializer(serializers.Serializer):
         return data
 
 
-class MediaSerializer(serializers.Serializer):
+class MediaSerializer(serializers.ModelSerializer):
     """
     This serializer serializes a single media file. The class should be
     inherited by all individual media serializers.
     """
 
-    fields_names = [
-        "id",
-        "title",
-        "foreign_landing_url",
-        "creator",
-        "creator_url",
-        "url",
-        "filesize",
-        "filetype",
-        "license",
-        "license_version",
-        "license_url",
-        "provider",
-        "source",
-        "category",
-        "tags",
-        "fields_matched",
-        "attribution",
-    ]
-    """
-    Keep the fields names in sync with the actual fields below as this list is
-    used to generate Swagger documentation.
-    """
+    class Meta:
+        model = AbstractMedia
+        fields = [  # keep this list ordered logically
+            "id",
+            "title",
+            "foreign_landing_url",
+            "url",
+            "creator",
+            "creator_url",
+            "filesize",
+            "filetype",
+            "license",
+            "license_version",
+            "license_url",  # property
+            "provider",
+            "source",
+            "category",
+            "tags",
+            "mature",
+            "attribution",  # property
+            "thumbnail",
+            "fields_matched",
+        ]
+        """
+        Keep the fields names in sync with the actual fields below as this list is
+        used to generate Swagger documentation.
+        """
 
-    # Fields corresponding to IdentifierMixin
     id = serializers.CharField(
-        required=True,
         help_text="Our unique identifier for an open-licensed work.",
         source="identifier",
     )
 
-    # Fields corresponding to MediaMixin
-    title = serializers.CharField(help_text="The name of the media.", required=False)
-    foreign_landing_url = serializers.URLField(
-        required=False, help_text="A foreign landing link for the image."
-    )
-
-    creator = serializers.CharField(
-        help_text="The name of the media creator.", required=False, allow_blank=True
-    )
-    creator_url = serializers.URLField(
-        required=False, help_text="A direct link to the media creator."
-    )
-
-    # Fields corresponding to FileMixin
-    url = serializers.URLField(help_text="The actual URL to the media file.")
-    filesize = serializers.CharField(
-        required=False, help_text="Number in bytes, e.g. 1024."
-    )
-    filetype = serializers.CharField(
-        required=False,
-        help_text="The type of the file, related to the file extension.",
-    )
-
-    # Fields corresponding to AbstractMedia
-    license = serializers.SerializerMethodField(
-        help_text="The name of license for the media."
-    )
-    license_version = serializers.CharField(
-        required=False, help_text="The type of license for the media."
-    )
-    license_url = serializers.URLField(help_text="A direct link to the media license.")
-
-    provider = serializers.CharField(required=False, help_text="The content provider.")
-    source = serializers.CharField(
-        required=False,
-        help_text="The source of the data, meaning a particular dataset.",
-    )
-
-    category = serializers.CharField(
-        required=True, allow_null=True, help_text="The category of the media."
-    )
-
     tags = TagSerializer(
-        allow_null=True,
+        allow_null=True,  # replaced with ``[]`` later
         many=True,
         help_text="Tags with detailed metadata, such as accuracy.",
     )
 
-    # Additional fields
     fields_matched = serializers.ListField(
-        required=False,
+        allow_null=True,  # replaced with ``[]`` later
         help_text="List the fields that matched the query for this result.",
     )
-    attribution = serializers.CharField(
-        required=False,
-        help_text="The attribution of the work in English as plain-text. Use this to"
-        "credit creators for their work and fulfill legal attribution requirements.",
+
+    mature = serializers.BooleanField(
+        required=False,  # present in ``Hit`` but not in Django media models
+        help_text="Whether the media item is marked as mature",
     )
 
     def to_representation(self, *args, **kwargs):
         output = super().to_representation(*args, **kwargs)
-        if output["tags"] is None:
-            output["tags"] = []  # ``tags`` should always be a list, even if empty
+
+        # Ensure lists are ``[]`` instead of ``None``
+        # TODO: These fields are still marked 'Nullable' in the API docs
+        list_fields = ["tags", "fields_matched"]
+        for list_field in list_fields:
+            if output[list_field] is None:
+                output[list_field] = []
 
         # Ensure license is lowercase
         output["license"] = output["license"].lower()
@@ -379,6 +390,21 @@ class MediaSerializer(serializers.Serializer):
 
         return output
 
+    def build_property_field(self, field_name, model_class):
+        """
+        Overrides the built-in property field builder to use docstrings as the Swagger
+        help text for fields.
+
+        :param field_name: the name of the property for which the field is being built
+        :param model_class: the ``class`` instance for the Django model
+        :return: the Field subclass to use and the keyword arguments to pass to it
+        """
+
+        klass, kwargs = super().build_property_field(field_name, model_class)
+        if doc := getattr(model_class, field_name).__doc__:
+            kwargs.setdefault("help_text", doc)
+        return klass, kwargs
+
 
 class MediaSearchSerializer(serializers.Serializer):
     """
@@ -387,14 +413,16 @@ class MediaSearchSerializer(serializers.Serializer):
     """
 
     result_count = serializers.IntegerField(
-        help_text="The total number of items returned by search result."
+        help_text="The total number of items returned by search result.",
     )
     page_count = serializers.IntegerField(
-        help_text="The total number of pages returned by search result."
+        help_text="The total number of pages returned by search result.",
     )
-    page_size = serializers.IntegerField(help_text="The number of items per page.")
+    page_size = serializers.IntegerField(
+        help_text="The number of items per page.",
+    )
     page = serializers.IntegerField(
-        help_text="The current page number returned in the response."
+        help_text="The current page number returned in the response.",
     )
 
 

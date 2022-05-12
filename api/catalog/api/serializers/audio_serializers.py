@@ -12,6 +12,7 @@ from catalog.api.serializers.media_serializers import (
     MediaSearchSerializer,
     MediaSerializer,
     _validate_enum,
+    get_hyperlinks_serializer,
     get_search_request_source_serializer,
 )
 from catalog.api.utils.help_text import make_comma_separated_help_text
@@ -86,25 +87,30 @@ class AudioSearchRequestSerializer(
         return value.lower()
 
 
-class AudioSerializer(MediaSerializer):
+AudioHyperlinksSerializer = get_hyperlinks_serializer("audio")  # class
+
+
+class AudioSerializer(AudioHyperlinksSerializer, MediaSerializer):
     """A single audio file. Used in search results."""
 
-    fields_names = [
-        *MediaSerializer.fields_names,
-        "audio_set",
-        "genre",
-        "duration",
-        "bit_rate",
-        "sample_rate",
-        "alt_files",
-        "detail_url",
-        "related_url",
-        "category",
-    ]
-    """
-    Keep the fields names in sync with the actual fields below as this list is
-    used to generate Swagger documentation.
-    """
+    class Meta:
+        model = Audio
+        fields = [  # keep this list ordered logically
+            *MediaSerializer.Meta.fields,
+            *AudioHyperlinksSerializer.field_names,
+            "audio_set",
+            "genres",
+            "duration",
+            "bit_rate",
+            "sample_rate",
+            "alt_files",
+            "waveform",
+            "peaks",
+        ]
+        """
+        Keep the fields names in sync with the actual fields below as this list is
+        used to generate Swagger documentation.
+        """
 
     audio_set = AudioSetSerializer(
         required=False,
@@ -112,52 +118,11 @@ class AudioSerializer(MediaSerializer):
         read_only=True,
     )
 
-    genres = serializers.ListField(
-        child=serializers.CharField(),
-        required=False,
-        help_text="An array of audio genres such as "
-        "`rock`, `electronic` for `music` category, or "
-        "`politics`, `sport`, `education` for `podcast` category",
-    )
-
-    duration = serializers.IntegerField(
-        required=False, help_text="The time length of the audio file in milliseconds."
-    )
-    bit_rate = serializers.IntegerField(
-        required=False, help_text="Number in bits per second, eg. 128000."
-    )
-    sample_rate = serializers.IntegerField(
-        required=False, help_text="Number in hertz, eg. 44100."
-    )
-
-    alt_files = serializers.JSONField(
-        required=False, help_text="JSON describing alternative files for this audio."
-    )
-
-    # Hyperlinks
-    thumbnail = SchemableHyperlinkedIdentityField(
-        read_only=True,
-        view_name="audio-thumb",
-        lookup_field="identifier",
-        help_text="A direct link to the miniature artwork.",
-    )
     waveform = SchemableHyperlinkedIdentityField(
         read_only=True,
         view_name="audio-waveform",
         lookup_field="identifier",
         help_text="A direct link to the waveform peaks.",
-    )
-    detail_url = SchemableHyperlinkedIdentityField(
-        read_only=True,
-        view_name="audio-detail",
-        lookup_field="identifier",
-        help_text="A direct link to the detail view of this audio file.",
-    )
-    related_url = SchemableHyperlinkedIdentityField(
-        read_only=True,
-        view_name="audio-related",
-        lookup_field="identifier",
-        help_text="A link to an endpoint that provides similar audio files.",
     )
 
     # Add-on data
@@ -183,7 +148,7 @@ class AudioSearchSerializer(MediaSearchSerializer):
         many=True,
         help_text=(
             "An array of audios and their details such as "
-            f"{fields_to_md(AudioSerializer.fields_names)}."
+            f"{fields_to_md(AudioSerializer.Meta.fields)}."
         ),
     )
 
