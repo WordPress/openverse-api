@@ -35,8 +35,16 @@ class AbstractMedia(
 
     watermarked = models.BooleanField(blank=True, null=True)
 
-    license = models.CharField(max_length=50)
-    license_version = models.CharField(max_length=25, blank=True, null=True)
+    license = models.CharField(
+        max_length=50,
+        help_text="The name of license for the media.",
+    )
+    license_version = models.CharField(
+        max_length=25,
+        blank=True,
+        null=True,
+        help_text="The version of the media license.",
+    )
 
     source = models.CharField(
         max_length=80,
@@ -56,8 +64,17 @@ class AbstractMedia(
         default=0,
     )
 
-    tags = models.JSONField(blank=True, null=True)
-    tags_list = ArrayField(models.CharField(max_length=255), blank=True, null=True)
+    tags = models.JSONField(
+        blank=True,
+        null=True,
+        help_text="Tags with detailed metadata, such as accuracy.",
+    )
+    tags_list = ArrayField(
+        base_field=models.CharField(max_length=255),
+        blank=True,
+        null=True,
+        help_text="List of tags names without detailed metadata.",
+    )
 
     category = models.CharField(
         max_length=80,

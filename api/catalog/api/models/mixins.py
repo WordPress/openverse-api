@@ -53,7 +53,12 @@ class MediaMixin(models.Model):
     - creator_url: CharField
     """
 
-    title = models.CharField(max_length=2000, blank=True, null=True)
+    title = models.CharField(
+        max_length=2000,
+        blank=True,
+        null=True,
+        help_text="The name of the media.",
+    )
     foreign_landing_url = models.CharField(
         max_length=1000,
         blank=True,
@@ -61,12 +66,25 @@ class MediaMixin(models.Model):
         help_text="The landing page of the work.",
     )
 
-    creator = models.CharField(max_length=2000, blank=True, null=True)
-    creator_url = models.URLField(max_length=2000, blank=True, null=True)
+    creator = models.CharField(
+        max_length=2000,
+        blank=True,
+        null=True,
+        help_text="The name of the media creator.",
+    )
+    creator_url = models.URLField(
+        max_length=2000,
+        blank=True,
+        null=True,
+        help_text="A direct link to the media creator.",
+    )
 
     # Because all forms of media have a thumbnail for visual representation
     thumbnail = models.URLField(
-        max_length=1000, blank=True, null=True, help_text="The thumbnail for the media."
+        max_length=1000,
+        blank=True,
+        null=True,
+        help_text="The thumbnail for the media.",
     )
 
     # This is different from ``source`` (see ``AbstractMedia``)
