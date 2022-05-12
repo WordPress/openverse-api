@@ -6,16 +6,19 @@ from catalog.api.constants.field_values import AUDIO_CATEGORIES, DURATION
 from catalog.api.docs.media_docs import fields_to_md
 from catalog.api.models import AudioReport
 from catalog.api.models.audio import Audio
-from catalog.api.serializers.base import SchemableHyperlinkedIdentityField
-from catalog.api.serializers.media_serializers import (
+from catalog.api.serializers.base import (
+    EnumCharField,
+    SchemableHyperlinkedIdentityField,
+)
+from catalog.api.serializers.request.media import (
     MediaSearchRequestSerializer,
-    MediaSearchSerializer,
-    MediaSerializer,
-    _validate_enum,
-    get_hyperlinks_serializer,
     get_search_request_source_serializer,
 )
-from catalog.api.utils.help_text import make_comma_separated_help_text
+from catalog.api.serializers.response.media import (
+    MediaSearchSerializer,
+    MediaSerializer,
+    get_hyperlinks_serializer,
+)
 
 
 class AudioSetSerializer(serializers.Serializer):
@@ -65,26 +68,16 @@ class AudioSearchRequestSerializer(
     used to generate Swagger documentation.
     """
 
-    category = serializers.CharField(
-        label="category",
-        help_text=make_comma_separated_help_text(AUDIO_CATEGORIES, "categories"),
+    category = EnumCharField(
+        plural="categories",
+        enum_var=AUDIO_CATEGORIES,
         required=False,
     )
-    duration = serializers.CharField(
-        label="duration",
-        help_text=make_comma_separated_help_text(DURATION, "audio lengths"),
+    duration = EnumCharField(
+        plural="durations",
+        enum_var=DURATION,
         required=False,
     )
-
-    @staticmethod
-    def validate_category(value):
-        _validate_enum("category", AUDIO_CATEGORIES, value)
-        return value.lower()
-
-    @staticmethod
-    def validate_duration(value):
-        _validate_enum("duration", DURATION, value)
-        return value.lower()
 
 
 AudioHyperlinksSerializer = get_hyperlinks_serializer("audio")  # class

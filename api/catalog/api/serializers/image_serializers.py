@@ -7,16 +7,17 @@ from catalog.api.constants.field_values import (
 )
 from catalog.api.docs.media_docs import fields_to_md
 from catalog.api.models import Image, ImageReport
-from catalog.api.serializers.media_serializers import (
+from catalog.api.serializers.base import EnumCharField
+from catalog.api.serializers.request.media import (
     MediaSearchRequestSerializer,
-    MediaSearchSerializer,
-    MediaSerializer,
-    _add_protocol,
-    _validate_enum,
-    get_hyperlinks_serializer,
     get_search_request_source_serializer,
 )
-from catalog.api.utils.help_text import make_comma_separated_help_text
+from catalog.api.serializers.response.media import (
+    MediaSearchSerializer,
+    MediaSerializer,
+    get_hyperlinks_serializer,
+)
+from catalog.api.utils.url import add_protocol
 
 
 ImageSearchRequestSourceSerializer = get_search_request_source_serializer(
@@ -43,36 +44,21 @@ class ImageSearchRequestSerializer(
     """
 
     # Ref: ingestion_server/ingestion_server/categorize.py#Category
-    category = serializers.CharField(
-        label="category",
-        help_text=make_comma_separated_help_text(IMAGE_CATEGORIES, "categories"),
+    category = EnumCharField(
+        plural="categories",
+        enum_var=IMAGE_CATEGORIES,
         required=False,
     )
-    aspect_ratio = serializers.CharField(
-        label="aspect_ratio",
-        help_text=make_comma_separated_help_text(ASPECT_RATIOS, "aspect ratios"),
+    aspect_ratio = EnumCharField(
+        plural="aspect ratios",
+        enum_var=ASPECT_RATIOS,
         required=False,
     )
-    size = serializers.CharField(
-        label="size",
-        help_text=make_comma_separated_help_text(IMAGE_SIZES, "image sizes"),
+    size = EnumCharField(
+        plural="image sizes",
+        enum_var=IMAGE_SIZES,
         required=False,
     )
-
-    @staticmethod
-    def validate_category(value):
-        _validate_enum("category", IMAGE_CATEGORIES, value)
-        return value.lower()
-
-    @staticmethod
-    def validate_aspect_ratio(value):
-        _validate_enum("aspect ratio", ASPECT_RATIOS, value)
-        return value.lower()
-
-    @staticmethod
-    def validate_size(value):
-        _validate_enum("size", IMAGE_SIZES, value)
-        return value.lower()
 
 
 ImageHyperlinksSerializer = get_hyperlinks_serializer("image")  # class
@@ -121,7 +107,7 @@ class OembedRequestSerializer(serializers.Serializer):
 
     @staticmethod
     def validate_url(value):
-        return _add_protocol(value)
+        return add_protocol(value)
 
 
 class ImageReportSerializer(serializers.ModelSerializer):
