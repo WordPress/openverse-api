@@ -260,6 +260,8 @@ class Image(Media):
         return Image(
             thumbnail=row[schema["thumbnail"]],
             category=category,
+            height=height,
+            width=width,
             aspect_ratio=aspect_ratio,
             size=size,
             authority_boost=authority_boost,
