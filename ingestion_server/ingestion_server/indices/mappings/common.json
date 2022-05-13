@@ -44,9 +44,6 @@
   "license": {
     "type": "keyword"
   },
-  "license_version": {
-    "type": "keyword"
-  },
   "mature": {
     "type": "boolean"
   },
