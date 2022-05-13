@@ -304,9 +304,10 @@ class Audio(Media):
         api/catalog/api/serializers/audio_serializers.py.
         """
 
-        SHORT = 4 * 60 * 1e3  # under 4 minutes
-        MEDIUM = 20 * 60 * 1e3  # 4 - 20 minutes
-        LONG = float("inf")  # longer than 20 minutes
+        SHORTEST = 30 * 1e3  # under 30 seconds
+        SHORT = 2 * 60 * 1e3  # 30 seconds - 2 minutes
+        MEDIUM = 10 * 60 * 1e3  # 2 - 10 minutes
+        LONG = float("inf")  # longer than 10 minutes
 
     class Index:
         name = "audio"

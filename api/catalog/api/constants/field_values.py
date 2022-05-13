@@ -1,6 +1,3 @@
-from __future__ import annotations
-
-
 AUDIO_CATEGORIES = {
     "audiobook",
     "music",
