@@ -230,6 +230,7 @@ def search(
     :return: Tuple with a List of Hits from elasticsearch, the total count of
     pages, and number of results.
     """
+    _determine_index_format()  # May 2022 Elasticsearch migration
     search_client = Search(index=index)
 
     s = search_client
@@ -348,6 +349,7 @@ def related_media(uuid, index, request, filter_dead):
     """
     Given a UUID, find related search results.
     """
+    _determine_index_format()  # May 2022 Elasticsearch migration
     search_client = Search(index=index)
 
     # Convert UUID to sequential ID.
@@ -387,6 +389,7 @@ def get_sources(index):
     :param index: An Elasticsearch index, such as `'image'`.
     :return: A dictionary mapping sources to the count of their images.`
     """
+    _determine_index_format()  # May 2022 Elasticsearch migration
     source_cache_name = "sources-" + index
     cache_fetch_failed = False
     try:
@@ -479,10 +482,25 @@ def _get_result_and_page_count(
 es = _elasticsearch_connect()
 connections.connections.add_connection("default", es)
 
+
 # May 2022 Elasticsearch migration
-idx_dyn_map: dict[str, bool] = {}
-for idx_name in ["image", "audio"]:
-    idx = es.indices.get(index=idx_name)
-    idx_dyn_map[idx_name] = "dynamic" not in list(idx.values())[0]["mappings"]
-if not any(idx_dyn_map.values()):  # mappings are not dynamic in the new format
-    settings.ES_INDEX_FORMAT = "new"
+def _determine_index_format():
+    if settings.ES_INDEX_FORMAT is not None:
+        return  # already determined
+
+    log.info("Determining index format...")
+    idx_dyn_map: dict[str, bool] = {}
+    for idx_name in ["image", "audio"]:
+        try:
+            idx = es.indices.get(index=idx_name)
+            idx_dyn_map[idx_name] = "dynamic" not in list(idx.values())[0]["mappings"]
+        except NotFoundError:
+            return  # mapping could not be found
+    if not any(idx_dyn_map.values()):  # mappings are not dynamic in the new format
+        settings.ES_INDEX_FORMAT = "new"
+    else:
+        settings.ES_INDEX_FORMAT = "old"
+    log.info(f"Determined format to be {settings.ES_INDEX_FORMAT}")
+
+
+_determine_index_format()

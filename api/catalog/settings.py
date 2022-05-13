@@ -342,4 +342,4 @@ if not DEBUG:
     )
 
 # May 2022 Elasticsearch migration
-ES_INDEX_FORMAT = "old"  # conditionally set to 'new' in ``search_controller.py``
+ES_INDEX_FORMAT = None  # set to 'old' or 'new' in ``search_controller.py``
