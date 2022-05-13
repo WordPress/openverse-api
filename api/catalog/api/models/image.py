@@ -22,12 +22,12 @@ class ImageFileMixin(FileMixin):
     width = models.IntegerField(
         blank=True,
         null=True,
-        help_text="The height of the image in pixels. Not always available.",
+        help_text="The width of the image in pixels. Not always available.",
     )
     height = models.IntegerField(
         blank=True,
         null=True,
-        help_text="The width of the image in pixels. Not always available.",
+        help_text="The height of the image in pixels. Not always available.",
     )
 
     @property
