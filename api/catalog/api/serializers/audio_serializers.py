@@ -69,9 +69,9 @@ class AudioSearchRequestSerializer(
         help_text=make_comma_separated_help_text(AUDIO_CATEGORIES, "categories"),
         required=False,
     )
-    length = serializers.CharField(
-        label="length",
-        help_text=make_comma_separated_help_text(LENGTHS, "audio lengths"),
+    duration = serializers.CharField(
+        label="duration",
+        help_text=make_comma_separated_help_text(LENGTHS, "audio duration ranges"),
         required=False,
     )
 
