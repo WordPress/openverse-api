@@ -204,10 +204,7 @@ def _exclude_mature_by_param(s: Search, search_params):
 def search(
     search_params: MediaSearchRequestSerializer,
     index: Literal["image", "audio"],
-    page_size: int,
     ip: int,
-    filter_dead: bool,
-    page: int = 1,
 ) -> Tuple[List[Hit], int, int]:
     """
     Given a set of keywords and an optional set of filters, perform a ranked
@@ -215,13 +212,9 @@ def search(
 
     :param search_params: Search parameters, see ``MediaSearchRequestSerializer``
     :param index: The Elasticsearch index to search (e.g. 'image')
-    :param page_size: The number of results to return per page.
     :param ip: The user's hashed IP. Hashed IPs are used to anonymously but
     uniquely identify users exclusively for ensuring query consistency across
     Elasticsearch shards.
-    :param request: Django's request object.
-    :param filter_dead: Whether dead links should be removed.
-    :param page: The results page number.
     :return: Tuple with a List of Hits from elasticsearch, the total count of
     pages, and number of results.
     """
@@ -303,7 +296,12 @@ def search(
     # pagination inconsistencies and increase cache hits.
     s = s.params(preference=str(ip), request_timeout=7)
     # Paginate
-    start, end = _get_query_slice(s, page_size, page, filter_dead)
+    start, end = _get_query_slice(
+        s,
+        search_params.data["page_size"],
+        search_params.data["page"],
+        search_params.data["filter_dead"],
+    )
     s = s[start:end]
     try:
         if settings.VERBOSE_ES_RESPONSE:
@@ -317,11 +315,16 @@ def search(
     except RequestError as e:
         raise ValueError(e)
     results = _post_process_results(
-        s, start, end, page_size, search_response, filter_dead
+        s,
+        start,
+        end,
+        search_params.data["page_size"],
+        search_response,
+        search_params.data["filter_dead"],
     )
 
     result_count, page_count = _get_result_and_page_count(
-        search_response, results, page_size
+        search_response, results, search_params.data["page_size"]
     )
     return results, page_count, result_count
 

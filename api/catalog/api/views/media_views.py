@@ -52,27 +52,21 @@ class MediaViewSet(ReadOnlyModelViewSet):
     # Standard actions
 
     def list(self, request, *_, **__):
-        self.paginator.page_size = request.query_params.get("page_size")
-        page_size = self.paginator.page_size
-        self.paginator.page = request.query_params.get("page")
-        page = self.paginator.page
-
         params = self.query_serializer_class(data=request.query_params)
         params.is_valid(raise_exception=True)
 
+        self.paginator.page_size = params.validated_data["page_size"]
+        self.paginator.page = params.validated_data["page"]
+
         hashed_ip = hash(self._get_user_ip(request))
         qa = params.validated_data["qa"]
-        filter_dead = params.validated_data["filter_dead"]
 
         search_index = self.qa_index if qa else self.default_index
         try:
             results, num_pages, num_results = search_controller.search(
                 params,
                 search_index,
-                page_size,
                 hashed_ip,
-                filter_dead,
-                page,
             )
             self.paginator.page_count = num_pages
             self.paginator.result_count = num_results

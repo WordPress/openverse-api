@@ -201,6 +201,17 @@ class MediaSearchRequestSerializer(serializers.Serializer):
         required=False,
         default=False,
     )
+    page = serializers.IntegerField(
+        min_value=1,
+        default=1,
+        help_text="The index of the page of the results to show.",
+    )
+    page_size = serializers.IntegerField(
+        min_value=1,
+        max_value=500,
+        default=20,
+        help_text="The number of results to show in one page.",
+    )
 
     @staticmethod
     def _truncate(value):
@@ -208,6 +219,15 @@ class MediaSearchRequestSerializer(serializers.Serializer):
         return value if len(value) <= max_length else value[:max_length]
 
     def validate_q(self, value):
+        return self._truncate(value)
+
+    def validate_creator(self, value):
+        return self._truncate(value)
+
+    def validate_tags(self, value):
+        return self._truncate(value)
+
+    def validate_title(self, value):
         return self._truncate(value)
 
     @staticmethod
@@ -236,15 +256,6 @@ class MediaSearchRequestSerializer(serializers.Serializer):
             license_groups.append(LICENSE_GROUPS[_type])
         intersected = set.intersection(*license_groups)
         return ",".join(intersected)
-
-    def validate_creator(self, value):
-        return self._truncate(value)
-
-    def validate_tags(self, value):
-        return self._truncate(value)
-
-    def validate_title(self, value):
-        return self._truncate(value)
 
     @staticmethod
     def validate_extension(value):
