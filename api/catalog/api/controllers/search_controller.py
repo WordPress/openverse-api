@@ -9,7 +9,6 @@ from typing import List, Literal, Optional, Tuple
 
 from django.conf import settings
 from django.core.cache import cache
-from rest_framework.request import Request
 
 from aws_requests_auth.aws_auth import AWSRequestsAuth
 from elasticsearch import Elasticsearch, RequestsHttpConnection
@@ -104,7 +103,7 @@ def _quote_escape(query_string):
 
 
 def _post_process_results(
-    s, start, end, page_size, search_results, request, filter_dead
+    s, start, end, page_size, search_results, filter_dead
 ) -> List[Hit]:
     """
     After fetching the search results from the back end, iterate through the
@@ -116,8 +115,6 @@ def _post_process_results(
     :param end: The end of the result slice.
     :param search_results: The Elasticsearch response object containing search
     results.
-    :param request: The Django request object, used to build a "reversed" URL
-    to detail pages.
     :param filter_dead: Whether images should be validated.
     :return: List of results.
     """
@@ -142,7 +139,7 @@ def _post_process_results(
             search_response = s.execute()
 
             return _post_process_results(
-                s, start, end, page_size, search_response, request, filter_dead
+                s, start, end, page_size, search_response, filter_dead
             )
     return results[:page_size]
 
@@ -209,7 +206,6 @@ def search(
     index: Literal["image", "audio"],
     page_size: int,
     ip: int,
-    request: Request,
     filter_dead: bool,
     page: int = 1,
 ) -> Tuple[List[Hit], int, int]:
@@ -217,8 +213,7 @@ def search(
     Given a set of keywords and an optional set of filters, perform a ranked
     paginated search.
 
-    :param search_params: Search parameters. See
-     :class: `ImageSearchQueryStringSerializer`.
+    :param search_params: Search parameters, see ``MediaSearchRequestSerializer``
     :param index: The Elasticsearch index to search (e.g. 'image')
     :param page_size: The number of results to return per page.
     :param ip: The user's hashed IP. Hashed IPs are used to anonymously but
@@ -322,7 +317,7 @@ def search(
     except RequestError as e:
         raise ValueError(e)
     results = _post_process_results(
-        s, start, end, page_size, search_response, request, filter_dead
+        s, start, end, page_size, search_response, filter_dead
     )
 
     result_count, page_count = _get_result_and_page_count(
@@ -331,7 +326,7 @@ def search(
     return results, page_count, result_count
 
 
-def related_media(uuid, index, request, filter_dead):
+def related_media(uuid, index, filter_dead):
     """
     Given a UUID, find related search results.
     """
@@ -358,9 +353,7 @@ def related_media(uuid, index, request, filter_dead):
     start, end = _get_query_slice(s, page_size, page, filter_dead)
     s = s[start:end]
     response = s.execute()
-    results = _post_process_results(
-        s, start, end, page_size, response, request, filter_dead
-    )
+    results = _post_process_results(s, start, end, page_size, response, filter_dead)
 
     result_count, _ = _get_result_and_page_count(response, results, page_size)
 

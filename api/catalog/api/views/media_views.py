@@ -71,7 +71,6 @@ class MediaViewSet(ReadOnlyModelViewSet):
                 search_index,
                 page_size,
                 hashed_ip,
-                request,
                 filter_dead,
                 page,
             )
@@ -104,7 +103,6 @@ class MediaViewSet(ReadOnlyModelViewSet):
             results, num_results = search_controller.related_media(
                 uuid=identifier,
                 index=self.default_index,
-                request=request,
                 filter_dead=True,
             )
             self.paginator.result_count = num_results
