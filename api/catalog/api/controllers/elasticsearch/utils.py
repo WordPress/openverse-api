@@ -7,7 +7,7 @@ from django.core.cache import cache
 from elasticsearch_dsl import Search
 from elasticsearch_dsl.response import Hit, Response
 
-from catalog.api import models  # To prevent circular import
+from catalog.api.models import ContentProvider
 from catalog.api.utils.dead_link_mask import get_query_hash, get_query_mask
 from catalog.api.utils.validate_images import validate_images
 
@@ -29,9 +29,9 @@ def _exclude_filtered(s: Search) -> Search:
     filter_cache_key = "filtered_providers"
     filtered_providers = cache.get(key=filter_cache_key)
     if not filtered_providers:
-        filtered_providers = models.ContentProvider.objects.filter(
-            filter_content=True
-        ).values("provider_identifier")
+        filtered_providers = ContentProvider.objects.filter(filter_content=True).values(
+            "provider_identifier"
+        )
         cache.set(
             key=filter_cache_key,
             timeout=FILTER_CACHE_TIMEOUT,
