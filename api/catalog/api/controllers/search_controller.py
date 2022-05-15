@@ -218,9 +218,8 @@ def search(
     :return: Tuple with a List of Hits from elasticsearch, the total count of
     pages, and number of results.
     """
-    search_client = Search(index=index)
+    s = Search(index=index)
 
-    s = search_client
     # Apply term filters. Each tuple pairs a filter's parameter name in the API
     # with its corresponding field in Elasticsearch. "None" means that the
     # names are identical.
@@ -268,7 +267,7 @@ def search(
             query=f'"{quotes_stripped}"',
             boost=10000,
         )
-        s = search_client.query(Q("bool", must=s.query, should=exact_match_boost))
+        s.query = Q("bool", must=s.query, should=exact_match_boost)
     else:
         if "creator" in search_params.data:
             creator = _quote_escape(search_params.data["creator"])
@@ -285,7 +284,7 @@ def search(
         rank_queries = []
         for field, boost in feature_boost.items():
             rank_queries.append(Q("rank_feature", field=field, boost=boost))
-        s = search_client.query(Q("bool", must=s.query, should=rank_queries))
+        s.query = Q("bool", must=s.query, should=rank_queries)
 
     # Use highlighting to determine which fields contribute to the selection of
     # top results.
