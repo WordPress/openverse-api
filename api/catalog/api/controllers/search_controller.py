@@ -257,6 +257,7 @@ def search(
 
     # Search either by generic multimatch or by "advanced search" with
     # individual field-level queries specified.
+
     search_fields = ["tags.name", "title", "description"]
     if "q" in search_params.data:
         query = _quote_escape(search_params.data["q"])
@@ -297,10 +298,12 @@ def search(
     # top results.
     s = s.highlight(*search_fields)
     s = s.highlight_options(order="score")
-    s.extra(track_scores=True)
+    s.extra(track_scores=True)  # TODO: Remove this line as it has no effect
+
     # Route users to the same Elasticsearch worker node to reduce
     # pagination inconsistencies and increase cache hits.
     s = s.params(preference=str(ip), request_timeout=7)
+
     # Paginate
     start, end = _get_query_slice(
         s,
@@ -309,6 +312,7 @@ def search(
         search_params.data["filter_dead"],
     )
     s = s[start:end]
+
     try:
         if settings.VERBOSE_ES_RESPONSE:
             log.info(pprint.pprint(s.to_dict()))
@@ -320,6 +324,7 @@ def search(
             log.info(pprint.pprint(search_response.to_dict()))
     except RequestError as e:
         raise ValueError(e)
+
     results = _post_process_results(
         s,
         start,
