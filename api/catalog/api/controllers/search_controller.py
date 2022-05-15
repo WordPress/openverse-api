@@ -16,7 +16,7 @@ from elasticsearch.exceptions import NotFoundError, RequestError
 from elasticsearch_dsl import Q, Search, connections
 from elasticsearch_dsl.response import Hit, Response
 
-import catalog.api.models as models
+from catalog.api import models  # To prevent circular import
 from catalog.api.serializers.media_serializers import MediaSearchRequestSerializer
 from catalog.api.utils.dead_link_mask import get_query_hash, get_query_mask
 from catalog.api.utils.validate_images import validate_images
@@ -176,10 +176,15 @@ def _apply_filter(
         return s
 
 
-def _exclude_filtered(s: Search):
+def _exclude_filtered(s: Search) -> Search:
     """
-    Hide data sources from the catalog dynamically.
+    Hide data sources from the catalog dynamically. This excludes providers with
+    ``filter_content`` enabled from the search results.
+
+    :param s: the search query to issue to Elasticsearch
+    :return: the modified search query
     """
+
     filter_cache_key = "filtered_providers"
     filtered_providers = cache.get(key=filter_cache_key)
     if not filtered_providers:
@@ -187,10 +192,13 @@ def _exclude_filtered(s: Search):
             filter_content=True
         ).values("provider_identifier")
         cache.set(
-            key=filter_cache_key, timeout=FILTER_CACHE_TIMEOUT, value=filtered_providers
+            key=filter_cache_key,
+            timeout=FILTER_CACHE_TIMEOUT,
+            value=filtered_providers,
         )
-    to_exclude = [f["provider_identifier"] for f in filtered_providers]
-    s = s.exclude("terms", provider=to_exclude)
+    if len(filtered_providers) != 0:
+        to_exclude = [f["provider_identifier"] for f in filtered_providers]
+        s = s.exclude("terms", provider=to_exclude)
     return s
 
 
