@@ -203,12 +203,6 @@ def _exclude_filtered(s: Search) -> Search:
     return s
 
 
-def _exclude_mature_by_param(s: Search, search_params):
-    if not search_params.data["mature"]:
-        s = s.exclude("term", mature=True)
-    return s
-
-
 def search(
     query_ser: MediaSearchRequestSerializer,
     index: Literal["image", "audio"],
@@ -246,8 +240,10 @@ def search(
         for basis in bases:
             s = _apply_filter(s, query_ser, basis, behaviour)
 
-    # Exclude mature content and disabled sources
-    s = _exclude_mature_by_param(s, query_ser)
+    # Exclude mature content
+    if not search_params["mature"]:
+        s = s.exclude("term", mature=True)
+    # Exclude sources with ``filter_content`` enabled
     s = _exclude_filtered(s)
 
     # Search either by generic multimatch or by "advanced search" with
