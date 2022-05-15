@@ -11,7 +11,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from catalog.api.controllers import search_controller
+from catalog.api.controllers.elasticsearch.related import related_media
+from catalog.api.controllers.elasticsearch.search import perform_search
 from catalog.api.controllers.elasticsearch.stats import get_stats
 from catalog.api.models import ContentProvider
 from catalog.api.serializers.provider_serializers import ProviderSerializer
@@ -64,7 +65,7 @@ class MediaViewSet(ReadOnlyModelViewSet):
 
         search_index = self.qa_index if qa else self.default_index
         try:
-            results, num_pages, num_results = search_controller.search(
+            results, num_pages, num_results = perform_search(
                 params,
                 search_index,
                 hashed_ip,
@@ -95,7 +96,7 @@ class MediaViewSet(ReadOnlyModelViewSet):
     @action(detail=True)
     def related(self, request, identifier=None, *_, **__):
         try:
-            results, num_results = search_controller.related_media(
+            results, num_results = related_media(
                 uuid=identifier,
                 index=self.default_index,
                 filter_dead=True,

@@ -376,5 +376,5 @@ def _elasticsearch_connect():
     return _es
 
 
-es = _elasticsearch_connect()
-connections.add_connection("default", es)
+ES = _elasticsearch_connect()
+connections.add_connection("default", ES)
