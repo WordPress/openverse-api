@@ -85,11 +85,15 @@ def _get_query_slice(
     return start_slice, end_slice
 
 
-def _quote_escape(query_string):
+def _quote_escape(query_string: str) -> str:
     """
     If there are any unmatched quotes in the query supplied by the user, ignore
-    them.
+    them by escaping.
+
+    :param query_string: the string in which to escape unbalanced quotes
+    :return: the given string, if the quotes are balanced, the escaped string otherwise
     """
+
     num_quotes = query_string.count('"')
     if num_quotes % 2 == 1:
         return query_string.replace('"', '\\"')
