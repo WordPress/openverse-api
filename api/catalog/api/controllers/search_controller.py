@@ -5,7 +5,7 @@ import logging as log
 import pprint
 from itertools import accumulate
 from math import ceil
-from typing import List, Literal, Optional, Tuple
+from typing import List, Literal, Optional, Tuple, Union
 
 from django.conf import settings
 from django.core.cache import cache
@@ -145,32 +145,33 @@ def _post_process_results(
 
 def _apply_filter(
     s: Search,
-    search_params: MediaSearchRequestSerializer,
-    serializer_field: str,
-    es_field: Optional[str] = None,
+    query_ser: MediaSearchRequestSerializer,
+    basis: Union[str, tuple[str, str]],
     behaviour: Literal["filter", "exclude"] = "filter",
-):
+) -> Search:
     """
     Parse and apply a filter from the search parameters serializer. The
     parameter key is assumed to have the same name as the corresponding
     Elasticsearch property. Each parameter value is assumed to be a comma
     separated list encoded as a string.
 
-    :param s: The ``Search`` instance to apply the filter to
-    :param search_params: the serializer instance containing user input
-    :param serializer_field: the name of the parameter field in ``search_params``
-    :param es_field: the corresponding parameter name in Elasticsearch
+    :param s: the search query to issue to Elasticsearch
+    :param query_ser: the ``MediaSearchRequestSerializer`` instance with search query
+    :param basis: the name of the field in the serializer and Elasticsearch
     :param behaviour: whether to accept (``filter``) or reject (``exclude``) the hit
-    :return: the input ``Search`` object with the filters applied
+    :return: the modified search query
     """
 
-    if serializer_field in search_params.data:
+    search_params = query_ser.data
+    if isinstance(basis, tuple):
+        ser_field, es_field = basis
+    else:
+        ser_field = es_field = basis
+    if ser_field in search_params:
         filters = []
-        for arg in search_params.data[serializer_field].split(","):
-            _param = es_field or serializer_field
-            args = {"name_or_query": "term", _param: arg}
-            filters.append(Q(**args))
-        method = getattr(s, behaviour)
+        for arg in search_params[ser_field].split(","):
+            filters.append(Q("term", **{es_field: arg}))
+        method = getattr(s, behaviour)  # can be ``s.filter`` or ``s.exclude``
         return method("bool", should=filters)
     else:
         return s
@@ -226,29 +227,24 @@ def search(
     s = Search(index=index)
     search_params = query_ser.data
 
-    # Apply term filters. Each tuple pairs a filter's parameter name in the API
-    # with its corresponding field in Elasticsearch. "None" means that the
-    # names are identical.
-    filters = [
-        ("extension", None),
-        ("category", None),
-        ("categories", "category"),
-        ("aspect_ratio", None),
-        ("size", None),
-        ("source", None),
-        ("license", "license__keyword"),
-        ("license_type", "license__keyword"),
-    ]
-    for serializer_field, es_field in filters:
-        if serializer_field in search_params:
-            s = _apply_filter(s, query_ser, serializer_field, es_field)
-
-    exclude = [
-        ("excluded_source", "source"),
-    ]
-    for serializer_field, es_field in exclude:
-        if serializer_field in search_params:
-            s = _apply_filter(s, query_ser, serializer_field, es_field, "exclude")
+    rules: dict[Literal["filter", "exclude"], list[Union[str, tuple[str, str]]]] = {
+        "filter": [
+            "extension",
+            "category",
+            ("categories", "category"),
+            "aspect_ratio",
+            "size",
+            "source",
+            ("license", "license.keyword"),
+            ("license_type", "license.keyword"),
+        ],
+        "exclude": [
+            ("excluded_source", "source"),
+        ],
+    }
+    for behaviour, bases in rules.items():
+        for basis in bases:
+            s = _apply_filter(s, query_ser, basis, behaviour)
 
     # Exclude mature content and disabled sources
     s = _exclude_mature_by_param(s, query_ser)
