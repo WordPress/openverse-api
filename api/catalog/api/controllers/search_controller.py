@@ -14,7 +14,6 @@ from aws_requests_auth.aws_auth import AWSRequestsAuth
 from elasticsearch import Elasticsearch, RequestsHttpConnection
 from elasticsearch.exceptions import NotFoundError, RequestError
 from elasticsearch_dsl import Q, Search, connections
-from elasticsearch_dsl.query import Query
 from elasticsearch_dsl.response import Hit, Response
 
 import catalog.api.models as models
@@ -32,10 +31,6 @@ URL = "url"
 PROVIDER = "provider"
 DEEP_PAGINATION_ERROR = "Deep pagination is not allowed."
 QUERY_SPECIAL_CHARACTER_ERROR = "Unescaped special characters are not allowed."
-
-
-class RankFeature(Query):
-    name = "rank_feature"
 
 
 def _paginate_with_dead_link_mask(
