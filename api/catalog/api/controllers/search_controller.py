@@ -209,23 +209,22 @@ def _exclude_mature_by_param(s: Search, search_params):
 
 
 def search(
-    search_params: MediaSearchRequestSerializer,
+    query_ser: MediaSearchRequestSerializer,
     index: Literal["image", "audio"],
     ip: int,
 ) -> Tuple[List[Hit], int, int]:
     """
-    Given a set of keywords and an optional set of filters, perform a ranked
-    paginated search.
+    Perform a ranked, paginated search based on the query and filters given in the
+    search request.
 
-    :param search_params: Search parameters, see ``MediaSearchRequestSerializer``
+    :param query_ser: the ``MediaSearchRequestSerializer`` instance with search query
     :param index: The Elasticsearch index to search (e.g. 'image')
-    :param ip: The user's hashed IP. Hashed IPs are used to anonymously but
-    uniquely identify users exclusively for ensuring query consistency across
-    Elasticsearch shards.
-    :return: Tuple with a List of Hits from elasticsearch, the total count of
-    pages, and number of results.
+    :param ip: the users' hashed IP to consistently route to the same ES shard
+    :return: the list of search results with the page and result count
     """
+
     s = Search(index=index)
+    search_params = query_ser.data
 
     # Apply term filters. Each tuple pairs a filter's parameter name in the API
     # with its corresponding field in Elasticsearch. "None" means that the
@@ -241,26 +240,26 @@ def search(
         ("license_type", "license__keyword"),
     ]
     for serializer_field, es_field in filters:
-        if serializer_field in search_params.data:
-            s = _apply_filter(s, search_params, serializer_field, es_field)
+        if serializer_field in search_params:
+            s = _apply_filter(s, query_ser, serializer_field, es_field)
 
     exclude = [
         ("excluded_source", "source"),
     ]
     for serializer_field, es_field in exclude:
-        if serializer_field in search_params.data:
-            s = _apply_filter(s, search_params, serializer_field, es_field, "exclude")
+        if serializer_field in search_params:
+            s = _apply_filter(s, query_ser, serializer_field, es_field, "exclude")
 
     # Exclude mature content and disabled sources
-    s = _exclude_mature_by_param(s, search_params)
+    s = _exclude_mature_by_param(s, query_ser)
     s = _exclude_filtered(s)
 
     # Search either by generic multimatch or by "advanced search" with
     # individual field-level queries specified.
 
     search_fields = ["tags.name", "title", "description"]
-    if "q" in search_params.data:
-        query = _quote_escape(search_params.data["q"])
+    if "q" in search_params:
+        query = _quote_escape(search_params["q"])
         s = s.query(
             "simple_query_string",
             query=query,
@@ -277,14 +276,14 @@ def search(
         )
         s.query = Q("bool", must=s.query, should=exact_match_boost)
     else:
-        if "creator" in search_params.data:
-            creator = _quote_escape(search_params.data["creator"])
+        if "creator" in search_params:
+            creator = _quote_escape(search_params["creator"])
             s = s.query("simple_query_string", query=creator, fields=["creator"])
-        if "title" in search_params.data:
-            title = _quote_escape(search_params.data["title"])
+        if "title" in search_params:
+            title = _quote_escape(search_params["title"])
             s = s.query("simple_query_string", query=title, fields=["title"])
-        if "tags" in search_params.data:
-            tags = _quote_escape(search_params.data["tags"])
+        if "tags" in search_params:
+            tags = _quote_escape(search_params["tags"])
             s = s.query("simple_query_string", fields=["tags.name"], query=tags)
 
     if settings.USE_RANK_FEATURES:
@@ -307,9 +306,9 @@ def search(
     # Paginate
     start, end = _get_query_slice(
         s,
-        search_params.data["page_size"],
-        search_params.data["page"],
-        search_params.data["filter_dead"],
+        search_params["page_size"],
+        search_params["page"],
+        search_params["filter_dead"],
     )
     s = s[start:end]
 
@@ -329,13 +328,13 @@ def search(
         s,
         start,
         end,
-        search_params.data["page_size"],
+        search_params["page_size"],
         search_response,
-        search_params.data["filter_dead"],
+        search_params["filter_dead"],
     )
 
     result_count, page_count = _get_result_and_page_count(
-        search_response, results, search_params.data["page_size"]
+        search_response, results, search_params["page_size"]
     )
     return results, page_count, result_count
 
