@@ -10,10 +10,8 @@ from typing import List, Literal, Optional, Tuple, Union
 from django.conf import settings
 from django.core.cache import cache
 
-from aws_requests_auth.aws_auth import AWSRequestsAuth
-from elasticsearch import Elasticsearch, RequestsHttpConnection
-from elasticsearch.exceptions import NotFoundError, RequestError
-from elasticsearch_dsl import Q, Search, connections
+from elasticsearch.exceptions import RequestError
+from elasticsearch_dsl import Q, Search
 from elasticsearch_dsl.response import Hit, Response
 
 from catalog.api import models  # To prevent circular import
@@ -23,7 +21,7 @@ from catalog.api.utils.validate_images import validate_images
 
 
 ELASTICSEARCH_MAX_RESULT_WINDOW = 10000
-SOURCE_CACHE_TIMEOUT = 60 * 20
+
 FILTER_CACHE_TIMEOUT = 30
 DEAD_LINK_RATIO = 1 / 2
 THUMBNAIL = "thumbnail"
@@ -363,81 +361,6 @@ def related_media(uuid, index, filter_dead):
     result_count, _ = _get_result_and_page_count(response, results, page_size)
 
     return results, result_count
-
-
-def get_sources(index):
-    """
-    Given an index, find all available data sources and return their counts.
-
-    :param index: An Elasticsearch index, such as `'image'`.
-    :return: A dictionary mapping sources to the count of their images.`
-    """
-    source_cache_name = "sources-" + index
-    cache_fetch_failed = False
-    try:
-        sources = cache.get(key=source_cache_name)
-    except ValueError:
-        cache_fetch_failed = True
-        sources = None
-        log.warning("Source cache fetch failed due to corruption")
-    if type(sources) == list or cache_fetch_failed:
-        # Invalidate old provider format.
-        cache.delete(key=source_cache_name)
-    if not sources:
-        # Don't increase `size` without reading this issue first:
-        # https://github.com/elastic/elasticsearch/issues/18838
-        size = 100
-        agg_body = {
-            "aggs": {
-                "unique_sources": {
-                    "terms": {
-                        "field": "source.keyword",
-                        "size": size,
-                        "order": {"_key": "desc"},
-                    }
-                }
-            }
-        }
-        try:
-            results = es.search(index=index, body=agg_body, request_cache=True)
-            buckets = results["aggregations"]["unique_sources"]["buckets"]
-        except NotFoundError:
-            buckets = [{"key": "none_found", "doc_count": 0}]
-        sources = {result["key"]: result["doc_count"] for result in buckets}
-        cache.set(key=source_cache_name, timeout=SOURCE_CACHE_TIMEOUT, value=sources)
-    return sources
-
-
-def _elasticsearch_connect():
-    """
-    Connect to configured Elasticsearch domain.
-
-    :return: An Elasticsearch connection object.
-    """
-    auth = AWSRequestsAuth(
-        aws_access_key=settings.AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-        aws_host=settings.ELASTICSEARCH_URL,
-        aws_region=settings.ELASTICSEARCH_AWS_REGION,
-        aws_service="es",
-    )
-    auth.encode = lambda x: bytes(x.encode("utf-8"))
-    _es = Elasticsearch(
-        host=settings.ELASTICSEARCH_URL,
-        port=settings.ELASTICSEARCH_PORT,
-        connection_class=RequestsHttpConnection,
-        timeout=10,
-        max_retries=1,
-        retry_on_timeout=True,
-        http_auth=auth,
-        wait_for_status="yellow",
-    )
-    _es.info()
-    return _es
-
-
-es = _elasticsearch_connect()
-connections.connections.add_connection("default", es)
 
 
 def _get_result_and_page_count(

@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 from rest_framework import serializers
 
 from catalog.api.constants.licenses import LICENSE_GROUPS
-from catalog.api.controllers import search_controller
+from catalog.api.controllers.elasticsearch.stats import get_stats
 from catalog.api.utils.help_text import make_comma_separated_help_text
 
 
@@ -77,7 +77,7 @@ def get_search_request_source_serializer(media_type):
 
         _field_attrs = {
             "help_text": make_comma_separated_help_text(
-                search_controller.get_sources(media_type).keys(), "data sources"
+                get_stats(media_type).keys(), "data sources"
             ),
             "required": False,
         }
@@ -89,7 +89,7 @@ def get_search_request_source_serializer(media_type):
 
         @staticmethod
         def validate_source_field(input_sources):
-            allowed_sources = list(search_controller.get_sources(media_type).keys())
+            allowed_sources = list(get_stats(media_type).keys())
             input_sources = input_sources.split(",")
             input_sources = [x for x in input_sources if x in allowed_sources]
             input_sources = ",".join(input_sources)
