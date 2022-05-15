@@ -268,15 +268,15 @@ def search(
         )
         s.query = Q("bool", must=s.query, should=exact_match_boost)
     else:
-        if "creator" in search_params:
-            creator = _quote_escape(search_params["creator"])
-            s = s.query("simple_query_string", query=creator, fields=["creator"])
-        if "title" in search_params:
-            title = _quote_escape(search_params["title"])
-            s = s.query("simple_query_string", query=title, fields=["title"])
-        if "tags" in search_params:
-            tags = _quote_escape(search_params["tags"])
-            s = s.query("simple_query_string", fields=["tags.name"], query=tags)
+        query_bases = ["creator", "title", ("tags", "tags.name")]
+        for query_basis in query_bases:
+            if isinstance(query_basis, tuple):
+                ser_field, es_field = query_basis
+            else:
+                ser_field = es_field = query_basis
+            if ser_field in search_params:
+                value = _quote_escape(search_params[ser_field])
+                s = s.query("simple_query_string", fields=[es_field], query=value)
 
     if settings.USE_RANK_FEATURES:
         feature_boost = {"standardized_popularity": 10000}
