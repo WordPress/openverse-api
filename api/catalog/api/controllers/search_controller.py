@@ -216,7 +216,7 @@ def search(
     :return: the list of search results with the page and result count
     """
 
-    s = Search(index=index)
+    s = Search(using="default", index=index)
     search_params = query_ser.data
 
     rules: dict[Literal["filter", "exclude"], list[Union[str, tuple[str, str]]]] = {
@@ -333,7 +333,7 @@ def related_media(uuid, index, filter_dead):
     """
     Given a UUID, find related search results.
     """
-    search_client = Search(index=index)
+    search_client = Search(using="default", index=index)
 
     # Convert UUID to sequential ID.
     item = search_client
