@@ -3,8 +3,8 @@ from rest_framework.response import Response
 
 
 class StandardPagination(PageNumberPagination):
-    page_size_query_param = "page_size"
-    page_query_param = "page"
+    page_size_query_param = None
+    page_query_param = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -12,7 +12,7 @@ class StandardPagination(PageNumberPagination):
         self.page_count = None  # populated later
 
         self.page_size = 20
-        self.page = None
+        self.page = 1
 
     def get_paginated_response(self, data):
         return Response(
