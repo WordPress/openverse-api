@@ -17,7 +17,7 @@ DEAD_LINK_RATIO = 1 / 2
 ELASTICSEARCH_MAX_RESULT_WINDOW = 10000
 
 
-def _exclude_filtered(s: Search) -> Search:
+def _exclude_filtered_providers(s: Search) -> Search:
     """
     Hide data sources from the catalog dynamically. This excludes providers with
     ``filter_content`` enabled from the search results.

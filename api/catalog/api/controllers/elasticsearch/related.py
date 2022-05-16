@@ -1,7 +1,7 @@
 from elasticsearch_dsl import Search
 
 from catalog.api.controllers.elasticsearch.utils import (
-    _exclude_filtered,
+    _exclude_filtered_providers,
     _get_query_slice,
     _get_result_and_page_count,
     _post_process_results,
@@ -29,7 +29,7 @@ def related_media(uuid, index, filter_dead):
     )
     # Never show mature content in recommendations.
     s = s.exclude("term", mature=True)
-    s = _exclude_filtered(s)
+    s = _exclude_filtered_providers(s)
     page_size = 10
     page = 1
     start, end = _get_query_slice(s, page_size, page, filter_dead)

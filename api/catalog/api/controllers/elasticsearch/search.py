@@ -12,7 +12,7 @@ from elasticsearch_dsl import Q, Search
 from elasticsearch_dsl.response import Hit
 
 from catalog.api.controllers.elasticsearch.utils import (
-    _exclude_filtered,
+    _exclude_filtered_providers,
     _get_query_slice,
     _get_result_and_page_count,
     _post_process_results,
@@ -111,7 +111,7 @@ def perform_search(
     if not search_params["mature"]:
         s = s.exclude("term", mature=True)
     # Exclude sources with ``filter_content`` enabled
-    s = _exclude_filtered(s)
+    s = _exclude_filtered_providers(s)
 
     # Search either by generic multimatch or by "advanced search" with
     # individual field-level queries specified.
