@@ -156,7 +156,6 @@ def perform_search(
     # top results.
     s = s.highlight(*search_fields)
     s = s.highlight_options(order="score")
-    s.extra(track_scores=True)  # TODO: Remove this line as it has no effect
 
     # Route users to the same Elasticsearch worker node to reduce
     # pagination inconsistencies and increase cache hits.
