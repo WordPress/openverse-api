@@ -14,7 +14,7 @@ For better low-level mapping customization, the ORM-like mapping definitions wer
 
 The first dictionary mapping was using the defaults values that Elasticsearch DSL uses. By default, it uses the `text` + `keyword` mult-field for string values. It is useful to have text+keyword mutli-fields you want to have a full-text search in this field, and use it for sorting ([ES docs on multi-fields](https://www.elastic.co/guide/en/elasticsearch/reference/current/multi-fields.html)). This is unnecessary and inefficient for some fields that only need an equality check, and not the full-text search. For instance, such fields as identifier, url, license_version only need to be keywords, and they are never used in full-text search. 
 
-To improve the mappings, we need to:
+To improve the mappings, in [#684](https://github.com/WordPress/openverse-api/pull/684) we did the following:
 - set the mapping to static
 - review the mappings to remove mapping for the fields that are not used in search. We can use `_source` property to get the values for the search result.
 - remove multi-fields where they are absolutely not necessary.
