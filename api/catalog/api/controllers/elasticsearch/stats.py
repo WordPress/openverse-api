@@ -22,7 +22,8 @@ def get_stats(index: Literal["image", "audio"]):
     source_cache_name = "sources-" + index
     try:
         sources = cache.get(key=source_cache_name)
-        return sources
+        if sources is not None:
+            return sources
     except ValueError:
         log.warning("Source cache fetch failed")
 
