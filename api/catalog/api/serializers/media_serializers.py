@@ -216,7 +216,7 @@ class MediaSearchRequestSerializer(serializers.Serializer):
     @staticmethod
     def _truncate(value):
         max_length = 200
-        return value if len(value) <= max_length else value[:max_length]
+        return value[:max_length]
 
     def validate_q(self, value):
         return self._truncate(value)
