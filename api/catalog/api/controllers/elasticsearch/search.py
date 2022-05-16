@@ -57,12 +57,12 @@ def _apply_filter(
 
     search_params = query_ser.data
     if isinstance(basis, tuple):
-        ser_field, es_field = basis
+        serializer_field, es_field = basis
     else:
-        ser_field = es_field = basis
-    if ser_field in search_params:
+        serializer_field = es_field = basis
+    if serializer_field in search_params:
         filters = []
-        for arg in search_params[ser_field].split(","):
+        for arg in search_params[serializer_field].split(","):
             filters.append(Q("term", **{es_field: arg}))
         method = getattr(s, behaviour)  # can be ``s.filter`` or ``s.exclude``
         return method("bool", should=filters)
@@ -138,11 +138,11 @@ def perform_search(
         query_bases = ["creator", "title", ("tags", "tags.name")]
         for query_basis in query_bases:
             if isinstance(query_basis, tuple):
-                ser_field, es_field = query_basis
+                serializer_field, es_field = query_basis
             else:
-                ser_field = es_field = query_basis
-            if ser_field in search_params:
-                value = _quote_escape(search_params[ser_field])
+                serializer_field = es_field = query_basis
+            if serializer_field in search_params:
+                value = _quote_escape(search_params[serializer_field])
                 s = s.query("simple_query_string", fields=[es_field], query=value)
 
     if settings.USE_RANK_FEATURES:
