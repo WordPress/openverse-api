@@ -105,11 +105,12 @@ class TaskResource(BaseTaskResource):
                 "model": model,
                 "action": action,
                 "callback_url": callback_url,
-                "since_date": since_date,
-                "index_suffix": index_suffix,
                 "progress": progress,
                 "finish_time": finish_time,
                 "active_workers": active_workers,
+                # Task-specific keyword arguments
+                "since_date": since_date,
+                "index_suffix": index_suffix,
             },
         )
         task.start()
