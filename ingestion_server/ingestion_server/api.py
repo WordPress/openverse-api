@@ -58,9 +58,8 @@ class TaskResource(BaseTaskResource):
                 },
                 # Accepts all forms described in the PostgreSQL documentation:
                 # https://www.postgresql.org/docs/current/datatype-datetime.html
-                "since_date": {
-                    "type": "string",
-                },
+                "since_date": {"type": "string"},
+                "index_suffix": {"type": "string"},
             },
             "required": ["model", "action"],
             "if": {"properties": {"action": {"const": TaskTypes.UPDATE_INDEX.name}}},
@@ -77,19 +76,19 @@ class TaskResource(BaseTaskResource):
 
         body = req.get_media()
 
+        # Generated fields
+        task_id = uuid.uuid4().hex  # no hyphens
+
         # Required fields
         model = body["model"]
         action = TaskTypes[body["action"]]
 
         # Optional fields
         callback_url = body.get("callback_url")
-        # Present for UPDATE_INDEX action
+        # Must be present for UPDATE_INDEX action
         since_date = body.get("since_date")
         # May be present for REINDEX and INGEST_UPSTREAM actions
-        index_suffix = body.get("index_suffix")
-
-        # Generated fields
-        task_id = str(uuid.uuid4())
+        index_suffix = body.get("index_suffix", task_id)
 
         # Inject shared memory
         progress = Value("d", 0.0)
