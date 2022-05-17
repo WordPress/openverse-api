@@ -2,10 +2,10 @@
 Simple in-memory tracking of executed tasks.
 """
 
-import datetime as dt
+import datetime
 import logging
 from enum import Enum, auto
-from multiprocessing import Value
+from multiprocessing import Process, Value
 from typing import Literal, Optional
 
 import requests
@@ -47,62 +47,91 @@ class TaskTypes(str, Enum):
 
 class TaskTracker:
     def __init__(self):
-        self.id_task = {}
-        self.id_action = {}
-        self.id_progress = {}
-        self.id_start_time = {}
-        self.id_finish_time = {}
-        self.id_active_workers = {}
-
-    def add_task(self, task, task_id, action, progress, finish_time, active_workers):
-        self._prune_old_tasks()
-        self.id_task[task_id] = task
-        self.id_action[task_id] = action
-        self.id_progress[task_id] = progress
-        self.id_start_time[task_id] = dt.datetime.utcnow().timestamp()
-        self.id_finish_time[task_id] = finish_time
-        self.id_active_workers[task_id] = active_workers
-        return task_id
+        self.tasks = {}
 
     def _prune_old_tasks(self):
+        # TODO: Populate, document or delete function stub
         pass
 
-    def list_task_statuses(self):
+    def add_task(self, task: Process, task_id: str, **kwargs):
+        """
+        Store information about a new task in memory.
+
+        :param task: the task being performed
+        :param task_id: the UUID of the task
+        """
+
         self._prune_old_tasks()
-        results = []
-        for _id, task in self.id_task.items():
-            percent_completed = self.id_progress[_id].value
-            active = task.is_alive()
-            start_time = self.id_start_time[_id]
-            finish_time = self.id_finish_time[_id].value
-            active_workers = self.id_active_workers[_id].value
-            results.append(
-                {
-                    "task_id": _id,
-                    "active": active,
-                    "action": self.id_action[_id],
-                    "progress": percent_completed,
-                    "error": percent_completed < 100 and not active,
-                    "start_time": start_time,
-                    "finish_time": finish_time,
-                    "active_workers": bool(active_workers),
-                }
-            )
-        sorted_results = sorted(results, key=lambda x: x["finish_time"])
 
-        to_utc = dt.datetime.utcfromtimestamp
+        self.tasks[task_id] = {
+            "task": task,
+            "start_time": datetime.datetime.utcnow().timestamp(),
+        } | kwargs
 
-        def render_date(x):
-            return to_utc(x) if x != 0.0 else None
+    @staticmethod
+    def serialize_task_info(task_info: dict) -> dict:
+        """
+        Generate a response dictionary containing all relevant information about a task.
 
-        # Convert date to a readable format
-        for idx, task in enumerate(sorted_results):
-            start_time = task["start_time"]
-            finish_time = task["finish_time"]
-            sorted_results[idx]["start_time"] = str(render_date(start_time))
-            sorted_results[idx]["finish_time"] = str(render_date(finish_time))
+        :param task_info: the stored information about the task
+        :return: the details of the task to show to the user
+        """
 
-        return sorted_results
+        def _time_fmt(timestamp: int) -> Optional[str]:
+            """
+            Format the timestamp into a human-readable date and time notation.
+
+            :param timestamp: the timestamp to format
+            :return: the human-readable form of the timestamp
+            """
+
+            if not timestamp:
+                return None
+            return str(datetime.datetime.utcfromtimestamp(timestamp))
+
+        active = task_info["task"].is_alive()
+        start_time = task_info["start_time"]
+        finish_time = task_info["finish_time"].value
+        progress = task_info["progress"].value
+        active_workers = task_info["active_workers"].value
+        return {
+            "active": active,
+            "model": task_info["model"],
+            "action": task_info["action"],
+            "progress": progress,
+            "start_timestamp": start_time,
+            "start_time": _time_fmt(start_time),
+            "finish_timestamp": finish_time,
+            "finish_time": _time_fmt(finish_time),
+            "active_workers": bool(active_workers),
+            "error": progress < 100 and not active,
+        }
+
+    def list_task_statuses(self) -> list:
+        """
+        Get the statuses of all tasks.
+
+        :return: the statuses of all tasks
+        """
+
+        self._prune_old_tasks()
+
+        results = [self.list_task_status(task_id) for task_id in self.tasks.keys()]
+        results.sort(key=lambda task: task["finish_timestamp"])
+        return results
+
+    def list_task_status(self, task_id) -> dict:
+        """
+        Get the status of a single task with the given task ID.
+
+        :param task_id: the ID of the task to get the status for
+        :return: the status of the task
+        """
+
+        self._prune_old_tasks()
+
+        task_info = self.tasks[task_id]
+        return {"task_id": task_id} | self.serialize_task_info(task_info)
 
 
 def perform_task(

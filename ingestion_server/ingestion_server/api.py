@@ -54,7 +54,7 @@ class TaskResource(BaseTaskResource):
                 "model": {"type": "string", "enum": MEDIA_TYPES},
                 "action": {
                     "type": "string",
-                    "enum": list(type.name for type in TaskTypes),
+                    "enum": list(task_type.name for task_type in TaskTypes),
                 },
                 # Accepts all forms described in the PostgreSQL documentation:
                 # https://www.postgresql.org/docs/current/datatype-datetime.html
@@ -110,13 +110,14 @@ class TaskResource(BaseTaskResource):
         )
         task.start()
 
-        task_id = self.tracker.add_task(
+        self.tracker.add_task(
             task,
             task_id,
-            action,
-            progress,
-            finish_time,
-            active_workers,
+            model=model,
+            action=action,
+            progress=progress,
+            finish_time=finish_time,
+            active_workers=active_workers,
         )
         base_url = self._get_base_url(req)
         status_url = f"{base_url}/task/{task_id}"
@@ -149,21 +150,12 @@ class TaskResource(BaseTaskResource):
 class TaskStatus(BaseTaskResource):
     def on_get(self, req, resp, task_id):
         """Check the status of a single task."""
-        task = self.tracker.id_task.get(task_id)
-        if task is None:
+        try:
+            result = self.tracker.list_task_status(task_id)
+            resp.media = result
+        except KeyError:
             resp.status = falcon.HTTP_404
-            resp.media = {"message": f"No task found with id {task_id}"}
-            return
-
-        percent_completed = self.tracker.id_progress[task_id].value
-        active_workers = bool(self.tracker.id_active_workers[task_id].value)
-        active = task.is_alive() or active_workers
-
-        resp.media = {
-            "active": active,
-            "percent_completed": percent_completed,
-            "error": percent_completed < 100 and not active,
-        }
+            resp.media = {"message": f"No task found with id {task_id}."}
 
 
 class WorkerFinishedResource(BaseTaskResource):
@@ -176,10 +168,11 @@ class WorkerFinishedResource(BaseTaskResource):
         task_data = worker_finished(str(req.remote_addr), req.media["error"])
         task_id = task_data.task_id
         target_index = task_data.target_index
-        active_workers = self.tracker.id_active_workers[task_id]
+        task_info = self.tracker.tasks[task_id]
+        active_workers = task_info["active_workers"]
 
         # Update global task progress based on worker results
-        self.tracker.id_progress[task_id].value = task_data.percent_successful
+        task_info["progress"].value = task_data.percent_successful
 
         if task_data.percent_successful == 100:
             logging.info(
