@@ -140,6 +140,7 @@ def perform_task(
     action: TaskTypes,
     callback_url: Optional[str],
     since_date: Optional[str],
+    index_suffix: Optional[str],
     progress: Value,
     finish_time: Value,
     active_workers: Value,
@@ -153,6 +154,7 @@ def perform_task(
     :param action: the name of the action being performed
     :param callback_url: the URL to which to make a request after the task is completed
     :param since_date: the date after which to update indices
+    :param index_suffix: the suffix to use on the newly created index
     :param progress: shared memory for tracking the task's progress
     :param finish_time: shared memory for tracking the finish time of the task
     :param active_workers: shared memory for counting workers assigned to the task
@@ -173,7 +175,7 @@ def perform_task(
 
     def reindex():
         slack.verbose(f"`{model}`: Beginning Elasticsearch reindex")
-        indexer.reindex(model)
+        indexer.reindex(model, index_suffix)
 
     def update_index():
         indexer.update(model, since_date)
@@ -182,7 +184,7 @@ def perform_task(
         reload_upstream(model)
         if model == "audio":
             reload_upstream("audioset", approach="basic")
-        indexer.reindex(model)
+        indexer.reindex(model, index_suffix)
 
     def load_test_data():
         indexer.load_test_data(model)

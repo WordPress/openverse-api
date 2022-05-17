@@ -83,7 +83,10 @@ class TaskResource(BaseTaskResource):
 
         # Optional fields
         callback_url = body.get("callback_url")
+        # Present for UPDATE_INDEX action
         since_date = body.get("since_date")
+        # May be present for REINDEX and INGEST_UPSTREAM actions
+        index_suffix = body.get("index_suffix")
 
         # Generated fields
         task_id = str(uuid.uuid4())
@@ -103,6 +106,7 @@ class TaskResource(BaseTaskResource):
                 "action": action,
                 "callback_url": callback_url,
                 "since_date": since_date,
+                "index_suffix": index_suffix,
                 "progress": progress,
                 "finish_time": finish_time,
                 "active_workers": active_workers,

@@ -22,6 +22,7 @@ import sys
 import time
 import uuid
 from collections import deque
+from typing import Literal
 
 import elasticsearch
 import psycopg2
@@ -30,7 +31,8 @@ from decouple import config
 from elasticsearch import Elasticsearch, NotFoundError, RequestsHttpConnection, helpers
 from elasticsearch.exceptions import ConnectionError as ESConnectionError
 from elasticsearch_dsl import Search, connections
-from psycopg2.sql import SQL, Identifier, Literal
+from psycopg2.sql import SQL, Identifier
+from psycopg2.sql import Literal as PgLiteral
 
 from ingestion_server import slack
 from ingestion_server.distributed_reindex_scheduler import schedule_distributed_index
@@ -222,8 +224,8 @@ class TableIndexer:
                 deleted=deleted,
                 mature=mature,
                 table=Identifier(table),
-                last_es_id=Literal(last_es_id),
-                last_pg_id=Literal(last_pg_id),
+                last_es_id=PgLiteral(last_es_id),
+                last_pg_id=PgLiteral(last_pg_id),
             )
             self.es.indices.create(index=dest_idx, body=index_settings(table))
             self.replicate(table, dest_idx, query)
@@ -411,15 +413,28 @@ class TableIndexer:
                 self.es = elasticsearch_connect()
             time.sleep(poll_interval)
 
-    def reindex(self, model_name: str, distributed=None):
+    def reindex(
+        self,
+        model_name: Literal["image", "audio", "model_3d"],
+        index_suffix: str = None,
+        distributed: bool = None,
+    ):
         """
         Copy contents of the database to a new Elasticsearch index. Create an
         index alias to make the new index the "live" index when finished.
+
+        :param model_name: the name of the media type to reindex
+        :param index_suffix: the suffix to use on the newly created index
+        :param distributed: whether to perform the indexing process using workers
         """
-        suffix = uuid.uuid4().hex
-        destination_index = f"{model_name}-{suffix}"
+
+        if index_suffix is None:
+            index_suffix = uuid.uuid4().hex  # no hyphens
+        destination_index = f"{model_name}-{index_suffix}"
+
         if distributed is None:
             distributed = config("ENVIRONMENT", default="local") != "local"
+
         if distributed:
             self.es.indices.create(
                 index=destination_index, body=index_settings(model_name)
@@ -447,7 +462,7 @@ class TableIndexer:
             deleted=deleted,
             mature=mature,
             model_name=Identifier(model_name),
-            since_date=Literal(since_date),
+            since_date=PgLiteral(since_date),
         )
         self.replicate(model_name, model_name, query)
 
