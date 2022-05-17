@@ -17,7 +17,7 @@ import ingestion_server.indexer as indexer
 from ingestion_server import slack
 from ingestion_server.constants.media_types import MEDIA_TYPES
 from ingestion_server.state import clear_state, worker_finished
-from ingestion_server.tasks import Task, TaskTracker, TaskTypes
+from ingestion_server.tasks import TaskTracker, TaskTypes, perform_task
 
 
 MODEL = "model"
@@ -95,15 +95,18 @@ class TaskResource(BaseTaskResource):
         """whether task has any active distributed workers"""
 
         # Create ``Task`` instance
-        task = Task(
-            task_id=task_id,
-            model=model,
-            task_type=action,
-            callback_url=callback_url,
-            since_date=since_date,
-            progress=progress,
-            finish_time=finish_time,
-            active_workers=active_workers,
+        task = Process(
+            target=perform_task,
+            kwargs={
+                "task_id": task_id,
+                "model": model,
+                "action": action,
+                "callback_url": callback_url,
+                "since_date": since_date,
+                "progress": progress,
+                "finish_time": finish_time,
+                "active_workers": active_workers,
+            },
         )
         task.start()
 

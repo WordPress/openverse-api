@@ -5,7 +5,8 @@ Simple in-memory tracking of executed tasks.
 import datetime as dt
 import logging
 from enum import Enum, auto
-from multiprocessing import Process
+from multiprocessing import Value
+from typing import Literal, Optional
 
 import requests
 
@@ -104,69 +105,79 @@ class TaskTracker:
         return sorted_results
 
 
-class Task(Process):
-    def __init__(
-        self,
+def perform_task(
+    task_id: str,
+    model: Literal["image", "audio", "model_3d"],
+    action: TaskTypes,
+    callback_url: Optional[str],
+    since_date: Optional[str],
+    progress: Value,
+    finish_time: Value,
+    active_workers: Value,
+):
+    """
+    Perform the task defined by the API request by invoking the task function with the
+    correct arguments.
+
+    :param task_id: the UUID assigned to the task for tracking
+    :param model: the media type for which the action is being performed
+    :param action: the name of the action being performed
+    :param callback_url: the URL to which to make a request after the task is completed
+    :param since_date: the date after which to update indices
+    :param progress: shared memory for tracking the task's progress
+    :param finish_time: shared memory for tracking the finish time of the task
+    :param active_workers: shared memory for counting workers assigned to the task
+    """
+
+    elasticsearch = elasticsearch_connect()
+    indexer = TableIndexer(
+        elasticsearch,
         model,
-        task_type,
-        since_date,
-        progress,
         task_id,
+        progress,
         finish_time,
         active_workers,
-        callback_url,
-    ):
-        Process.__init__(self)
-        self.model = model
-        self.task_type = task_type
-        self.since_date = since_date
-        self.progress = progress
-        self.task_id = task_id
-        self.finish_time = finish_time
-        self.active_workers = active_workers
-        self.callback_url = callback_url
+    )
 
-    def run(self):
+    # Task functions
+    # ==============
+
+    def reindex():
+        slack.verbose(f"`{model}`: Beginning Elasticsearch reindex")
+        indexer.reindex(model)
+
+    def update_index():
+        indexer.update(model, since_date)
+
+    def ingest_upstream():
+        reload_upstream(model)
+        if model == "audio":
+            reload_upstream("audioset", approach="basic")
+        indexer.reindex(model)
+
+    def load_test_data():
+        indexer.load_test_data(model)
+
+    try:
+        locs = locals()
+        func = locs[action.value]
+        func()  # Run the corresponding task function
+    except Exception as err:
+        exception_type = f"{err.__class__.__module__}.{err.__class__.__name__}"
+        logging.error(f"Error processing task `{action}` for `{model}`: {err}")
+        slack.error(
+            f":x_red: Error processing task `{action}` for `{model}` "
+            f"(`{exception_type}`): \n"
+            f"```\n{err}\n```"
+        )
+        raise
+
+    logging.info(f"Task {task_id} completed.")
+    if callback_url:
         try:
-            # Map task types to actions.
-            elasticsearch = elasticsearch_connect()
-            indexer = TableIndexer(
-                elasticsearch,
-                self.model,
-                self.task_id,
-                self.progress,
-                self.finish_time,
-                self.active_workers,
-            )
-            if self.task_type == TaskTypes.REINDEX:
-                slack.verbose(f"`{self.model}`: Beginning Elasticsearch reindex")
-                indexer.reindex(self.model)
-            elif self.task_type == TaskTypes.UPDATE_INDEX:
-                indexer.update(self.model, self.since_date)
-            elif self.task_type == TaskTypes.INGEST_UPSTREAM:
-                reload_upstream(self.model)
-                if self.model == "audio":
-                    reload_upstream("audioset", approach="basic")
-                indexer.reindex(self.model)
-            elif self.task_type == TaskTypes.LOAD_TEST_DATA:
-                indexer.load_test_data(self.model)
-            logging.info(f"Task {self.task_id} exited.")
-            if self.callback_url:
-                try:
-                    logging.info("Sending callback request")
-                    res = requests.post(self.callback_url)
-                    logging.info(f"Response: {res.text}")
-                except requests.exceptions.RequestException as e:
-                    logging.error("Failed to send callback!")
-                    logging.error(e)
-        except Exception as err:
-            exception_type = f"{err.__class__.__module__}.{err.__class__.__name__}"
-            logging.error(
-                f"Error processing task `{self.task_type}` for `{self.model}`: {err}"
-            )
-            slack.error(
-                f":x_red: Error processing task `{self.task_type}` for `{self.model}` "
-                f"(`{exception_type}`): \n"
-                f"```\n{err}\n```"
-            )
-            raise
+            logging.info("Sending callback request")
+            res = requests.post(callback_url)
+            logging.info(f"Response: {res.text}")
+        except requests.exceptions.RequestException as err:
+            logging.error("Failed to send callback!")
+            logging.error(err)
