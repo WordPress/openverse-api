@@ -117,13 +117,14 @@ class MediaSearchRequestSerializer(serializers.Serializer):
     def validate_license(value):
         """Checks whether license is a valid license code."""
 
-        licenses = value.lower().split(",")
+        value = value.lower()
+        licenses = value.split(",")
         for _license in licenses:
             if _license not in LICENSE_GROUPS["all"]:
                 raise serializers.ValidationError(
                     f"License '{_license}' does not exist."
                 )
-        return value.lower()
+        return value
 
     @staticmethod
     def validate_license_type(value):
@@ -365,12 +366,14 @@ def get_search_request_source_serializer(media_type):
         )
 
         @staticmethod
-        def validate_source_field(input_sources):
+        def validate_source_field(value):
+            """Checks whether source is a valid source."""
+
             allowed_sources = list(search_controller.get_sources(media_type).keys())
-            input_sources = input_sources.split(",")
-            input_sources = [x for x in input_sources if x in allowed_sources]
-            input_sources = ",".join(input_sources)
-            return input_sources.lower()
+            sources = value.lower().split(",")
+            sources = [source for source in sources if source in allowed_sources]
+            value = ",".join(sources)
+            return value
 
         def validate_source(self, input_sources):
             return self.validate_source_field(input_sources)
