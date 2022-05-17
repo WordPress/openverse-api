@@ -230,6 +230,7 @@ def search(
     :return: Tuple with a List of Hits from elasticsearch, the total count of
     pages, and number of results.
     """
+    _determine_index_format()  # May 2022 Elasticsearch migration
     search_client = Search(index=index)
 
     s = search_client
@@ -237,16 +238,29 @@ def search(
     # with its corresponding field in Elasticsearch. "None" means that the
     # names are identical.
     filters = [
-        ("extension", None),
-        ("category", None),
+        "extension",
+        "category",
         ("categories", "category"),
-        ("aspect_ratio", None),
-        ("size", None),
-        ("source", None),
-        ("license", "license__keyword"),
-        ("license_type", "license__keyword"),
+        "aspect_ratio",
+        "size",
+        "source",
     ]
-    for serializer_field, es_field in filters:
+    if settings.ES_INDEX_FORMAT == "old":
+        filters += [
+            ("license", "license__keyword"),
+            ("license_type", "license__keyword"),
+        ]
+    else:
+        filters += [
+            "license",
+            ("license_type", "license"),
+        ]
+
+    for filter_basis in filters:
+        if isinstance(filter_basis, tuple):
+            serializer_field, es_field = filter_basis
+        else:
+            serializer_field = es_field = filter_basis
         if serializer_field in search_params.data:
             s = _apply_filter(s, search_params, serializer_field, es_field)
 
@@ -335,6 +349,7 @@ def related_media(uuid, index, request, filter_dead):
     """
     Given a UUID, find related search results.
     """
+    _determine_index_format()  # May 2022 Elasticsearch migration
     search_client = Search(index=index)
 
     # Convert UUID to sequential ID.
@@ -374,6 +389,7 @@ def get_sources(index):
     :param index: An Elasticsearch index, such as `'image'`.
     :return: A dictionary mapping sources to the count of their images.`
     """
+    _determine_index_format()  # May 2022 Elasticsearch migration
     source_cache_name = "sources-" + index
     cache_fetch_failed = False
     try:
@@ -393,7 +409,9 @@ def get_sources(index):
             "aggs": {
                 "unique_sources": {
                     "terms": {
-                        "field": "source.keyword",
+                        "field": "source.keyword"
+                        if settings.ES_INDEX_FORMAT == "old"
+                        else "source",
                         "size": size,
                         "order": {"_key": "desc"},
                     }
@@ -438,10 +456,6 @@ def _elasticsearch_connect():
     return _es
 
 
-es = _elasticsearch_connect()
-connections.connections.add_connection("default", es)
-
-
 def _get_result_and_page_count(
     response_obj: Response, results: List[Hit], page_size: int
 ) -> Tuple[int, int]:
@@ -463,3 +477,30 @@ def _get_result_and_page_count(
         result_count = len(results)
 
     return result_count, page_count
+
+
+es = _elasticsearch_connect()
+connections.connections.add_connection("default", es)
+
+
+# May 2022 Elasticsearch migration
+def _determine_index_format():
+    if settings.ES_INDEX_FORMAT is not None:
+        return  # already determined
+
+    log.info("Determining index format...")
+    idx_dyn_map: dict[str, bool] = {}
+    for idx_name in ["image", "audio"]:
+        try:
+            idx = es.indices.get(index=idx_name)
+            idx_dyn_map[idx_name] = "dynamic" not in list(idx.values())[0]["mappings"]
+        except NotFoundError:
+            return  # mapping could not be found
+    if not any(idx_dyn_map.values()):  # mappings are not dynamic in the new format
+        settings.ES_INDEX_FORMAT = "new"
+    else:
+        settings.ES_INDEX_FORMAT = "old"
+    log.info(f"Determined format to be {settings.ES_INDEX_FORMAT}")
+
+
+_determine_index_format()

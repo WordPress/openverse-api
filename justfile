@@ -114,7 +114,7 @@ cert:
 
 # Check if the media is indexed in Elasticsearch
 @check-index index="image":
-    -curl -sb -H "Accept:application/json" "http://localhost:9200/_cat/aliases/{{ index }}" | grep -c "{{ index }}-"
+    -curl -sb -H "Accept:application/json" "http://localhost:9200/_cat/indices/{{ index }}" | grep -o "{{ index }}" | wc -l | xargs
 
 # Wait for the media to be indexed in Elasticsearch
 @wait-for-index index="image":
@@ -132,11 +132,11 @@ _ing-install:
     cd ingestion_server && pipenv install --dev
 
 # Perform the given action on the given model by invoking the ingestion-server API
-_ing-api model action port="8001":
+_ing-api model action suffix="init" port="8001":
     curl \
       -X POST \
       -H 'Content-Type: application/json' \
-      -d '{"model": "{{ model }}", "action": "{{ action }}"}' \
+      -d '{"model": "{{ model }}", "action": "{{ action }}", "index_suffix": "{{ suffix }}"}' \
       'http://localhost:{{ port }}/task'
 
 # Check the health of the ingestion-server
@@ -154,8 +154,11 @@ _ing-api model action port="8001":
     just _ing-api {{ model }} "LOAD_TEST_DATA"
 
 # Load sample data into prod indices in Elasticsearch
-@ingest-upstream model="image":
-    just _ing-api {{ model }} "INGEST_UPSTREAM"
+@ingest-upstream model="image" suffix="init":
+    just _ing-api {{ model }} "INGEST_UPSTREAM" {{ suffix }}
+
+@promote-index model="image" suffix="init":
+    just _ing-api {{ model }} "PROMOTE_INDEX" {{ suffix }}
 
 # Run ingestion-server tests locally
 ing-testlocal *args:

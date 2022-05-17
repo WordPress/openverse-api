@@ -1,0 +1,8 @@
+{
+  "aspect_ratio": {
+    "type": "keyword"
+  },
+  "size": {
+    "type": "keyword"
+  }
+}

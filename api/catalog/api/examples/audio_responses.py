@@ -36,6 +36,10 @@ base_audio = {
     "related_url": f"{origin}/v1/audio/{identifier}/related/",
     "category": "music",
     "duration": 270000,
+    "bit_rate": 128000,
+    "sample_rate": 44100,
+    "filesize": "7139840",
+    "filetype": "mp3",
     "peaks": [],
 }
 
@@ -46,7 +50,10 @@ audio_search_200_example = {
         "page_size": 20,
         "page": 1,
         "results": [
-            base_audio | {"fields_matched": ["title"]},
+            base_audio
+            | {
+                "fields_matched": ["title"],
+            },
         ],
     },
 }
@@ -91,12 +98,7 @@ audio_detail_200_example = {
             "filesize": None,
             "filetype": None,
         },
-        "duration": 270000,
-        "bit_rate": None,
-        "sample_rate": None,
         "alt_files": None,
-        "filesize": None,
-        "filetype": "mp3",
     },
 }
 

@@ -340,3 +340,6 @@ if not DEBUG:
         send_default_pii=False,
         environment=ENVIRONMENT,
     )
+
+# May 2022 Elasticsearch migration
+ES_INDEX_FORMAT = None  # set to 'old' or 'new' in ``search_controller.py``
