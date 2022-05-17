@@ -291,13 +291,13 @@ class MediaSerializer(BaseModelSerializer):
     )
 
     tags = TagSerializer(
-        allow_null=True,  # replaced with ``[]`` later
+        allow_null=True,  # replaced with ``[]`` in ``to_representation`` below
         many=True,
         help_text="Tags with detailed metadata, such as accuracy.",
     )
 
     fields_matched = serializers.ListField(
-        allow_null=True,  # replaced with ``[]`` later
+        allow_null=True,  # replaced with ``[]`` in ``to_representation`` below
         help_text="List the fields that matched the query for this result.",
     )
 
