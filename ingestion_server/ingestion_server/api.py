@@ -3,7 +3,6 @@ A small RPC API server for scheduling ingestion of upstream data and
 Elasticsearch indexing tasks.
 """
 
-import json
 import logging
 import sys
 import time
@@ -12,6 +11,7 @@ from multiprocessing import Process, Value
 from urllib.parse import urlparse
 
 import falcon
+from falcon.media.validators import jsonschema
 
 import ingestion_server.indexer as indexer
 from ingestion_server import slack
@@ -47,84 +47,96 @@ class TaskResource(BaseTaskResource):
         parsed = urlparse(req.url)
         return parsed.scheme + "://" + parsed.netloc
 
-    @staticmethod
-    def _validate_create_task(request):
+    @jsonschema.validate(
+        req_schema={
+            "type": "object",
+            "properties": {
+                "model": {"type": "string", "enum": MEDIA_TYPES},
+                "action": {
+                    "type": "string",
+                    "enum": list(type.name for type in TaskTypes),
+                },
+                # Accepts all forms described in the PostgreSQL documentation:
+                # https://www.postgresql.org/docs/current/datatype-datetime.html
+                "since_date": {
+                    "type": "string",
+                },
+            },
+            "required": ["model", "action"],
+            "if": {"properties": {"action": {"const": TaskTypes.UPDATE_INDEX.name}}},
+            "then": {"required": ["since_date"]},
+        }
+    )
+    def on_post(self, req: falcon.Request, res: falcon.Response):
         """
-        Validate an index creation task.
-        :return: None if valid else a string containing an error message.
+        Handles an incoming POST request.
+
+        :param req: the incoming request
+        :param res: the appropriate response
         """
-        if request == b"":
-            return "Expected JSON request body but found nothing."
-        request = json.loads(request.decode("utf-8"))
-        if MODEL not in request:
-            return "No model supplied in request body."
-        if ACTION not in request:
-            return "No action supplied in request body."
-        if request[ACTION] not in [x.name for x in TaskTypes]:
-            return "Invalid action."
-        if request[ACTION] == TaskTypes.UPDATE_INDEX.name and SINCE_DATE not in request:
-            return "Received UPDATE request but no since_date."
 
-        return None
+        body = req.get_media()
 
-    def on_post(self, req, resp):
-        """Create a task."""
-        raw_body = req.stream.read()
-        request_error = self._validate_create_task(raw_body)
-        if request_error:
-            logging.warning(f"Invalid request made. Reason: {request_error}")
-            resp.status = falcon.HTTP_400
-            resp.media = {"message": request_error}
-            return
-        body = json.loads(raw_body.decode("utf-8"))
-        model = body[MODEL]
-        action = body[ACTION]
-        callback_url = None
-        if CALLBACK_URL in body:
-            callback_url = body[CALLBACK_URL]
-        since_date = body[SINCE_DATE] if SINCE_DATE in body else None
+        # Required fields
+        model = body["model"]
+        action = TaskTypes[body["action"]]
+
+        # Optional fields
+        callback_url = body.get("callback_url")
+        since_date = body.get("since_date")
+
+        # Generated fields
         task_id = str(uuid.uuid4())
+
         # Inject shared memory
         progress = Value("d", 0.0)
         finish_time = Value("d", 0.0)
-        active_workers = Value(
-            "i", int(False)
-        )  # Tracks whether the task has any active distributed workers
+        active_workers = Value("i", int(False))
+        """whether task has any active distributed workers"""
+
+        # Create ``Task`` instance
         task = Task(
+            task_id=task_id,
             model=model,
-            task_type=TaskTypes[action],
+            task_type=action,
+            callback_url=callback_url,
             since_date=since_date,
             progress=progress,
-            task_id=task_id,
             finish_time=finish_time,
             active_workers=active_workers,
-            callback_url=callback_url,
         )
         task.start()
+
         task_id = self.tracker.add_task(
-            task, task_id, action, progress, finish_time, active_workers
+            task,
+            task_id,
+            action,
+            progress,
+            finish_time,
+            active_workers,
         )
         base_url = self._get_base_url(req)
         status_url = f"{base_url}/task/{task_id}"
+
         # Give the task a moment to start so we can detect immediate failure.
         # TODO: Use IPC to detect if the job launched successfully instead
         # of giving it 100ms to crash. This is prone to race conditions.
         time.sleep(0.1)
         if task.is_alive():
-            resp.status = falcon.HTTP_202
-            resp.media = {
-                "message": "Successfully scheduled task",
+            res.status = falcon.HTTP_202
+            res.media = {
+                "message": "Successfully scheduled task.",
                 "task_id": task_id,
                 "status_check": status_url,
             }
-            return
         else:
-            resp.status = falcon.HTTP_500
-            resp.media = {
-                "message": "Failed to schedule task due to an internal server "
-                "error. Check scheduler logs."
+            res.status = falcon.HTTP_500
+            res.media = {
+                "message": (
+                    "Failed to schedule task due to an internal server error. "
+                    "Check scheduler logs."
+                )
             }
-            return
 
     def on_get(self, req, resp):
         """List all indexing tasks."""
