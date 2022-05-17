@@ -227,7 +227,6 @@ class TableIndexer:
                 last_es_id=PgLiteral(last_es_id),
                 last_pg_id=PgLiteral(last_pg_id),
             )
-            self.es.indices.create(index=dest_idx, body=index_settings(table))
             self.replicate(table, dest_idx, query)
 
     def _bulk_upload(self, es_batch):
@@ -435,10 +434,11 @@ class TableIndexer:
         if distributed is None:
             distributed = config("ENVIRONMENT", default="local") != "local"
 
+        self.es.indices.create(
+            index=destination_index,
+            body=index_settings(model_name),
+        )
         if distributed:
-            self.es.indices.create(
-                index=destination_index, body=index_settings(model_name)
-            )
             self.active_workers.value = int(True)
             schedule_distributed_index(
                 database_connect(), destination_index, self.task_id
