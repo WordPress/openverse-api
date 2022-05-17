@@ -484,6 +484,24 @@ class TableIndexer:
         )
         self.replicate(model_name, model_name, query)
 
+    def promote_index(
+        self,
+        model_name: Literal["image", "audio", "model_3d"],
+        index_suffix: str,
+        **_,  # ignored extra arguments
+    ):
+        """
+        Change the media alias to point to the target index given by the index suffix.
+        Each media type has a floating alias named after the media type itself. This
+        alias points to the primary index of the media type.
+
+        :param model_name: the name of the media type to which the index belongs
+        :param index_suffix: the suffix of the index to promote
+        """
+
+        target_index = f"{model_name}-{index_suffix}"
+        self.go_live(target_index, model_name)
+
     @staticmethod
     def load_test_data(table, **_):
         """Create test indices in Elasticsearch for QA."""

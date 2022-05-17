@@ -35,6 +35,8 @@ class TaskTypes(str, Enum):
     # This is not intended for production use, but can be safely executed in a
     # production environment without consequence.
     LOAD_TEST_DATA = auto()
+    # Promote index
+    PROMOTE_INDEX = auto()
 
     def __str__(self):
         """
@@ -186,6 +188,9 @@ def perform_task(
 
     def load_test_data():
         indexer.load_test_data(model)
+
+    def promote_index():
+        indexer.promote_index(model, **kwargs)
 
     try:
         locs = locals()

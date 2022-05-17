@@ -62,8 +62,24 @@ class TaskResource(BaseTaskResource):
                 "index_suffix": {"type": "string"},
             },
             "required": ["model", "action"],
-            "if": {"properties": {"action": {"const": TaskTypes.UPDATE_INDEX.name}}},
-            "then": {"required": ["since_date"]},
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "action": {"const": TaskTypes.UPDATE_INDEX.name},
+                        }
+                    },
+                    "then": {"required": ["since_date"]},
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "action": {"const": TaskTypes.PROMOTE_INDEX.name},
+                        }
+                    },
+                    "then": {"required": ["index_suffix"]},
+                },
+            ],
         }
     )
     def on_post(self, req: falcon.Request, res: falcon.Response):
@@ -87,6 +103,7 @@ class TaskResource(BaseTaskResource):
         callback_url = body.get("callback_url")
         # Must be present for UPDATE_INDEX action
         since_date = body.get("since_date")
+        # Must be present for PROMOTE_INDEX action
         # May be present for REINDEX and INGEST_UPSTREAM actions
         index_suffix = body.get("index_suffix", task_id)
 
