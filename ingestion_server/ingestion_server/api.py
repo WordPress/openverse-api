@@ -69,7 +69,7 @@ class TaskResource(BaseTaskResource):
     )
     def on_post(self, req: falcon.Request, res: falcon.Response):
         """
-        Handles an incoming POST request.
+        Handles an incoming POST request. Schedules the specified task.
 
         :param req: the incoming request
         :param res: the appropriate response
@@ -142,29 +142,44 @@ class TaskResource(BaseTaskResource):
                 )
             }
 
-    def on_get(self, req, resp):
-        """List all indexing tasks."""
-        resp.media = self.tracker.list_task_statuses()
+    def on_get(self, _, res):
+        """
+        Handles an incoming GET request. Provides information about all past tasks.
+
+        :param _: the incoming request
+        :param res: the appropriate response
+        """
+
+        res.media = self.tracker.list_task_statuses()
 
 
 class TaskStatus(BaseTaskResource):
-    def on_get(self, req, resp, task_id):
-        """Check the status of a single task."""
+    def on_get(self, _, res, task_id):
+        """
+        Handles an incoming GET request. Provides information about a single task.
+
+        :param _: the incoming request
+        :param res: the appropriate response
+        :param task_id: the ID of the task for which to get the information
+        """
+
         try:
             result = self.tracker.list_task_status(task_id)
-            resp.media = result
+            res.media = result
         except KeyError:
-            resp.status = falcon.HTTP_404
-            resp.media = {"message": f"No task found with id {task_id}."}
+            res.status = falcon.HTTP_404
+            res.media = {"message": f"No task found with id {task_id}."}
 
 
 class WorkerFinishedResource(BaseTaskResource):
-    """
-    For notifying ingestion server that an indexing worker has finished its
-    task.
-    """
-
     def on_post(self, req, _):
+        """
+        Handles an incoming POST request. Records messages sent from indexer workers.
+
+        :param req: the incoming request
+        :param _: the appropriate response
+        """
+
         task_data = worker_finished(str(req.remote_addr), req.media["error"])
         task_id = task_data.task_id
         target_index = task_data.target_index
