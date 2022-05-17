@@ -19,8 +19,8 @@ from catalog.api.models.oauth import (
     OAuth2Verification,
     ThrottledApplication,
 )
-from catalog.api.views.oauth2_views import Register
 from catalog.api.utils.throttle import ExemptionAwareThrottle
+from catalog.api.views.oauth2_views import Register
 
 
 command_module_path = "catalog.management.commands.resendoauthverification"
@@ -316,11 +316,17 @@ def test_should_not_send_for_verified_emails(cleanable_email, captured_emails):
 
 def register_with_email_times(email: str, times: int) -> list:
     request_factory = APIRequestFactory()
-    requests = [request_factory.post('/', data={
-        "name": f"{email}'s sweet app #{i}",
-        "email": email,
-        "description": f"{email}'s sweet app"
-    }) for i in range(times)]
+    requests = [
+        request_factory.post(
+            "/",
+            data={
+                "name": f"{email}'s sweet app #{i}",
+                "email": email,
+                "description": f"{email}'s sweet app",
+            },
+        )
+        for i in range(times)
+    ]
 
     view = Register.as_view()
     return [view(request) for request in requests]
@@ -334,8 +340,10 @@ def test_create_tokens_with_view(captured_emails):
         "pen_tester@example.org",
     ]
 
-    with mock.patch('catalog.api.views.oauth2_views.send_mail'):
-        with mock.patch.object(ExemptionAwareThrottle, 'allow_request', return_value=True):
+    with mock.patch("catalog.api.views.oauth2_views.send_mail"):
+        with mock.patch.object(
+            ExemptionAwareThrottle, "allow_request", return_value=True
+        ):
             for email in emails:
                 responses = register_with_email_times(email, 10)
                 for response in responses:
@@ -343,7 +351,9 @@ def test_create_tokens_with_view(captured_emails):
 
     # assert everything was created in the registration view
     for email in emails:
-        verifications = OAuth2Verification.objects.filter(email=email).select_related('associated_application')
+        verifications = OAuth2Verification.objects.filter(email=email).select_related(
+            "associated_application"
+        )
         assert verifications.count() == 10
         assert OAuth2Registration.objects.filter(email=email).count() == 10
         for verification in verifications:
@@ -352,10 +362,17 @@ def test_create_tokens_with_view(captured_emails):
     call_resendoauthverification(dry_run=False)
 
     for email in emails:
-        verifications = OAuth2Verification.objects.filter(email=email).select_related('associated_application')
+        verifications = OAuth2Verification.objects.filter(email=email).select_related(
+            "associated_application"
+        )
         assert verifications.count() == 1
         assert OAuth2Registration.objects.filter(email=email).count() == 1
         for verification in verifications:
             assert verification.associated_application is not None
 
-        assert ThrottledApplication.objects.filter(name__contains=f"{email}'s sweet app").count() == 1
+        assert (
+            ThrottledApplication.objects.filter(
+                name__contains=f"{email}'s sweet app"
+            ).count()
+            == 1
+        )
