@@ -417,6 +417,7 @@ class TableIndexer:
         model_name: Literal["image", "audio", "model_3d"],
         index_suffix: str = None,
         distributed: bool = None,
+        **_,  # ignored extra arguments
     ):
         """
         Copy contents of the database to a new Elasticsearch index. Create an
@@ -451,7 +452,12 @@ class TableIndexer:
             )
             self.go_live(destination_index, model_name)
 
-    def update(self, model_name: str, since_date):
+    def update(
+        self,
+        model_name: Literal["image", "audio", "model_3d"],
+        since_date: str,
+        **_,  # ignored extra arguments
+    ):
         log.info(f"Updating index {model_name} with changes since {since_date}")
         deleted, mature = get_existence_queries(model_name)
         query = SQL(
@@ -467,7 +473,7 @@ class TableIndexer:
         self.replicate(model_name, model_name, query)
 
     @staticmethod
-    def load_test_data(table):
+    def load_test_data(table, **_):
         """Create test indices in Elasticsearch for QA."""
         create_search_qa_index(table)
 
