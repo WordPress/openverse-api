@@ -4,7 +4,7 @@ Simple in-memory tracking of executed tasks.
 
 import datetime as dt
 import logging
-from enum import Enum
+from enum import Enum, auto
 from multiprocessing import Process
 
 import requests
@@ -14,18 +14,34 @@ from ingestion_server.indexer import TableIndexer, elasticsearch_connect
 from ingestion_server.ingest import reload_upstream
 
 
-class TaskTypes(Enum):
+class TaskTypes(str, Enum):
+    """
+    Each type has a value equal to the name of the task in lowercase.
+    """
+
+    @staticmethod
+    def _generate_next_value_(name: str, *args) -> str:
+        return name.lower()
+
     # Completely reindex all data for a given model.
-    REINDEX = 0
+    REINDEX = auto()
     # Reindex updates to a model from the database since a certain date.
-    UPDATE_INDEX = 1
+    UPDATE_INDEX = auto()
     # Download the latest copy of the data from the upstream database, then
     # completely reindex the newly imported data.
-    INGEST_UPSTREAM = 2
+    INGEST_UPSTREAM = auto()
     # Create indices in Elasticsearch for QA tests.
     # This is not intended for production use, but can be safely executed in a
     # production environment without consequence.
-    LOAD_TEST_DATA = 3
+    LOAD_TEST_DATA = auto()
+
+    def __str__(self):
+        """
+        Get the string representation of this enum. Unlike other objects, this
+        does not default to ``__repr__``.
+        :return: the string representation
+        """
+        return self.value
 
 
 class TaskTracker:
