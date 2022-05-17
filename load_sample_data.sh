@@ -102,10 +102,14 @@ just load-test-data "image"
 sleep 2
 
 # Ingest and index the data
-just ingest-upstream "audio"
+just ingest-upstream "audio" "init"
+just wait-for-index "audio-init"
+just promote-index "audio"
 just wait-for-index "audio"
 
-just ingest-upstream "image"
+just ingest-upstream "image" "init"
+just wait-for-index "image-init"
+just promote-index "image"
 just wait-for-index "image"
 
 # Clear source cache since it's out of date after data has been loaded
