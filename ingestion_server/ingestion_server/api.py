@@ -205,8 +205,8 @@ class WorkerFinishedResource(BaseTaskResource):
                 f"`{index_type}`: Elasticsearch reindex complete | "
                 f"_Next: promote index as primary_"
             )
-            f = indexer.TableIndexer.go_live
-            p = Process(target=f, args=(target_index, index_type, active_workers))
+            f = indexer.TableIndexer.refresh_index
+            p = Process(target=f, args=(target_index,))
             p.start()
         elif task_data.percent_completed == 100:
             # All workers finished, but not all were successful. Mark

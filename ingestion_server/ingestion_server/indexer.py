@@ -348,6 +348,18 @@ class TableIndexer:
         return delta < max_delta
 
     @staticmethod
+    def refresh_index(index_name: str):
+        es = elasticsearch_connect()
+
+        # Refresh index
+        es.indices.refresh(index=index_name)
+        # Re-enable replicas
+        es.indices.put_settings(
+            index=index_name,
+            body={"index": {"number_of_replicas": 1}},
+        )
+
+    @staticmethod
     def go_live(write_index, live_alias, active_workers=None):
         """
         Point the live index alias at the index we just created. Delete the
@@ -450,7 +462,7 @@ class TableIndexer:
                 f"`{model_name}`: Elasticsearch reindex complete | "
                 f"_Next: promote index as primary_"
             )
-            self.go_live(destination_index, model_name)
+            self.refresh_index(destination_index)
 
     def update(
         self,
