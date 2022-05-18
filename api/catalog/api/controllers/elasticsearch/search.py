@@ -95,6 +95,7 @@ def perform_search(
             ("categories", "category"),
             "aspect_ratio",
             "size",
+            "length",
             "source",
             ("license", "license.keyword"),
             ("license_type", "license.keyword"),
