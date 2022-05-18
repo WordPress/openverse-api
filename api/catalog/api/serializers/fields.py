@@ -9,6 +9,9 @@ from catalog.api.utils.help_text import make_comma_separated_help_text
 class SchemableHyperlinkedIdentityField(serializers.HyperlinkedIdentityField):
     """
     This field returns the link but allows the option to replace the URL scheme.
+
+    This is useful when the API runs on ``http`` behind a proxy that serves ``https``.
+    In these cases, the scheme in hyperlinks must be forced to ``https``.
     """
 
     def __init__(self, scheme=settings.API_LINK_SCHEME, *args, **kwargs):

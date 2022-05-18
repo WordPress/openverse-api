@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from elasticsearch_dsl.response import Hit
 
-from catalog.api.constants.field_order import field_pos_map
+from catalog.api.constants.field_order import field_position_map
 from catalog.api.constants.field_values import AUDIO_CATEGORIES, LENGTHS
 from catalog.api.docs.media_docs import fields_to_md
 from catalog.api.models import Audio, AudioReport, AudioSet
@@ -51,7 +51,7 @@ class AudioSearchRequestSerializer(
         required=False,
     )
     length = EnumCharField(
-        plural="audio lengths",
+        plural="lengths",
         enum_var=LENGTHS,
         required=False,
     )
@@ -103,10 +103,10 @@ class AudioSerializer(AudioHyperlinksSerializer, MediaSerializer):
                 "duration",
                 "bit_rate",
                 "sample_rate",
-                "waveform",
-                "peaks",
+                "waveform",  # hyperlink to the endpoint that generates the waveform
+                "peaks",  # waveform peaks, if they have already been generated
             ],
-            key=lambda val: field_pos_map.get(val, 999),
+            key=lambda val: field_position_map.get(val, 999),
         )
         """
         Keep the fields names in sync with the actual fields below as this list is
