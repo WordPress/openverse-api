@@ -2,6 +2,7 @@ from django.contrib import admin
 
 from catalog.api.models import (
     PENDING,
+    AudioReport,
     ContentProvider,
     DeletedImage,
     ImageReport,
@@ -10,20 +11,20 @@ from catalog.api.models import (
 )
 
 
-@admin.register(ImageReport)
-class ImageReportAdmin(admin.ModelAdmin):
-    list_display = ("reason", "status", "image_url", "description", "created_at")
+class AbstractMediaReportAdmin(admin.ModelAdmin):
     list_filter = ("status", "reason")
     list_display_links = ("status",)
     search_fields = ("description", "identifier")
     actions = None
+
+    class Meta:
+        abstract = True
 
     def get_readonly_fields(self, request, obj=None):
         if obj is None:
             return []
         always_readonly = [
             "reason",
-            "image_url",
             "description",
             "identifier",
             "created_at",
@@ -34,6 +35,16 @@ class ImageReportAdmin(admin.ModelAdmin):
             status_readonly = ["status"]
             status_readonly.extend(always_readonly)
             return status_readonly
+
+
+@admin.register(AudioReport)
+class AudioReportAdmin(AbstractMediaReportAdmin):
+    list_display = ("reason", "status", "audio_url", "description", "created_at")
+
+
+@admin.register(ImageReport)
+class ImageReportAdmin(AbstractMediaReportAdmin):
+    list_display = ("reason", "status", "image_url", "description", "created_at")
 
 
 @admin.register(MatureImage)
