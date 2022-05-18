@@ -117,8 +117,7 @@ class MediaSearchRequestSerializer(serializers.Serializer):
     def validate_license(value):
         """Checks whether license is a valid license code."""
 
-        value = value.lower()
-        licenses = value.split(",")
+        licenses = value.lower().split(",")
         for _license in licenses:
             if _license not in LICENSE_GROUPS["all"]:
                 raise serializers.ValidationError(
