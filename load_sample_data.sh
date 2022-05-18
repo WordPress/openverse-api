@@ -80,15 +80,15 @@ docker-compose exec -T "$UPSTREAM_DB_SERVICE_NAME" /bin/bash -c "psql -U deploy 
 	CREATE VIEW audioset_view
 	AS
 		SELECT DISTINCT
-			audio_set ->> 'foreign_identifier'   :: varchar(1000) :: foreign_identifier,
-			audio_set ->> 'title'               :: varchar(2000) :: title,
-			audio_set ->> 'foreign_landing_url' :: varchar(1000) :: foreign_landing_url,
-			audio_set ->> 'creator'             :: varchar(2000) :: creator,
-			audio_set ->> 'creator_url'         :: varchar(2000) :: creator_url,
-			audio_set ->> 'url'                 :: varchar(1000) :: url,
-			audio_set ->> 'filesize'             :: integer       :: filesize,
-			audio_set ->> 'filetype'             :: varchar(80)   :: filetype,
-			audio_set ->> 'thumbnail'           :: varchar(1000) :: thumbnail,
+            (audio_set ->> 'foreign_identifier')  :: varchar(1000) as foreign_identifier,
+            (audio_set ->> 'title')               :: varchar(2000) as title,
+            (audio_set ->> 'foreign_landing_url') :: varchar(1000) as foreign_landing_url,
+            (audio_set ->> 'creator')             :: varchar(2000) as creator,
+            (audio_set ->> 'creator_url')         :: varchar(2000) as creator_url,
+            (audio_set ->> 'url')                 :: varchar(1000) as url,
+            (audio_set ->> 'filesize')            :: integer       as filesize,
+            (audio_set ->> 'filetype')            :: varchar(80)   as filetype,
+            (audio_set ->> 'thumbnail')           :: varchar(1000) as thumbnail,
 			provider
 		FROM audio_view
 		WHERE audio_set IS NOT NULL;
