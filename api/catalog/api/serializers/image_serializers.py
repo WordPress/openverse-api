@@ -66,10 +66,8 @@ class ImageSearchRequestSerializer(
 
 
 class ImageReportRequestSerializer(MediaReportRequestSerializer):
-    class Meta:
+    class Meta(MediaReportRequestSerializer.Meta):
         model = ImageReport
-        fields = MediaReportRequestSerializer.Meta.fields
-        read_only_fields = MediaReportRequestSerializer.Meta.read_only_fields
 
 
 ########################

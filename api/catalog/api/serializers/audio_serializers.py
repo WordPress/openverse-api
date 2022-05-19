@@ -58,10 +58,8 @@ class AudioSearchRequestSerializer(
 
 
 class AudioReportRequestSerializer(MediaReportRequestSerializer):
-    class Meta:
+    class Meta(MediaReportRequestSerializer.Meta):
         model = AudioReport
-        fields = MediaReportRequestSerializer.Meta.fields
-        read_only_fields = MediaReportRequestSerializer.Meta.read_only_fields
 
 
 ########################
