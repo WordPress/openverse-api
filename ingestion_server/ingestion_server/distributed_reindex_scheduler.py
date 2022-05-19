@@ -72,7 +72,7 @@ def _prepare_workers():
     """
     environment = config("ENVIRONMENT", default="local")
     if environment == "local":
-        return [socket.gethostbyname("indexer-worker")]
+        return [socket.gethostbyname("indexer_worker")]
     instance_filters = [
         {"Name": "tag:Name", "Values": ["indexer-worker-" + environment + "*"]},
         {"Name": "instance-state-name", "Values": ["stopped", "running"]},
