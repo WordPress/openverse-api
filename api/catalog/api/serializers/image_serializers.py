@@ -50,17 +50,17 @@ class ImageSearchRequestSerializer(
     # Ref: ingestion_server/ingestion_server/categorize.py#Category
     category = EnumCharField(
         plural="categories",
-        enum_var=IMAGE_CATEGORIES,
+        enum_class=IMAGE_CATEGORIES,
         required=False,
     )
     aspect_ratio = EnumCharField(
         plural="aspect ratios",
-        enum_var=ASPECT_RATIOS,
+        enum_class=ASPECT_RATIOS,
         required=False,
     )
     size = EnumCharField(
         plural="image sizes",
-        enum_var=IMAGE_SIZES,
+        enum_class=IMAGE_SIZES,
         required=False,
     )
 

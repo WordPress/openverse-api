@@ -47,12 +47,12 @@ class AudioSearchRequestSerializer(
 
     category = EnumCharField(
         plural="categories",
-        enum_var=AUDIO_CATEGORIES,
+        enum_class=AUDIO_CATEGORIES,
         required=False,
     )
     length = EnumCharField(
         plural="lengths",
-        enum_var=LENGTHS,
+        enum_class=LENGTHS,
         required=False,
     )
 

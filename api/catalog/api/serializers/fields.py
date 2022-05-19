@@ -38,11 +38,11 @@ class EnumCharField(serializers.CharField):
         "outside_enum": "Invalid value: {given}. Allowed values: {allowed}"
     }
 
-    def __init__(self, plural: str, enum_var: set[str], **kwargs):
-        kwargs["help_text"] = make_comma_separated_help_text(enum_var, plural)
+    def __init__(self, plural: str, enum_class: set[str], **kwargs):
+        kwargs["help_text"] = make_comma_separated_help_text(enum_class, plural)
         super().__init__(**kwargs)
 
-        self.enum_var = enum_var
+        self.enum_class = enum_class
 
     def _validate_enum(self, given_value: str):
         """
@@ -56,8 +56,8 @@ class EnumCharField(serializers.CharField):
         lower = given_value.lower()
         input_values = lower.split(",")
         for value in input_values:
-            if value not in self.enum_var:
-                self.fail("outside_enum", given=value, allowed=self.enum_var)
+            if value not in self.enum_class:
+                self.fail("outside_enum", given=value, allowed=self.enum_class)
         return lower
 
     def to_internal_value(self, data):
