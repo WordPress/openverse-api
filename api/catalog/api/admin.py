@@ -11,7 +11,7 @@ from catalog.api.models import (
 )
 
 
-class AbstractMediaReportAdmin(admin.ModelAdmin):
+class MediaReportAdmin(admin.ModelAdmin):
     list_filter = ("status", "reason")
     list_display_links = ("status",)
     search_fields = ("description", "identifier")
@@ -38,12 +38,12 @@ class AbstractMediaReportAdmin(admin.ModelAdmin):
 
 
 @admin.register(AudioReport)
-class AudioReportAdmin(AbstractMediaReportAdmin):
+class AudioReportAdmin(MediaReportAdmin):
     list_display = ("reason", "status", "audio_url", "description", "created_at")
 
 
 @admin.register(ImageReport)
-class ImageReportAdmin(AbstractMediaReportAdmin):
+class ImageReportAdmin(MediaReportAdmin):
     list_display = ("reason", "status", "image_url", "description", "created_at")
 
 
