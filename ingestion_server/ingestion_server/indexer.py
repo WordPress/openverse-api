@@ -318,36 +318,6 @@ class TableIndexer:
         pg_conn.close()
 
     @staticmethod
-    def consistency_check(new_index, live_alias):
-        """
-        Indexing can fail for a number of reasons, such as a full disk inside of
-        the Elasticsearch cluster, network errors that occurred during
-        synchronization, and numerous other scenarios. This function does some
-        basic comparison between the new search index and the database. If this
-        check fails, an alert gets raised and the old index will be left in
-        place. An operator must then investigate and either manually set the
-        alias or remediate whatever circumstances interrupted the indexing job
-        before running the indexing job once more.
-
-        :param new_index: The newly created but not yet live index
-        :param live_alias: The name of the live index
-        :return: bool
-        """
-        es = elasticsearch_connect()
-        if not es.indices.exists(index=live_alias):
-            return True
-        log.info("Refreshing and performing sanity check...")
-        # Make sure there are roughly as many documents in Elasticsearch
-        # as there are in our database.
-        es.indices.refresh(index=new_index)
-        _id, _ = get_last_item_ids(live_alias)
-        new_count = Search(using=es, index=new_index).count()
-        max_delta = 100
-        delta = abs(_id - new_count)
-        log.info(f"delta, max_delta: {delta}, {max_delta}")
-        return delta < max_delta
-
-    @staticmethod
     def go_live(write_index, live_alias, active_workers=None):
         """
         Point the live index alias at the index we just created. Delete the
