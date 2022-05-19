@@ -8,7 +8,11 @@ endcol="\e[0m"
 # ```
 # $	./test/run_test.sh test/unit_test.py
 # ```
-if [ $# -ge 1 ]; then TEST_ARG="$@"; else TEST_ARG="test/"; fi
+if [ $# -ge 1 ]; then
+	TEST_ARG="$@"
+else
+	TEST_ARG="test/"
+fi
 
 PYTHONWARNINGS="ignore:Unverified HTTPS request" \
 PYTHONPATH=. \
