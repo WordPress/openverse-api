@@ -411,7 +411,7 @@ class TableIndexer:
                 self.es = elasticsearch_connect()
             time.sleep(poll_interval)
 
-    def reindex(self, model_name: str, distributed=None):
+    def reindex(self, model_name: str, distributed=None, **_):
         """
         Copy contents of the database to a new Elasticsearch index. Create an
         index alias to make the new index the "live" index when finished.
@@ -436,7 +436,7 @@ class TableIndexer:
             )
             self.go_live(destination_index, model_name)
 
-    def update(self, model_name: str, since_date):
+    def update(self, model_name: str, since_date, **_):
         log.info(f"Updating index {model_name} with changes since {since_date}")
         deleted, mature = get_existence_queries(model_name)
         query = SQL(
@@ -451,8 +451,7 @@ class TableIndexer:
         )
         self.replicate(model_name, model_name, query)
 
-    @staticmethod
-    def load_test_data(table):
+    def load_test_data(self, table, **_):
         """Create test indices in Elasticsearch for QA."""
         create_search_qa_index(table)
 
