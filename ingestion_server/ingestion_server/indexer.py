@@ -454,6 +454,8 @@ class TableIndexer:
     def load_test_data(self, table, **_):
         """Create test indices in Elasticsearch for QA."""
         create_search_qa_index(table)
+        if self.progress is not None:
+            self.progress.value = 100
 
     @staticmethod
     def pg_chunk_to_es(pg_chunk, columns, origin_table, dest_index):
