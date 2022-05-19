@@ -15,10 +15,8 @@ it will actively monitor Postgres for updates and index them automatically. This
 is useful for local development environments.
 """
 
-import argparse
 import datetime
 import logging as log
-import sys
 import time
 import uuid
 from collections import deque
@@ -365,23 +363,6 @@ class TableIndexer:
             f"`{write_index}`: ES index promoted - data refresh complete! :tada:"
         )
 
-    def listen(self, poll_interval=10):
-        """
-        Poll the database for changes every poll_interval seconds. If new data
-        has been added to the database, index it.
-
-        :arg poll_interval: The number of seconds to wait before polling the
-        database for changes.
-        """
-        while True:
-            log.info("Listening for updates...")
-            try:
-                for table in self.tables_to_watch:
-                    self._index_table(table)
-            except ESConnectionError:
-                self.es = elasticsearch_connect()
-            time.sleep(poll_interval)
-
     def reindex(self, model_name: str, distributed=None, **_):
         """
         Copy contents of the database to a new Elasticsearch index. Create an
@@ -452,38 +433,3 @@ class TableIndexer:
                 documents.append(converted)
 
         return documents
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--reindex",
-        default=None,
-        help="Reindex data from a specific model in the database. Data is "
-        "copied to a new index and then made 'live' using index aliases,"
-        " making it possible to reindex without downtime.",
-    )
-    parser.add_argument(
-        "--update",
-        nargs=2,
-        default=None,
-        help="Update the Elasticsearch index with all changes since a UTC date."
-        "ex: --update image 2018-11-09",
-    )
-    parsed = parser.parse_args()
-    fmt = "%(asctime)s %(message)s"
-    log.basicConfig(stream=sys.stdout, level=log.INFO, format=fmt)
-    log.getLogger(TableIndexer.__name__).setLevel(log.INFO)
-    log.info("Connecting to Elasticsearch")
-    elasticsearch_client = elasticsearch_connect()
-    syncer = TableIndexer(elasticsearch_client, REP_TABLES)
-    if parsed.reindex:
-        log.info(f"Reindexing {parsed.reindex}")
-        syncer.reindex(parsed.reindex)
-    elif parsed.update:
-        index, date = parsed.update
-        syncer.update(index, date)
-        log.info("Update finished.")
-    else:
-        log.info("Beginning indexer in daemon mode")
-        syncer.listen(SYNCER_POLL_INTERVAL)
