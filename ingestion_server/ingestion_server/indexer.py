@@ -69,33 +69,34 @@ REP_TABLES = config(
 TWELVE_HOURS_SEC = 60 * 60 * 12
 
 
-def elasticsearch_connect(timeout=300):
+def elasticsearch_connect(timeout: int = 300) -> Elasticsearch:
     """
     Repeatedly try to connect to Elasticsearch until successful.
-    :return: An Elasticsearch connection object.
+
+    :param timeout: the amount of time in seconds to wait for a successful connection
+    :return: an Elasticsearch client.
     """
-    while True:
+
+    while timeout > 0:
         try:
             return _elasticsearch_connect()
-        except ESConnectionError as e:
-            log.exception(e)
-            log.error("Reconnecting to Elasticsearch in 5 seconds. . .")
+        except ESConnectionError as err:
+            log.exception(err)
+            log.error("Reconnecting to Elasticsearch in 5 seconds...")
+            timeout -= 5
             time.sleep(5)
             continue
 
 
-def _elasticsearch_connect():
+def _elasticsearch_connect() -> Elasticsearch:
     """
-    Connect to configured Elasticsearch domain.
+    Connect to an Elasticsearch indices at the configured domain. This method also
+    handles AWS authentication using the AWS access key ID and the secret access key.
 
-    :param timeout: How long to wait before ANY request to Elasticsearch times
-    out. Because we use parallel bulk uploads (which sometimes wait long periods
-    of time before beginning execution), a value of at least 30 seconds is
-    recommended.
-    :return: An Elasticsearch connection object.
+    :return: an Elasticsearch client
     """
 
-    log.info("Connecting to %s %s with AWS auth", ELASTICSEARCH_URL, ELASTICSEARCH_PORT)
+    log.info(f"Connecting to {ELASTICSEARCH_URL}:{ELASTICSEARCH_PORT} with AWS auth")
     auth = AWSRequestsAuth(
         aws_access_key=AWS_ACCESS_KEY_ID,
         aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
