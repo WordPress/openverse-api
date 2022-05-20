@@ -17,9 +17,6 @@ class MediaReportAdmin(admin.ModelAdmin):
     search_fields = ("description", "identifier")
     actions = None
 
-    class Meta:
-        abstract = True
-
     def get_readonly_fields(self, request, obj=None):
         if obj is None:
             return []
