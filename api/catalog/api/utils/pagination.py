@@ -3,7 +3,6 @@ from rest_framework.response import Response
 
 
 class StandardPagination(PageNumberPagination):
-    page_size_query_param = None
     page_query_param = None
 
     def __init__(self, *args, **kwargs):
