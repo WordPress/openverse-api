@@ -1,5 +1,6 @@
 import logging
 
+from django.conf import settings
 from django.utils.decorators import method_decorator
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -44,7 +45,7 @@ class AudioViewSet(MediaViewSet):
 
     model_class = Audio
     query_serializer_class = AudioSearchRequestSerializer
-    default_index = "audio"
+    default_index = settings.MEDIA_INDEX_MAPPING["audio"]
     qa_index = "search-qa-audio"
 
     serializer_class = AudioSerializer

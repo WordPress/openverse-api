@@ -55,7 +55,7 @@ class ImageViewSet(MediaViewSet):
 
     model_class = Image
     query_serializer_class = ImageSearchRequestSerializer
-    default_index = "image"
+    default_index = settings.MEDIA_INDEX_MAPPING["image"]
     qa_index = "search-qa-image"
 
     serializer_class = ImageSerializer
