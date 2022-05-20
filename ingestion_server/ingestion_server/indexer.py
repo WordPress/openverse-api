@@ -25,12 +25,14 @@ from typing import Optional
 
 import elasticsearch
 import psycopg2
+import requests
 from aws_requests_auth.aws_auth import AWSRequestsAuth
 from decouple import config
 from elasticsearch import Elasticsearch, NotFoundError, RequestsHttpConnection, helpers
 from elasticsearch.exceptions import ConnectionError as ESConnectionError
 from elasticsearch_dsl import connections
 from psycopg2.sql import SQL, Identifier, Literal
+from requests import RequestException
 
 from ingestion_server import slack
 from ingestion_server.distributed_reindex_scheduler import schedule_distributed_index
@@ -172,6 +174,7 @@ class TableIndexer:
         self,
         es_instance: Elasticsearch,
         task_id: Optional[str] = None,
+        callback_url: Optional[str] = None,
         progress: Optional[Value] = None,
         finish_time: Optional[Value] = None,
         active_workers: Optional[Value] = None,
@@ -180,6 +183,7 @@ class TableIndexer:
         connections.connections.add_connection("default", self.es)
 
         self.task_id = task_id
+        self.callback_url = callback_url
         self.progress = progress
         self.finish_time = finish_time
         self.active_workers = active_workers
@@ -318,6 +322,22 @@ class TableIndexer:
                 body={"index": {"number_of_replicas": 1}},
             )
 
+    def ping_callback(self):
+        """
+        Send a request to the callback URL indicating the completion of the task.
+        """
+
+        if not self.callback_url:
+            return
+
+        try:
+            log.info("Sending callback request")
+            res = requests.post(self.callback_url)
+            log.info(f"Response: {res.text}")
+        except RequestException as err:
+            log.error("Failed to send callback!")
+            log.error(err)
+
     # Public API
     # ==========
 
@@ -368,6 +388,7 @@ class TableIndexer:
         )
         self.replicate(model_name, destination_index, query)
         self.refresh(destination_index)
+        self.ping_callback()
 
     def load_test_data(self, model_name: str, **_):
         """

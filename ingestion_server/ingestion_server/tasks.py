@@ -8,9 +8,6 @@ from enum import Enum, auto
 from multiprocessing import Process, Value
 from typing import Literal, Optional
 
-import requests
-from requests import RequestException
-
 from ingestion_server import slack
 from ingestion_server.indexer import TableIndexer, elasticsearch_connect
 from ingestion_server.ingest import reload_upstream
@@ -159,6 +156,7 @@ def perform_task(
     indexer = TableIndexer(
         elasticsearch,
         task_id,
+        callback_url,
         progress,
         finish_time,
         active_workers,
@@ -200,11 +198,3 @@ def perform_task(
         raise
 
     logging.info(f"Task {task_id} completed.")
-    if callback_url:
-        try:
-            logging.info("Sending callback request")
-            res = requests.post(callback_url)
-            logging.info(f"Response: {res.text}")
-        except RequestException as err:
-            logging.error("Failed to send callback!")
-            logging.error(err)

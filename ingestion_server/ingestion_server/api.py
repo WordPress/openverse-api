@@ -131,6 +131,7 @@ class TaskResource(BaseTaskResource):
             task_id,
             model=model,
             action=action,
+            callback_url=callback_url,
             progress=progress,
             finish_time=finish_time,
             active_workers=active_workers,
@@ -228,6 +229,7 @@ class WorkerFinishedResource(BaseTaskResource):
             indexer = TableIndexer(
                 elasticsearch,
                 task_id,
+                task_info["callback_url"],
                 task_info["progress"],
                 task_info["finish_time"],
                 task_info["active_workers"],
@@ -240,6 +242,7 @@ class WorkerFinishedResource(BaseTaskResource):
                 },
             )
             task.start()
+            indexer.ping_callback()
         elif task_data.percent_completed == 100:
             # All workers finished, but not all were successful. Mark
             # workers as complete and do not attempt to go live with the new
