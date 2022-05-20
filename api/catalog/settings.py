@@ -17,6 +17,7 @@ import sentry_sdk
 from decouple import config
 from sentry_sdk.integrations.django import DjangoIntegration
 
+from catalog.configuration.aws import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 from catalog.logger import LOGGING as LOGGING_CONF
 
 
@@ -287,10 +288,6 @@ WATERMARK_ENABLED = config("WATERMARK_ENABLED", default=False, cast=bool)
 ELASTICSEARCH_URL = config("ELASTICSEARCH_URL", default="localhost")
 ELASTICSEARCH_PORT = config("ELASTICSEARCH_PORT", default=9200, cast=int)
 ELASTICSEARCH_AWS_REGION = config("ELASTICSEARCH_AWS_REGION", default="us-east-1")
-
-# Additional settings for dev/prod environments
-AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID", default="")
-AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY", default="")
 
 EMAIL_SENDER = config("EMAIL_SENDER", default="")
 EMAIL_HOST = config("EMAIL_HOST", default="")
