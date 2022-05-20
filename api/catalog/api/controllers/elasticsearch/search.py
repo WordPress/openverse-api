@@ -38,7 +38,7 @@ def _quote_escape(query_string: str) -> str:
 
 def _apply_filter(
     s: Search,
-    query_ser: MediaSearchRequestSerializer,
+    query_serializer: MediaSearchRequestSerializer,
     basis: Union[str, tuple[str, str]],
     behaviour: Literal["filter", "exclude"] = "filter",
 ) -> Search:
@@ -49,13 +49,13 @@ def _apply_filter(
     separated list encoded as a string.
 
     :param s: the search query to issue to Elasticsearch
-    :param query_ser: the ``MediaSearchRequestSerializer`` instance with search query
+    :param query_serializer: the ``MediaSearchRequestSerializer`` object with the query
     :param basis: the name of the field in the serializer and Elasticsearch
     :param behaviour: whether to accept (``filter``) or reject (``exclude``) the hit
     :return: the modified search query
     """
 
-    search_params = query_ser.data
+    search_params = query_serializer.data
     if isinstance(basis, tuple):
         serializer_field, es_field = basis
     else:
@@ -71,7 +71,7 @@ def _apply_filter(
 
 
 def perform_search(
-    query_ser: MediaSearchRequestSerializer,
+    query_serializer: MediaSearchRequestSerializer,
     index: Literal["image", "audio"],
     ip: int,
 ) -> Tuple[List[Hit], int, int]:
@@ -79,14 +79,14 @@ def perform_search(
     Perform a ranked, paginated search based on the query and filters given in the
     search request.
 
-    :param query_ser: the ``MediaSearchRequestSerializer`` instance with search query
+    :param query_serializer: the ``MediaSearchRequestSerializer`` object with the query
     :param index: The Elasticsearch index to search (e.g. 'image')
     :param ip: the users' hashed IP to consistently route to the same ES shard
     :return: the list of search results with the page and result count
     """
 
     s = Search(using="default", index=index)
-    search_params = query_ser.data
+    search_params = query_serializer.data
 
     rules: dict[Literal["filter", "exclude"], list[Union[str, tuple[str, str]]]] = {
         "filter": [
@@ -106,7 +106,7 @@ def perform_search(
     }
     for behaviour, bases in rules.items():
         for basis in bases:
-            s = _apply_filter(s, query_ser, basis, behaviour)
+            s = _apply_filter(s, query_serializer, basis, behaviour)
 
     # Exclude mature content
     if not search_params["mature"]:
