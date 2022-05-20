@@ -363,7 +363,7 @@ class TableIndexer:
         self.active_workers.value = int(True)
         schedule_distributed_index(database_connect(), destination_index, self.task_id)
 
-    def update(self, model_name: str, index_suffix: str, since_date: str, **_):
+    def update_index(self, model_name: str, index_suffix: str, since_date: str, **_):
         """
         Update index based on changes in the database after the given date.
 

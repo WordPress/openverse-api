@@ -165,28 +165,18 @@ def perform_task(
     # Task functions
     # ==============
 
-    def reindex():
-        indexer.reindex(model, **kwargs)
-
     def ingest_upstream():  # includes ``reindex``
         reload_upstream(model)
         if model == "audio":
             reload_upstream("audioset", approach="basic")
         indexer.reindex(model, **kwargs)
 
-    def load_test_data():
-        indexer.load_test_data(model)
-
-    def point_alias():
-        indexer.point_alias(model, **kwargs)
-
-    def update_index():  # TODO: delete eventually, rarely used
-        indexer.update(model, **kwargs)
-
     try:
         locs = locals()
-        func = locs[action.value]
-        func()  # Run the corresponding task function
+        if func := locs.get(action.value):
+            func()  # Run the corresponding task function
+        elif func := getattr(indexer, action.value):
+            func(model, **kwargs)
     except Exception as err:
         exception_type = f"{err.__class__.__module__}.{err.__class__.__name__}"
         logging.error(f"Error processing task `{action}` for `{model}`: {err}")
