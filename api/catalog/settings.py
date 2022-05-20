@@ -18,7 +18,7 @@ from decouple import config
 from sentry_sdk.integrations.django import DjangoIntegration
 
 from catalog.configuration.aws import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
-from catalog.logger import LOGGING as LOGGING_CONF
+from catalog.configuration.logging import LOGGING
 
 
 # Build paths inside the project like this: BASE_DIR.join('dir', 'subdir'...)
@@ -69,8 +69,6 @@ SHORT_URL_WHITELIST = {
 SHORT_URL_PATH_WHITELIST = ["/v1/list", "/v1/images/"]
 
 USE_S3 = config("USE_S3", default=False, cast=bool)
-
-LOGGING = LOGGING_CONF
 
 # Application definition
 
