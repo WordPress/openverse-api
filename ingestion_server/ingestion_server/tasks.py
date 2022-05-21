@@ -173,6 +173,7 @@ def perform_task(
 
     # Task functions
     # ==============
+    # These functions must have a signature of ``Callable[[], None]``.
 
     def ingest_upstream():  # includes ``reindex``
         reload_upstream(model)
@@ -181,11 +182,11 @@ def perform_task(
         indexer.reindex(model, **kwargs)
 
     try:
-        locs = locals()
+        locs = locals()  # contains all the task functions defined above
         if func := locs.get(action.value):
-            func()  # Run the corresponding task function
+            func()  # Run the task function if it is defined
         elif func := getattr(indexer, action.value):
-            func(model, **kwargs)
+            func(model, **kwargs)  # Directly invoke indexer methods if no task function
     except Exception as err:
         exception_type = f"{err.__class__.__module__}.{err.__class__.__name__}"
         logging.error(f"Error processing task `{action}` for `{model}`: {err}")
