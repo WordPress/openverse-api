@@ -199,9 +199,8 @@ class TableIndexer:
         """
         # Map column names to locations in the row tuple
         schema = {col[0]: idx for idx, col in enumerate(columns)}
-        try:
-            model = database_table_to_elasticsearch_model[origin_table]
-        except KeyError:
+        model = database_table_to_elasticsearch_model.get(origin_table)
+        if model is None:
             log.error(f"Table {origin_table} is not defined in elasticsearch_models.")
             return []
 
