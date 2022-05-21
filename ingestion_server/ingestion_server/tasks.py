@@ -16,6 +16,14 @@ from ingestion_server.ingest import reload_upstream
 class TaskTypes(Enum):
     @staticmethod
     def _generate_next_value_(name: str, *args, **kwargs) -> str:
+        """
+        Generates the value for ``auto()`` given the name of the enum item. Therefore,
+        this function must be defined before any of the enum items.
+
+        :param name: the enum variable name
+        :return: the enum value
+        """
+
         return name.lower()
 
     REINDEX = auto()
