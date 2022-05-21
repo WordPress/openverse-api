@@ -119,11 +119,11 @@ class TaskTracker:
         :return: the statuses of all tasks
         """
 
-        results = [self.list_task_status(task_id) for task_id in self.tasks.keys()]
+        results = [self.get_task_status(task_id) for task_id in self.tasks.keys()]
         results.sort(key=lambda task: task["finish_timestamp"])
         return results
 
-    def list_task_status(self, task_id) -> dict:
+    def get_task_status(self, task_id) -> dict:
         """
         Get the status of a single task with the given task ID.
         :param task_id: the ID of the task to get the status for

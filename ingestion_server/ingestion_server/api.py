@@ -187,7 +187,7 @@ class TaskStatus(BaseTaskResource):
         """
 
         try:
-            result = self.tracker.list_task_status(task_id)
+            result = self.tracker.get_task_status(task_id)
             res.media = result
         except KeyError:
             res.status = falcon.HTTP_404
