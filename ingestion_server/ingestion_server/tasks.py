@@ -6,9 +6,10 @@ import datetime
 import logging
 from enum import Enum, auto
 from multiprocessing import Process, Value
-from typing import Literal, Optional
+from typing import Optional
 
 from ingestion_server import slack
+from ingestion_server.constants.media_types import MediaType
 from ingestion_server.indexer import TableIndexer, elasticsearch_connect
 from ingestion_server.ingest import reload_upstream
 
@@ -138,7 +139,7 @@ class TaskTracker:
 
 def perform_task(
     task_id: str,
-    model: Literal["image", "audio", "model_3d"],
+    model: MediaType,
     action: TaskTypes,
     callback_url: Optional[str],
     progress: Value,

@@ -14,7 +14,7 @@ import falcon
 from falcon.media.validators import jsonschema
 
 from ingestion_server import slack
-from ingestion_server.constants.media_types import MEDIA_TYPES
+from ingestion_server.constants.media_types import MEDIA_TYPES, MediaType
 from ingestion_server.indexer import TableIndexer, elasticsearch_connect
 from ingestion_server.state import clear_state, worker_finished
 from ingestion_server.tasks import TaskTracker, TaskTypes, perform_task
@@ -94,7 +94,7 @@ class TaskResource(BaseTaskResource):
 
         # Required fields
 
-        model = body[MODEL]
+        model: MediaType = body[MODEL]
         action = TaskTypes[body[ACTION]]
 
         # Optional fields
