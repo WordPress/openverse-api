@@ -92,7 +92,7 @@ class TaskTracker:
             :return: the human-readable form of the timestamp
             """
 
-            if not timestamp:
+            if timestamp == 0:
                 return None
             return str(datetime.datetime.utcfromtimestamp(timestamp))
 
