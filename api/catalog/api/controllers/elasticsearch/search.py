@@ -12,10 +12,10 @@ from elasticsearch_dsl import Q, Search
 from elasticsearch_dsl.response import Hit
 
 from catalog.api.controllers.elasticsearch.utils import (
-    _exclude_filtered_providers,
-    _get_query_slice,
-    _get_result_and_page_count,
-    _post_process_results,
+    exclude_filtered_providers,
+    get_query_slice,
+    get_result_and_page_count,
+    post_process_results,
 )
 from catalog.api.serializers.media_serializers import MediaSearchRequestSerializer
 
@@ -112,7 +112,7 @@ def perform_search(
     if not search_params["mature"]:
         s = s.exclude("term", mature=True)
     # Exclude sources with ``filter_content`` enabled
-    s = _exclude_filtered_providers(s)
+    s = exclude_filtered_providers(s)
 
     # Search either by generic multimatch or by "advanced search" with
     # individual field-level queries specified.
@@ -163,7 +163,7 @@ def perform_search(
     s = s.params(preference=str(ip), request_timeout=7)
 
     # Paginate
-    start, end = _get_query_slice(
+    start, end = get_query_slice(
         s,
         search_params["page_size"],
         search_params["page"],
@@ -183,7 +183,7 @@ def perform_search(
     except RequestError as e:
         raise ValueError(e)
 
-    results = _post_process_results(
+    results = post_process_results(
         s,
         start,
         end,
@@ -192,7 +192,7 @@ def perform_search(
         search_params["filter_dead"],
     )
 
-    result_count, page_count = _get_result_and_page_count(
+    result_count, page_count = get_result_and_page_count(
         search_response, results, search_params["page_size"]
     )
     return results, page_count, result_count

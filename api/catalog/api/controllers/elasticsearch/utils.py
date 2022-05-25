@@ -17,7 +17,7 @@ DEAD_LINK_RATIO = 1 / 2
 ELASTICSEARCH_MAX_RESULT_WINDOW = 10000
 
 
-def _exclude_filtered_providers(s: Search) -> Search:
+def exclude_filtered_providers(s: Search) -> Search:
     """
     Hide data sources from the catalog dynamically. This excludes providers with
     ``filter_content`` enabled from the search results.
@@ -43,7 +43,7 @@ def _exclude_filtered_providers(s: Search) -> Search:
     return s
 
 
-def _paginate_with_dead_link_mask(
+def paginate_with_dead_link_mask(
     s: Search, page_size: int, page: int
 ) -> Tuple[int, int]:
     """
@@ -78,14 +78,14 @@ def _paginate_with_dead_link_mask(
     return start, end
 
 
-def _get_query_slice(
+def get_query_slice(
     s: Search, page_size: int, page: int, filter_dead: Optional[bool] = False
 ) -> Tuple[int, int]:
     """
     Select the start and end of the search results for this query.
     """
     if filter_dead:
-        start_slice, end_slice = _paginate_with_dead_link_mask(s, page_size, page)
+        start_slice, end_slice = paginate_with_dead_link_mask(s, page_size, page)
     else:
         # Paginate search query.
         start_slice = page_size * (page - 1)
@@ -95,7 +95,7 @@ def _get_query_slice(
     return start_slice, end_slice
 
 
-def _post_process_results(
+def post_process_results(
     s, start, end, page_size, search_results, filter_dead
 ) -> List[Hit]:
     """
@@ -131,13 +131,13 @@ def _post_process_results(
             s = s[start:end]
             search_response = s.execute()
 
-            return _post_process_results(
+            return post_process_results(
                 s, start, end, page_size, search_response, filter_dead
             )
     return results[:page_size]
 
 
-def _get_result_and_page_count(
+def get_result_and_page_count(
     response_obj: Response, results: List[Hit], page_size: int
 ) -> Tuple[int, int]:
     """
