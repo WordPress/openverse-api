@@ -28,7 +28,7 @@ def exclude_filtered_providers(s: Search) -> Search:
 
     filter_cache_key = "filtered_providers"
     filtered_providers = cache.get(key=filter_cache_key)
-    if not filtered_providers:
+    if filtered_providers is None:
         filtered_providers = ContentProvider.objects.filter(filter_content=True).values(
             "provider_identifier"
         )
