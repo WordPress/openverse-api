@@ -15,12 +15,10 @@ def related_media(uuid, index, filter_dead):
     search_client = Search(using="default", index=index)
 
     # Convert UUID to sequential ID.
-    item = search_client
-    item = item.query("match", identifier=uuid)
+    item = search_client.query("match", identifier=uuid)
     _id = item.execute().hits[0].id
 
-    s = search_client
-    s = s.query(
+    s = search_client.query(
         "more_like_this",
         fields=["tags.name", "title", "creator"],
         like={"_index": index, "_id": _id},
