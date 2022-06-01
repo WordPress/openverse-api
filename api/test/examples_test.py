@@ -16,7 +16,9 @@ from catalog.api.examples import (  # noqa: E402 | Set env vars before import
 )
 
 
-def execute_request(request):
+def execute_request(request: str):
+    # Force overriding the dead link mask, as some sample images are no longer available
+    request = request.replace("?", "?filter_dead=false&")
     proc = subprocess.run(request, check=True, capture_output=True, shell=True)
     return json.loads(proc.stdout)
 
