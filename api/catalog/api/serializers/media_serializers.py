@@ -134,7 +134,7 @@ class MediaSearchRequestSerializer(serializers.Serializer):
                 raise serializers.ValidationError(
                     f"License '{_license}' does not exist."
                 )
-        return value
+        return value.lower()
 
     @staticmethod
     def validate_license_type(value):
