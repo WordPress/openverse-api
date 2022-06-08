@@ -1,10 +1,10 @@
 import mimetypes
 
-from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.html import format_html
 
+from catalog.api.controllers.elasticsearch.conn import es
 from catalog.api.models.base import OpenLedgerModel
 from catalog.api.models.mixins import (
     ForeignIdentifierMixin,
@@ -189,7 +189,6 @@ class AbstractMediaReport(models.Model):
 
         update_required = {MATURE_FILTERED, DEINDEXED}  # ES needs updating
         if self.status in update_required:
-            es = settings.ES
             try:
                 media = media_class.objects.get(identifier=self.identifier)
             except media_class.DoesNotExist:

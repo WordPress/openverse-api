@@ -1,9 +1,9 @@
-from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from uuslug import uuslug
 
+from catalog.api.controllers.elasticsearch.conn import es
 from catalog.api.models import OpenLedgerModel
 from catalog.api.models.media import (
     AbstractAltFile,
@@ -250,7 +250,6 @@ class MatureAudio(AbstractMatureMedia):
     """Stores all audios that have been flagged as 'mature'."""
 
     def delete(self, *args, **kwargs):
-        es = settings.ES
         aud = Audio.objects.get(identifier=self.identifier)
         es_id = aud.id
         es.update(index="audio", id=es_id, body={"doc": {"mature": False}})
