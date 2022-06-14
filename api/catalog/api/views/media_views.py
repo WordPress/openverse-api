@@ -52,7 +52,17 @@ class MediaViewSet(ReadOnlyModelViewSet):
     # Standard actions
 
     def list(self, request, *_, **__):
-        self.paginator.page_size = request.query_params.get("page_size")
+        raw_page_size = request.query_params.get("page_size")
+        if (
+            request.user
+            and request.user.is_anonymous
+            and raw_page_size is not None
+            and int(raw_page_size) > 20
+        ):
+            raise get_api_exception(
+                "Page size must be between 0 & 20 for unauthenticated requests.", 400
+            )
+        self.paginator.page_size = raw_page_size
         page_size = self.paginator.page_size
         self.paginator.page = request.query_params.get("page")
         page = self.paginator.page
