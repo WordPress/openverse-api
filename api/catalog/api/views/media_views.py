@@ -183,6 +183,10 @@ class MediaViewSet(ReadOnlyModelViewSet):
             return upstream_response, res_status, content_type
         except (HTTPError, RemoteDisconnected, TimeoutError) as exc:
             raise get_api_exception(f"Failed to render thumbnail: {exc}")
+        except Exception as exc:
+            raise get_api_exception(
+                f"Failed to render thumbnail due to unidentified exception: {exc}"
+            )
 
     @staticmethod
     def _get_proxied_image(
