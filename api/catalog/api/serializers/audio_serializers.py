@@ -140,6 +140,7 @@ class AudioSerializer(AudioHyperlinksSerializer, MediaSerializer):
         output = super().to_representation(instance)
 
         if isinstance(instance, Hit):
+            # TODO: Remove when updating ES indexes
             audio = Audio.objects.get(identifier=instance.identifier)
             if not audio.thumbnail:
                 output["thumbnail"] = None
