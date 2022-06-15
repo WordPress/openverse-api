@@ -170,7 +170,7 @@ class MediaViewSet(ReadOnlyModelViewSet):
             req = Request(upstream_url)
             for key, val in headers:
                 req.add_header(key, val)
-            upstream_response = urlopen(req, timeout=5)
+            upstream_response = urlopen(req, timeout=10)
 
             res_status = upstream_response.status
             content_type = upstream_response.headers.get("Content-Type")
