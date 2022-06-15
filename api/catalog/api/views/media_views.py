@@ -60,7 +60,7 @@ class MediaViewSet(ReadOnlyModelViewSet):
             and int(raw_page_size) > 20
         ):
             raise get_api_exception(
-                "Page size must be between 0 & 20 for unauthenticated requests.", 400
+                "Page size must be between 0 & 20 for unauthenticated requests.", 401
             )
         self.paginator.page_size = raw_page_size
         page_size = self.paginator.page_size
