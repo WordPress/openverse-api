@@ -1,5 +1,6 @@
 import json
 import logging as log
+from http.client import RemoteDisconnected
 from urllib.error import HTTPError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -180,7 +181,7 @@ class MediaViewSet(ReadOnlyModelViewSet):
             )
 
             return upstream_response, res_status, content_type
-        except HTTPError as exc:
+        except (HTTPError, RemoteDisconnected, TimeoutError) as exc:
             raise get_api_exception(f"Failed to render thumbnail: {exc}")
 
     @staticmethod
