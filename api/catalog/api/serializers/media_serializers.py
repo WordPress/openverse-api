@@ -157,8 +157,9 @@ class MediaSearchRequestSerializer(serializers.Serializer):
         return self._truncate(value)
 
     def validate_page_size(self, value):
-        request = self.context.get("request", None)
-        if request.user and request.user.is_anonymous and value > 20:
+        request = self.context.get("request")
+        is_anonymous = bool(request and request.user and request.user.is_anonymous)
+        if is_anonymous and value > 20:
             raise get_api_exception(
                 "Page size must be between 1 & 20 for unauthenticated requests.", 401
             )
