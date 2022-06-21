@@ -172,7 +172,7 @@ def _apply_filter(
         filters = []
         for arg in search_params.data[serializer_field].split(","):
             _param = es_field or serializer_field
-            args = {"name_or_query": "term", _param: arg}
+            args = {"name_or_query": "terms", _param: arg}
             filters.append(Q(**args))
         method = getattr(s, behaviour)
         return method("bool", should=filters)
