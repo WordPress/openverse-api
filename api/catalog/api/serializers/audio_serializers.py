@@ -145,6 +145,9 @@ class AudioSerializer(AudioHyperlinksSerializer, MediaSerializer):
             if not audio.thumbnail:
                 output["thumbnail"] = None
 
+        if isinstance(instance, Audio) and not instance.thumbnail:
+            output["thumbnail"] = None
+
         return output
 
 
