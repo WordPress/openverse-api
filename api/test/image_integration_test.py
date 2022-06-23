@@ -20,6 +20,9 @@ from test.media_integration import (
     thumb_compression,
     thumb_full_size,
     thumb_webp,
+    license_filter_case_insensitivity,
+    
+
 )
 from urllib.parse import urlencode
 
@@ -127,3 +130,7 @@ def test_oembed_endpoint_for_xml():
         xml_tree.find("license_url").text
         == "https://creativecommons.org/licenses/by/2.0/"
     )
+
+def test_image_license_filter_case_insensitivity():
+    license_filter_case_insensitivity("images")
+    

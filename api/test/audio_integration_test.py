@@ -20,6 +20,7 @@ from test.media_integration import (
     thumb_compression,
     thumb_full_size,
     thumb_webp,
+    license_filter_case_insensitivity,
 )
 
 import pytest
@@ -110,3 +111,7 @@ def test_audio_thumb_full_size(audio_fixture):
 
 def test_audio_report(audio_fixture):
     report("audio", audio_fixture)
+
+def test_audio_license_filter_case_insensitivity():
+    license_filter_case_insensitivity("audio")
+    
