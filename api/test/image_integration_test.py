@@ -131,6 +131,6 @@ def test_oembed_endpoint_for_xml():
         == "https://creativecommons.org/licenses/by/2.0/"
     )
 
+
 def test_image_license_filter_case_insensitivity():
     license_filter_case_insensitivity("images")
-    
