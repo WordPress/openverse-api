@@ -316,6 +316,10 @@ class Audio(Media):
 
     @staticmethod
     def database_row_to_elasticsearch_doc(row, schema):
+        alt_files = row[schema["alt_files"]]
+        filetype = row[schema["filetype"]]
+        extension = Audio.get_extensions(filetype, alt_files)
+
         meta = row[schema["meta_data"]]
         provider = row[schema["provider"]]
         authority_boost = Audio.get_authority_boost(meta, provider)
@@ -332,11 +336,21 @@ class Audio(Media):
             category=row[schema["category"]],
             duration=row[schema["duration"]],
             length=length,
+            filetype=filetype,
+            extension=extension,
             authority_boost=authority_boost,
             max_boost=max(popularity or 1, authority_boost or 1),
             min_boost=min(popularity or 1, authority_boost or 1),
             **attrs,
         )
+
+    @staticmethod
+    def get_extensions(filetype, alt_files):
+        if not alt_files:
+            return filetype
+
+        extensions = [filetype] + [file["filetype"] for file in alt_files]
+        return extensions
 
     @staticmethod
     def get_length(duration):
