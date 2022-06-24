@@ -168,15 +168,14 @@ def _apply_filter(
     :return: the input ``Search`` object with the filters applied
     """
 
-    if serializer_field in search_params.data:
-        filters = []
-            _param = es_field or serializer_field
-            args = {"name_or_query": "terms", _param: arg}
-            filters.append(Q(**args))
-        method = getattr(s, behaviour)
-        return method("bool", should=filters)
-    else:
+    arguments = search_params.data.get(serializer_field)
+    if arguments is None:
         return s
+
+    parameter = es_field or serializer_field
+    query = Q("terms", **{parameter: arguments})
+    method = getattr(s, behaviour)
+    return method("bool", should=query)
 
 
 def _exclude_filtered(s: Search):
