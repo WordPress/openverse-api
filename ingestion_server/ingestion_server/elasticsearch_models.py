@@ -277,7 +277,7 @@ class Image(Media):
         https://github.com/WordPress/openverse-catalog/issues/536
         """
         extension = url.split(".")[-1].lower()
-        if "/" in extension or extension is None:
+        if not extension or "/" in extension:
             return None
         else:
             return extension
