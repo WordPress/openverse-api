@@ -130,6 +130,7 @@ class MediaSearchRequestSerializer(serializers.Serializer):
                 raise serializers.ValidationError(
                     f"License '{_license}' does not exist."
                 )
+        # lowers the case of the value before returning
         return value.lower()
 
     @staticmethod

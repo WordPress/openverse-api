@@ -163,5 +163,4 @@ def report(media_type, fixture):
 def license_filter_case_insensitivity(media_type):
     response = requests.get(f"{API_URL}/v1/{media_type}?license=bY", verify=False)
     parsed = json.loads(response.text)
-    
-    assert parsed["result_count"] >0
+    assert parsed["result_count"] > 0
