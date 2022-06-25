@@ -8,6 +8,7 @@ import xml.etree.ElementTree as ET
 from test.constants import API_URL
 from test.media_integration import (
     detail,
+    license_filter_case_insensitivity,
     report,
     search,
     search_all_excluded,
@@ -20,7 +21,6 @@ from test.media_integration import (
     thumb_compression,
     thumb_full_size,
     thumb_webp,
-    license_filter_case_insensitivity,
 )
 from urllib.parse import urlencode
 
