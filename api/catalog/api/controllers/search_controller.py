@@ -172,6 +172,8 @@ def _apply_filter(
     if arguments is None:
         return s
 
+    arguments = arguments.split(',')
+
     parameter = es_field or serializer_field
     query = Q("terms", **{parameter: arguments})
     method = getattr(s, behaviour)
