@@ -127,8 +127,8 @@ class TaskResource(BaseTaskResource):
         task.start()
 
         self.tracker.add_task(
-            task,
             task_id,
+            task=task,
             model=model,
             action=action,
             callback_url=callback_url,

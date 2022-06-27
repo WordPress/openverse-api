@@ -15,7 +15,6 @@ it will actively monitor Postgres for updates and index them automatically. This
 is useful for local development environments.
 """
 
-import datetime
 import logging as log
 import time
 import uuid
@@ -176,7 +175,6 @@ class TableIndexer:
         task_id: Optional[str] = None,
         callback_url: Optional[str] = None,
         progress: Optional[Value] = None,
-        finish_time: Optional[Value] = None,
         active_workers: Optional[Value] = None,
     ):
         self.es = es_instance
@@ -185,7 +183,6 @@ class TableIndexer:
         self.task_id = task_id
         self.callback_url = callback_url
         self.progress = progress
-        self.finish_time = finish_time
         self.active_workers = active_workers
 
     # Helpers
@@ -301,8 +298,6 @@ class TableIndexer:
                 f"Synchronized {num_converted_documents} from "
                 f"table '{table_name}' to Elasticsearch"
             )
-            if self.finish_time is not None:
-                self.finish_time.value = datetime.datetime.utcnow().timestamp()
         pg_conn.commit()
         pg_conn.close()
 
