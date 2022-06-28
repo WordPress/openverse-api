@@ -349,8 +349,7 @@ class Audio(Media):
         if not alt_files:
             return filetype
 
-        extensions = [filetype] + [file["filetype"] for file in alt_files]
-        return extensions
+        return [file["filetype"] for file in alt_files]
 
     @staticmethod
     def get_length(duration):
