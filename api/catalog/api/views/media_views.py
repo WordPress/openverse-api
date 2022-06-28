@@ -1,5 +1,6 @@
 import json
 import logging as log
+from http.client import RemoteDisconnected
 from urllib.error import HTTPError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -57,7 +58,9 @@ class MediaViewSet(ReadOnlyModelViewSet):
         self.paginator.page = request.query_params.get("page")
         page = self.paginator.page
 
-        params = self.query_serializer_class(data=request.query_params)
+        params = self.query_serializer_class(
+            data=request.query_params, context={"request": request}
+        )
         params.is_valid(raise_exception=True)
 
         hashed_ip = hash(self._get_user_ip(request))
@@ -113,6 +116,9 @@ class MediaViewSet(ReadOnlyModelViewSet):
             self.paginator.page_size = 10
         except ValueError as e:
             raise get_api_exception(getattr(e, "message", str(e)))
+        # If there are no hits in the search controller
+        except IndexError:
+            raise get_api_exception("Could not find items.", 404)
 
         serializer = self.get_serializer(results, many=True)
         return self.get_paginated_response(serializer.data)
@@ -170,7 +176,7 @@ class MediaViewSet(ReadOnlyModelViewSet):
             req = Request(upstream_url)
             for key, val in headers:
                 req.add_header(key, val)
-            upstream_response = urlopen(req, timeout=5)
+            upstream_response = urlopen(req, timeout=10)
 
             res_status = upstream_response.status
             content_type = upstream_response.headers.get("Content-Type")
@@ -180,8 +186,12 @@ class MediaViewSet(ReadOnlyModelViewSet):
             )
 
             return upstream_response, res_status, content_type
-        except HTTPError as exc:
+        except (HTTPError, RemoteDisconnected, TimeoutError) as exc:
             raise get_api_exception(f"Failed to render thumbnail: {exc}")
+        except Exception as exc:
+            raise get_api_exception(
+                f"Failed to render thumbnail due to unidentified exception: {exc}"
+            )
 
     @staticmethod
     def _get_proxied_image(
