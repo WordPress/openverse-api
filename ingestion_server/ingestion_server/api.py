@@ -231,7 +231,6 @@ class WorkerFinishedResource(BaseTaskResource):
                 task_id,
                 task_info["callback_url"],
                 task_info["progress"],
-                task_info["finish_time"],
                 task_info["active_workers"],
             )
             task = Process(
