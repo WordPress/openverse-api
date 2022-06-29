@@ -53,12 +53,19 @@ def _paginate_with_dead_link_mask(
     """
     query_hash = get_query_hash(s)
     query_mask = get_query_mask(query_hash)
+    log.info(f"query_hash({query_hash}) query_mask([{','.join(query_mask)}])")
     if not query_mask:
         start = 0
         end = ceil(page_size * page / (1 - DEAD_LINK_RATIO))
+        log.info(f"empty query mask start({start}) end({end})")
     elif page_size * (page - 1) > sum(query_mask):
         start = len(query_mask)
         end = ceil(page_size * page / (1 - DEAD_LINK_RATIO))
+        log.info(
+            "query mask sum exceeds requested result count "
+            f"sum({sum(query_mask)} "
+            f"start({start}) end({end})"
+        )
     else:
         accu_query_mask = list(accumulate(query_mask))
         start = 0
@@ -81,11 +88,13 @@ def _get_query_slice(
     Select the start and end of the search results for this query.
     """
     if filter_dead:
+        log.info("_get_query_slice filtering dead")
         start_slice, end_slice = _paginate_with_dead_link_mask(s, page_size, page)
     else:
         # Paginate search query.
         start_slice = page_size * (page - 1)
         end_slice = page_size * page
+        log.info(f"_get_query_slice plain; start_slice({start_slice}) end_slice({end_slice})")
     if start_slice + end_slice > ELASTICSEARCH_MAX_RESULT_WINDOW:
         raise ValueError(DEEP_PAGINATION_ERROR)
     return start_slice, end_slice
