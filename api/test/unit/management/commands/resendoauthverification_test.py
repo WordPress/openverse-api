@@ -266,7 +266,9 @@ def test_should_not_count_email_as_sent_if_failed_and_rollback(
         )
 
     assert (
-        redis.sismember("resendoauthverification:processed", keep.registration.email)
+        redis.sismember(
+            "resendoauthverification-corrections:processed", keep.registration.email
+        )
         is False
     )
 
@@ -300,7 +302,9 @@ def test_should_not_delete_or_send_if_dry_run(cleanable_email, captured_emails, 
         )
 
     assert (
-        redis.sismember("resendoauthverification:processed", keep.registration.email)
+        redis.sismember(
+            "resendoauthverification-corrections:processed", keep.registration.email
+        )
         is False
     )
 
