@@ -113,7 +113,8 @@ OAUTH2_PROVIDER = {
     "SCOPES": {
         "read": "Read scope",
         "write": "Write scope",
-    }
+    },
+    "ACCESS_TOKEN_EXPIRE_SECONDS": 3600 * 12,
 }
 
 OAUTH2_PROVIDER_APPLICATION_MODEL = "api.ThrottledApplication"
