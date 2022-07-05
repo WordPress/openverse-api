@@ -66,15 +66,20 @@ class TaskResource(BaseTaskResource):
             "allOf": [
                 {
                     "if": {
-                        "properties": {"action": {"const": TaskTypes.UPDATE_INDEX.name}}
-                    },
-                    "then": {"required": ["index_suffix", "since_date"]},
-                },
-                {
-                    "if": {
                         "properties": {"action": {"const": TaskTypes.POINT_ALIAS.name}}
                     },
                     "then": {"required": ["index_suffix", "alias"]},
+                },
+                {
+                    "if": {"properties": {"action": {"const": TaskTypes.PROMOTE.name}}},
+                    "then": {"required": ["index_suffix", "alias"]},
+                },
+                # TODO: delete eventually, rarely used
+                {
+                    "if": {
+                        "properties": {"action": {"const": TaskTypes.UPDATE_INDEX.name}}
+                    },
+                    "then": {"required": ["index_suffix", "since_date"]},
                 },
             ],
         }

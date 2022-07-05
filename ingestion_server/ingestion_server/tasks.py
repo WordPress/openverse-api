@@ -27,18 +27,26 @@ class TaskTypes(Enum):
 
         return name.lower()
 
+    # Major index update
+
     REINDEX = auto()
-    """completely reindex all data for a given model"""
-
-    INGEST_UPSTREAM = auto()
-    """download the latest copy of the data from the upstream database, then completely
-    reindex the newly imported data"""
-
-    UPDATE_INDEX = auto()  # TODO: delete eventually, rarely used
-    """reindex updates to a model from the database since the given date"""
+    """create a new index for a given model in Elasticsearch"""
 
     POINT_ALIAS = auto()
     """map a given index to a given alias, used when going live with an index"""
+
+    # Periodic data refresh
+
+    INGEST_UPSTREAM = auto()  # includes `REINDEX`
+    """refresh the API tables from the upstream database, then ``REINDEX``"""
+
+    PROMOTE = auto()  # includes `POINT_ALIAS`
+    """promote the refreshed table, then ``POINT_ALIAS``"""
+
+    # Other
+
+    UPDATE_INDEX = auto()  # TODO: delete eventually, rarely used
+    """reindex updates to a model from the database since the given date"""
 
     LOAD_TEST_DATA = auto()
     """create indices in ES for QA tests; this is not intended to run in production but
