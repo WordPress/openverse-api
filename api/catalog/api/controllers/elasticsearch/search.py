@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import logging as log
 import pprint
-from typing import List, Literal, Tuple, Union
+from typing import List, Literal, Tuple
 
 from django.conf import settings
 
@@ -18,6 +18,20 @@ from catalog.api.controllers.elasticsearch.utils import (
     post_process_results,
 )
 from catalog.api.serializers.media_serializers import MediaSearchRequestSerializer
+
+
+class FieldMapping:
+    """
+    Establishes a mapping between a field in ``MediaSearchRequestSerializer`` and the
+    Elasticsearch index for a media.
+    """
+
+    def __init__(self, serializer_field: str, es_field: str = None):
+        self.serializer_field: str = serializer_field
+        """the name of the field in ``MediaSearchRequestSerializer``"""
+
+        self.es_field: str = es_field or serializer_field
+        """the name of the field in the Elasticsearch index"""
 
 
 def _quote_escape(query_string: str) -> str:
@@ -39,7 +53,7 @@ def _quote_escape(query_string: str) -> str:
 def _apply_filter(
     s: Search,
     query_serializer: MediaSearchRequestSerializer,
-    basis: Union[str, tuple[str, str]],
+    mapping: FieldMapping,
     behaviour: Literal["filter", "exclude"] = "filter",
 ) -> Search:
     """
@@ -50,20 +64,16 @@ def _apply_filter(
 
     :param s: the search query to issue to Elasticsearch
     :param query_serializer: the ``MediaSearchRequestSerializer`` object with the query
-    :param basis: the name of the field in the serializer and Elasticsearch
+    :param mapping: the name of the field in the serializer and Elasticsearch
     :param behaviour: whether to accept (``filter``) or reject (``exclude``) the hit
     :return: the modified search query
     """
 
     search_params = query_serializer.data
-    if isinstance(basis, tuple):
-        serializer_field, es_field = basis
-    else:
-        serializer_field = es_field = basis
-    if serializer_field in search_params:
+    if mapping.serializer_field in search_params:
         filters = []
-        for arg in search_params[serializer_field].split(","):
-            filters.append(Q("term", **{es_field: arg}))
+        for arg in search_params[mapping.serializer_field].split(","):
+            filters.append(Q("term", **{mapping.es_field: arg}))
         method = getattr(s, behaviour)  # can be ``s.filter`` or ``s.exclude``
         return method("bool", should=filters)
     else:
@@ -88,25 +98,25 @@ def perform_search(
     s = Search(using="default", index=index)
     search_params = query_serializer.data
 
-    rules: dict[Literal["filter", "exclude"], list[Union[str, tuple[str, str]]]] = {
+    rules: dict[Literal["filter", "exclude"], list[FieldMapping]] = {
         "filter": [
-            "extension",
-            "category",
-            ("categories", "category"),
-            "aspect_ratio",
-            "size",
-            "length",
-            "source",
-            ("license", "license.keyword"),
-            ("license_type", "license.keyword"),
+            FieldMapping("extension"),
+            FieldMapping("category"),
+            FieldMapping("categories", "category"),
+            FieldMapping("aspect_ratio"),
+            FieldMapping("size"),
+            FieldMapping("length"),
+            FieldMapping("source"),
+            FieldMapping("license", "license.keyword"),
+            FieldMapping("license_type", "license.keyword"),
         ],
         "exclude": [
-            ("excluded_source", "source"),
+            FieldMapping("excluded_source", "source"),
         ],
     }
-    for behaviour, bases in rules.items():
-        for basis in bases:
-            s = _apply_filter(s, query_serializer, basis, behaviour)
+    for behaviour, mappings in rules.items():
+        for mapping in mappings:
+            s = _apply_filter(s, query_serializer, mapping, behaviour)
 
     # Exclude mature content
     if not search_params["mature"]:
