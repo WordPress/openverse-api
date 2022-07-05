@@ -15,7 +15,6 @@ table to replace the old data. This strategy is far faster than updating the
 data in place.
 """
 
-import datetime
 import logging as log
 import multiprocessing
 
@@ -252,7 +251,6 @@ def _update_progress(progress, new_value):
 def reload_upstream(
     table: str,
     progress: multiprocessing.Value = None,
-    finish_time: multiprocessing.Value = None,
     approach: ApproachType = "advanced",
 ):
     """
@@ -272,7 +270,6 @@ def reload_upstream(
 
     :param table: The upstream table to copy.
     :param progress: multiprocessing.Value float for sharing task progress
-    :param finish_time: multiprocessing.Value int for sharing finish timestamp
     :param approach: whether to use advanced logic specific to media ingestion
     """
 
@@ -374,6 +371,3 @@ def reload_upstream(
     log.info(f"Finished refreshing table '{table}'.")
     _update_progress(progress, 100.0)
     slack.verbose(f"`{table}`: Finished table refresh | _Next: Elasticsearch reindex_")
-
-    if finish_time:
-        finish_time.value = datetime.datetime.utcnow().timestamp()
