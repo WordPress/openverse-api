@@ -189,16 +189,16 @@ class TableIndexer:
     # =======
 
     @staticmethod
-    def pg_chunk_to_es(pg_chunk, columns, origin_table, dest_index):
+    def pg_chunk_to_es(pg_chunk, columns, model_name, dest_index):
         """
         Given a list of psycopg2 results, convert them all to Elasticsearch
         documents.
         """
         # Map column names to locations in the row tuple
         schema = {col[0]: idx for idx, col in enumerate(columns)}
-        model = database_table_to_elasticsearch_model.get(origin_table)
+        model = database_table_to_elasticsearch_model.get(model_name)
         if model is None:
-            log.error(f"Table {origin_table} is not defined in elasticsearch_models.")
+            log.error(f"Table {model_name} is not defined in elasticsearch_models.")
             return []
 
         documents = []
@@ -239,10 +239,11 @@ class TableIndexer:
     # Job components
     # ==============
 
-    def replicate(self, table_name: str, index_name: str, query: str):
+    def replicate(self, model_name: str, table_name: str, index_name: str, query: str):
         """
         Copy data from the given PostgreSQL table to the given Elasticsearch index.
 
+        :param model_name: the name of the ES models to use to generate the ES docs
         :param table_name: the name of the PostgreSQL table from which to copy data
         :param index_name: the name of the Elasticsearch index to which to upload data
         :param query: the SQL query to use to select rows from the table
@@ -273,7 +274,7 @@ class TableIndexer:
                 es_batch = self.pg_chunk_to_es(
                     pg_chunk=chunk,
                     columns=server_cur.description,
-                    origin_table=table_name,
+                    model_name=model_name,
                     dest_index=index_name,
                 )
                 push_start_time = time.time()
@@ -335,19 +336,27 @@ class TableIndexer:
     # Public API
     # ==========
 
-    def reindex(self, model_name: str, index_suffix: str = None, **_):
+    def reindex(
+        self, model_name: str, table_name: str = None, index_suffix: str = None, **_
+    ):
         """
         Copy contents of the database to a new Elasticsearch index.
 
         :param model_name: the name of the media type
+        :param table_name: the name of the DB table, if different from model name
         :param index_suffix: the unique suffix to add to the index name
         """
 
         if not index_suffix:
             index_suffix = uuid.uuid4().hex
+        if not table_name:
+            table_name = model_name
         destination_index = f"{model_name}-{index_suffix}"
 
-        log.info(f"Creating index {destination_index} for model {model_name}.")
+        log.info(
+            f"Creating index {destination_index} for model {model_name} "
+            f"from table {table_name}."
+        )
         self.es.indices.create(
             index=destination_index,
             body=index_settings(model_name),
@@ -355,7 +364,9 @@ class TableIndexer:
 
         log.info("Running distributed index using indexer workers.")
         self.active_workers.value = int(True)
-        schedule_distributed_index(database_connect(), destination_index, self.task_id)
+        schedule_distributed_index(
+            database_connect(), model_name, table_name, destination_index, self.task_id
+        )
 
     def update_index(self, model_name: str, index_suffix: str, since_date: str, **_):
         """
