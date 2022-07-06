@@ -8,7 +8,7 @@ def health_check_filter(record: LogRecord) -> bool:
     return not ("GET /healthcheck" in record.getMessage() and record.status_code == 200)
 
 
-LOG_LEVEL = config("LOG_LEVEL", default="INFO")
+LOG_LEVEL = config("LOG_LEVEL", default="INFO").upper()
 
 
 # Logging configuration
