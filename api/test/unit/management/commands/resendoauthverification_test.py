@@ -182,6 +182,12 @@ def assert_cleaned_and_sent(
         )
 
     assert_one_email_sent(captured_emails, keep)
+    for captured_email in captured_emails:
+        assert_valid_email_link(captured_email)
+
+
+def assert_valid_email_link(captured_email: CapturedEmail):
+    assert "https://api.openverse.engineering//" not in captured_email.message
 
 
 def call_resendoauthverification(input_response="YES", **options):
