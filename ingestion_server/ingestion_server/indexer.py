@@ -391,7 +391,7 @@ class TableIndexer:
             model_name=Identifier(model_name),
             since_date=Literal(since_date),
         )
-        self.replicate(model_name, destination_index, query)
+        self.replicate(model_name, model_name, destination_index, query)
         self.refresh(destination_index)
         self.ping_callback()
 
