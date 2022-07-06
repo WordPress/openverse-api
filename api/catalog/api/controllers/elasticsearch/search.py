@@ -91,7 +91,7 @@ def _apply_filter(
             "applying filter "
             f"behaviour={behaviour} "
             f"mapping={mapping} "
-            f"filters={json.dumps(filters)} "
+            f"filters={json.dumps(list(map(lambda f: f.to_dict(), filters)))} "
         )
         return method("bool", should=filters)
     else:

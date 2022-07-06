@@ -198,10 +198,12 @@ def post_process_results(
                 return results
 
             s = s[start:end]
-            logger.info(f"executing additional filler query depth={depth}")
+            logger.info(f"executing additional backfill query depth={depth}")
             search_response = s.execute()
+            # don't log the query off of ``s`` because it's identical to the already
+            # logged query elsewhere in the logs, just with different start/end.
             logger.debug(
-                "exectued additional filler query"
+                "exectued additional backfill query"
                 f"start={start} "
                 f"end={end} "
                 f"es_took_ms={search_response.took} "
@@ -234,7 +236,7 @@ def get_result_and_page_count(
     last_allowed_page = int((5000 + page_size / 2) / page_size)
     page_count = min(natural_page_count, last_allowed_page)
     if len(results) < page_size and page_count == 0:
-        logger.debug("setting result_count to len(results)")
+        logger.debug(f"setting result_count to len(results)={len(results)}")
         result_count = len(results)
 
     logger.debug(
