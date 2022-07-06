@@ -11,7 +11,7 @@ from typing import Optional
 from ingestion_server import slack
 from ingestion_server.constants.media_types import MediaType
 from ingestion_server.indexer import TableIndexer, elasticsearch_connect
-from ingestion_server.ingest import reload_upstream
+from ingestion_server.ingest import promote_api_table, refresh_api_table
 
 
 class TaskTypes(Enum):
@@ -182,10 +182,16 @@ def perform_task(
     # These functions must have a signature of ``Callable[[], None]``.
 
     def ingest_upstream():  # includes ``reindex``
-        reload_upstream(model)
+        refresh_api_table(model, progress)
         if model == "audio":
-            reload_upstream("audioset", approach="basic")
-        indexer.reindex(model, **kwargs)
+            refresh_api_table("audioset", progress, approach="basic")
+        indexer.reindex(model, f"temp_import_{model}", **kwargs)
+
+    def promote():  # includes point alias
+        promote_api_table(model, progress)
+        if model == "audio":
+            promote_api_table("audioset", progress)
+        indexer.point_alias(model, **kwargs)
 
     try:
         locs = locals()  # contains all the task functions defined above
