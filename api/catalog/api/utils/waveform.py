@@ -11,7 +11,7 @@ from typing import List
 import requests
 
 
-log = logging.getLogger(__name__)
+parent_logger = logging.getLogger(__name__)
 
 TMP_DIR = pathlib.Path("/tmp").resolve()
 UA_STRING = "OpenverseWaveform/0.0 (https://wordpress.org/openverse)"
@@ -41,18 +41,19 @@ def download_audio(url, identifier):
     :param identifier: the identifier of the media object to name the file
     :returns: the name of the file on the disk
     """
-    log.info(f"Downloading file at {url}")
+    logger = parent_logger.getChild('download_audio')
+    logger.info(f"downloading file url={url}")
 
     headers = {"User-Agent": UA_STRING}
     with requests.get(url, stream=True, headers=headers) as res:
-        log.debug(f"Response code: {res.status_code}")
+        logger.debug(f"res.status_code={res.status_code}")
         mimetype = res.headers["content-type"]
-        log.debug(f"MIME type: {mimetype}")
+        logger.debug(f"mimetype={mimetype}")
         ext = ext_from_url(url) or mimetypes.guess_extension(mimetype)
         if ext is None:
             raise ValueError("Could not identify media extension")
         file_name = f"audio-{identifier}{ext}"
-        log.debug(f"File name: {file_name}")
+        logger.debug(f"file name={file_name}")
         with open(TMP_DIR.joinpath(file_name), "wb") as file:
             shutil.copyfileobj(res.raw, file)
     return file_name

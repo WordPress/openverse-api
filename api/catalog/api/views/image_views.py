@@ -37,9 +37,6 @@ from catalog.api.utils.watermark import watermark
 from catalog.api.views.media_views import MediaViewSet
 
 
-log = logging.getLogger(__name__)
-
-
 @method_decorator(swagger_auto_schema(**ImageSearch.swagger_setup), "list")
 @method_decorator(swagger_auto_schema(**ImageStats.swagger_setup), "stats")
 @method_decorator(swagger_auto_schema(**ImageDetail.swagger_setup), "retrieve")

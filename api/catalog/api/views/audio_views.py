@@ -27,9 +27,6 @@ from catalog.api.utils.throttle import OneThousandPerMinute
 from catalog.api.views.media_views import MediaViewSet
 
 
-log = logging.getLogger(__name__)
-
-
 @method_decorator(swagger_auto_schema(**AudioSearch.swagger_setup), "list")
 @method_decorator(swagger_auto_schema(**AudioStats.swagger_setup), "stats")
 @method_decorator(swagger_auto_schema(**AudioDetail.swagger_setup), "retrieve")
