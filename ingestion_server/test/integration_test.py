@@ -257,8 +257,8 @@ class TestIngestion(unittest.TestCase):
             "alias": alias,
         }
         res = requests.post(f"{ingestion_server}/task", json=req)
-        stat_msg = "The job should launch successfully and return 201 CREATED."
-        self.assertEqual(res.status_code, 201, msg=stat_msg)
+        stat_msg = "The job should launch successfully and return 202 ACCEPTED."
+        self.assertEqual(res.status_code, 202, msg=stat_msg)
 
         es = self._get_es()
         assert list(es.indices.get(index=alias).keys())[0] == f"{model}-{suffix}"

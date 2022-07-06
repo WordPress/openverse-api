@@ -157,7 +157,7 @@ class TaskResource(BaseTaskResource):
                 "status_check": status_url,
             }
         elif progress.value == 100:
-            res.status = falcon.HTTP_201
+            res.status = falcon.HTTP_202
             res.media = {
                 "message": "Successfully completed task",
                 "task_id": task_id,
