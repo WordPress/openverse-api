@@ -1,5 +1,4 @@
 import abc
-import logging
 
 from rest_framework.throttling import SimpleRateThrottle
 

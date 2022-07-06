@@ -19,7 +19,7 @@ def validate_images(query_hash, start_slice, results, image_urls):
     Results are cached in redis and shared amongst all API servers in the
     cluster.
     """
-    logger = parent_logger.getChild('validate_images')
+    logger = parent_logger.getChild("validate_images")
     if not image_urls:
         logger.info("no image urls to validate")
         return
@@ -64,23 +64,14 @@ def validate_images(query_hash, start_slice, results, image_urls):
     for key, status in to_cache.items():
         # Cache successful links for a day, and broken links for 120 days.
         if status == 200:
-            logger.debug(
-                "healthy link "
-                f"key={key} "
-            )
+            logger.debug("healthy link " f"key={key} ")
             pipe.expire(key, twenty_four_hours_seconds)
         elif status == -1:
-            logger.debug(
-                "no response from provider "
-                f"key={key}"
-            )
+            logger.debug("no response from provider " f"key={key}")
             # Content provider failed to respond; try again in a short interval
             pipe.expire(key, thirty_minutes)
         else:
-            logger.debug(
-                "broken link "
-                f"key={key} "
-            )
+            logger.debug("broken link " f"key={key} ")
             pipe.expire(key, twenty_four_hours_seconds * 120)
     pipe.execute()
 
@@ -129,5 +120,5 @@ def validate_images(query_hash, start_slice, results, image_urls):
 
 
 def _validation_failure(request, exception):
-    logger = parent_logger.getChild('_validation_failure')
+    logger = parent_logger.getChild("_validation_failure")
     logger.warning(f"Failed to validate image! Reason: {exception}")

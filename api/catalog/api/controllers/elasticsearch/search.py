@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
-import pprint
-from typing import List, Literal, Tuple, Optional
+from typing import List, Literal, Optional, Tuple
 
 from django.conf import settings
 
@@ -21,6 +20,7 @@ from catalog.api.serializers.media_serializers import MediaSearchRequestSerializ
 
 
 parent_logger = logging.getLogger(__name__)
+
 
 class FieldMapping:
     """
@@ -80,7 +80,7 @@ def _apply_filter(
     :param behaviour: whether to accept (``filter``) or reject (``exclude``) the hit
     :return: the modified search query
     """
-    logger = parent_logger.getChild('_apply_filter')
+    logger = parent_logger.getChild("_apply_filter")
     search_params = query_serializer.data
     if mapping.serializer_field in search_params:
         filters = []
@@ -88,10 +88,10 @@ def _apply_filter(
             filters.append(Q("term", **{mapping.es_field: arg}))
         method = getattr(s, behaviour)  # can be ``s.filter`` or ``s.exclude``
         logger.debug(
-            'applying filter '
-            f'behaviour={behaviour} '
-            f'mapping={mapping} '
-            f'filters={json.dumps(filters)} '
+            "applying filter "
+            f"behaviour={behaviour} "
+            f"mapping={mapping} "
+            f"filters={json.dumps(filters)} "
         )
         return method("bool", should=filters)
     else:
@@ -113,12 +113,12 @@ def perform_search(
     :return: the list of search results with the page and result count
     """
 
-    logger = parent_logger.getChild('perform_search')
+    logger = parent_logger.getChild("perform_search")
     logger.info(
-        'searching with '
-        f'query_serializer.data={json.dumps(query_serializer.data)} '
-        f'index={index} '
-        f'(hashed) ip={ip} '
+        "searching with "
+        f"query_serializer.data={json.dumps(query_serializer.data)} "
+        f"index={index} "
+        f"(hashed) ip={ip} "
     )
     s = Search(using="default", index=index)
     search_params = query_serializer.data
@@ -145,7 +145,7 @@ def perform_search(
 
     # Exclude mature content
     if not search_params["mature"]:
-        logger.debug('excluding mature')
+        logger.debug("excluding mature")
         s = s.exclude("term", mature=True)
     # Exclude sources with ``filter_content`` enabled
     s = exclude_filtered_providers(s)
@@ -156,7 +156,7 @@ def perform_search(
     search_fields = ["tags.name", "title", "description"]
     if "q" in search_params:
         escaped_query = _quote_escape(search_params["q"])
-        logger.info(f'searching with query term q={q} escaped_query={escaped_query}')
+        logger.info(f"searching with query term escaped_query={escaped_query}")
         s = s.query(
             "simple_query_string",
             query=escaped_query,
@@ -173,7 +173,7 @@ def perform_search(
         )
         s.query = Q("bool", must=s.query, should=exact_match_boost)
     else:
-        logger.info('searching without query term')
+        logger.info("searching without query term")
         query_bases = ["creator", "title", ("tags", "tags.name")]
         for query_basis in query_bases:
             if isinstance(query_basis, tuple):
@@ -183,10 +183,10 @@ def perform_search(
             if serializer_field in search_params:
                 value = _quote_escape(search_params[serializer_field])
                 logger.debug(
-                    'adding query for '
-                    f'value={value} '
-                    f'es_field={es_field}'
-                    f'serializer_field={serializer_field}'
+                    "adding query for "
+                    f"value={value} "
+                    f"es_field={es_field}"
+                    f"serializer_field={serializer_field}"
                 )
                 s = s.query("simple_query_string", fields=[es_field], query=value)
 
@@ -195,9 +195,7 @@ def perform_search(
         rank_queries = []
         for field, boost in feature_boost.items():
             logger.debug(
-                'applying ranked features '
-                f'field={field} '
-                f'boost={boost} '
+                "applying ranked features " f"field={field} " f"boost={boost} "
             )
             rank_queries.append(Q("rank_feature", field=field, boost=boost))
         s.query = Q("bool", must=s.query, should=rank_queries)
@@ -221,7 +219,7 @@ def perform_search(
     s = s[start:end]
 
     try:
-        logger.info('executing query')
+        logger.info("executing query")
         search_response = s.execute()
         logger.debug(
             "executed query "
@@ -246,7 +244,11 @@ def perform_search(
         search_response, results, search_params["page_size"]
     )
 
-    dumpable_results = results.to_dict() if isinstance(results, Hit) else list(map(lambda r: r.to_dict(), results))
+    dumpable_results = (
+        results.to_dict()
+        if isinstance(results, Hit)
+        else list(map(lambda r: r.to_dict(), results))
+    )
 
     logger.debug(
         "finished post processing and returning "

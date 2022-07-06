@@ -1,5 +1,5 @@
-import logging
 import json
+import logging
 from typing import Literal
 
 from django.core.cache import cache
@@ -22,7 +22,7 @@ def get_stats(index: Literal["image", "audio"]):
     :param index: the Elasticsearch index name
     :return: a dictionary mapping sources to the count of their media items
     """
-    logger = parent_logger.getChild('get_stats')
+    logger = parent_logger.getChild("get_stats")
     source_cache_name = "sources-" + index
     try:
         logger.debug(f"fetching source cache key={source_cache_name}")
@@ -34,7 +34,8 @@ def get_stats(index: Literal["image", "audio"]):
             logger.debug("cache missed")
     except ValueError:
         # TODO: Improve error handling here.
-        # What failed? Why? Do we need to address it? Is this a critical issue? Why is this a "warning"?
+        # What failed? Why? Do we need to address it?
+        # Is this a critical issue? Why is this a "warning"?
         logger.warning("Source cache fetch failed")
 
     # Don't increase `size` without reading this issue first:

@@ -1,5 +1,3 @@
-import logging
-
 from django.utils.decorators import method_decorator
 from rest_framework.decorators import action
 from rest_framework.response import Response

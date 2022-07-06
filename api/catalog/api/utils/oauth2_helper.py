@@ -19,7 +19,7 @@ def get_token_info(token: str):
     token, rate limit model, and email verification status as a tuple; else
     return (None, None, None).
     """
-    logger = parent_logger.getChild('get_token_info')
+    logger = parent_logger.getChild("get_token_info")
     try:
         token = AccessToken.objects.get(token=token)
     except AccessToken.DoesNotExist:

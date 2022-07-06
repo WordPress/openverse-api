@@ -1,5 +1,7 @@
-from elasticsearch_dsl import Search
+import json
 import logging
+
+from elasticsearch_dsl import Search
 
 from catalog.api.controllers.elasticsearch.utils import (
     exclude_filtered_providers,
@@ -16,7 +18,7 @@ def related_media(uuid, index, filter_dead):
     """
     Given a UUID, find related search results.
     """
-    logger = parent_logger.getChild('related_media')
+    logger = parent_logger.getChild("related_media")
     search_client = Search(using="default", index=index)
 
     # Convert UUID to sequential ID.
