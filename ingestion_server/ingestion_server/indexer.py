@@ -468,3 +468,4 @@ class TableIndexer:
 
         if self.progress is not None:
             self.progress.value = 100  # mark job as completed
+        self.ping_callback()
