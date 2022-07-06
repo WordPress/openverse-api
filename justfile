@@ -153,12 +153,13 @@ _ing-api data port="8001":
 @load-test-data model="image":
     just _ing-api '{"model": "{{ model }}", "action": "LOAD_TEST_DATA"}'
 
-# Load sample data into prod indices in Elasticsearch
+# Load sample data into temp table in API and new index in Elasticsearch
 @ingest-upstream model="image" suffix="init":
     just _ing-api '{"model": "{{ model }}", "action": "INGEST_UPSTREAM", "index_suffix": "{{ suffix }}"}'
 
-@point-alias model="image" suffix="init" alias="image":
-    just _ing-api '{"model": "{{ model }}", "action": "POINT_ALIAS", "index_suffix": "{{ suffix }}", "alias": "{{ alias }}"}'
+# Promote temp table to prod in API and new index to primary in Elasticsearch
+@promote model="image" suffix="init" alias="image":
+    just _ing-api '{"model": "{{ model }}", "action": "PROMOTE", "index_suffix": "{{ suffix }}", "alias": "{{ alias }}"}'
 
 # Run ingestion-server tests locally
 ing-testlocal *args:
