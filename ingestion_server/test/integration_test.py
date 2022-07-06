@@ -243,16 +243,16 @@ class TestIngestion(unittest.TestCase):
             before_constraints == after_constraints
         ), "Constraints in DB don't match the names they had before the go-live"
 
-    def _point_alias(self, model, suffix="integration", alias=None):
+    def _promote(self, model, suffix="integration", alias=None):
         """
-        Check that POINT_ALIAS task completes successfully and configures alias mapping
+        Check that PROMOTE task completes successfully and configures alias mapping
         in Elasticsearch.
         """
         if alias is None:
             alias = model
         req = {
             "model": model,
-            "action": "POINT_ALIAS",
+            "action": "PROMOTE",
             "index_suffix": suffix,
             "alias": alias,
         }
@@ -379,12 +379,12 @@ class TestIngestion(unittest.TestCase):
         )
 
     @pytest.mark.order(6)
-    def test_point_alias_images(self):
-        self._point_alias("image", "integration", "image-main")
+    def test_promote_images(self):
+        self._promote("image", "integration", "image-main")
 
     @pytest.mark.order(7)
-    def test_point_alias_audio(self):
-        self._point_alias("audio", "integration", "audio-main")
+    def test_promote_audio(self):
+        self._promote("audio", "integration", "audio-main")
 
     @pytest.mark.order(8)
     def test_upstream_indexed_images(self):
