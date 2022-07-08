@@ -35,7 +35,7 @@ from requests import RequestException
 
 from ingestion_server import slack
 from ingestion_server.distributed_reindex_scheduler import schedule_distributed_index
-from ingestion_server.elasticsearch_models import database_table_to_elasticsearch_model
+from ingestion_server.elasticsearch_models import media_type_to_elasticsearch_model
 from ingestion_server.es_mapping import index_settings
 from ingestion_server.qa import create_search_qa_index
 from ingestion_server.queries import get_existence_queries
@@ -196,7 +196,7 @@ class TableIndexer:
         """
         # Map column names to locations in the row tuple
         schema = {col[0]: idx for idx, col in enumerate(columns)}
-        model = database_table_to_elasticsearch_model.get(model_name)
+        model = media_type_to_elasticsearch_model.get(model_name)
         if model is None:
             log.error(f"Table {model_name} is not defined in elasticsearch_models.")
             return []
