@@ -357,7 +357,6 @@ def promote_api_table(
 
     log.info(f"`{table}`: Starting table promotion | _Next: recreate-indices_")
     downstream_db = database_connect()
-    _, index_mapping = _generate_indices(downstream_db, table)
 
     with downstream_db, downstream_db.cursor() as downstream_cur:
         # Step 6: Recreate indices from the original table
