@@ -218,17 +218,11 @@ class WorkerFinishedResource(BaseTaskResource):
         task_info["progress"].value = task_data.percent_successful
 
         if task_data.percent_successful == 100:
-            logging.info(
-                "All indexer workers succeeded! Attempting to promote index "
-                f"{target_index}"
-            )
+            logging.info(f"All indexer workers succeeded! New index: {target_index}")
             index_type = target_index.split("-")[0]
             if index_type not in MEDIA_TYPES:
                 index_type = "image"
-            slack.verbose(
-                f"`{index_type}`: Elasticsearch reindex complete | "
-                f"_Next: promote index as primary_"
-            )
+            slack.verbose(f"`{index_type}`: Elasticsearch reindex complete")
 
             elasticsearch = elasticsearch_connect()
             indexer = TableIndexer(
