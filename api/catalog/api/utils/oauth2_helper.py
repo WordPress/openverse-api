@@ -9,6 +9,10 @@ from catalog.api import models
 parent_logger = logging.getLogger(__name__)
 
 
+def _valid(application: models.ThrottledApplication, token: AccessToken) -> bool:
+    return application.rate_limit_model == "exempt" or token.expires >= dt.datetime.now(token.expires.tzinfo)
+
+
 def get_token_info(token: str):
     """
     Recover an OAuth2 application client ID and rate limit model from an access
@@ -24,18 +28,21 @@ def get_token_info(token: str):
         token = AccessToken.objects.get(token=token)
     except AccessToken.DoesNotExist:
         return None, None, None
-    if token.expires >= dt.datetime.now(token.expires.tzinfo):
-        try:
-            application = models.ThrottledApplication.objects.get(accesstoken=token)
-            client_id = str(application.client_id)
-            rate_limit_model = application.rate_limit_model
-            verified = application.verified
-        except models.ThrottledApplication.DoesNotExist:
-            logger.warning("Failed to find application associated with access token.")
-            client_id = None
-            rate_limit_model = None
-            verified = None
-        return client_id, rate_limit_model, verified
-    else:
-        logger.warning("Rejected expired access token.")
+
+    try:
+        application = models.ThrottledApplication.objects.get(accesstoken=token)
+    except models.ThrottledApplication.DoesNotExist:
+        logger.warning("Failed to find application associated with access token.")
+
+    if not _valid(application, token):
+        logger.info(
+            "rejected expired access token "
+            f"application.name={application.name} "
+            f"application.client_id={application.client_id} "
+        )
         return None, None, None
+
+    client_id = str(application.client_id)
+    rate_limit_model = application.rate_limit_model
+    verified = application.verified
+    return client_id, rate_limit_model, verified
