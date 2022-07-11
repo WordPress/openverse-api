@@ -53,6 +53,9 @@ recreate:
 logs services="" args=(if IS_CI != "" { "" } else { "-f" }):
     docker-compose {{ DOCKER_FILE }} logs {{ args }} {{ services }}
 
+attach service:
+    docker attach $(docker-compose ps | grep {{ service }} | awk '{print $1}')
+
 EXEC_DEFAULTS := if IS_CI == "" { "" } else { "-T" }
 
 # Execute statement in service containers using Docker Compose
