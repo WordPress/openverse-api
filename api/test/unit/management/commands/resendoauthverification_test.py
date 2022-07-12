@@ -338,7 +338,7 @@ def register_with_email_times(email: str, times: int) -> list:
     ]
 
     view = Register.as_view()
-    with mock.patch.object(Register, 'throttle_classes', ()):
+    with mock.patch.object(Register, "throttle_classes", ()):
         return [view(request) for request in requests]
 
 
