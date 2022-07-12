@@ -18,16 +18,16 @@ class AbstractAnonRateThrottle(SimpleRateThrottle, metaclass=abc.ABCMeta):
     The IP address of the request will be used as the unique cache key.
     """
 
-    logger = parent_logger.getChild('AnonRateThrottle')
+    logger = parent_logger.getChild("AnonRateThrottle")
 
     def get_cache_key(self, request, view):
-        logger = self.logger.getChild('get_cache_key')
+        logger = self.logger.getChild("get_cache_key")
         # Do not apply anonymous throttle to request with valid tokens.
         if request.auth:
             client_id, _, verified = get_token_info(str(request.auth))
             if client_id and verified:
                 return None
-        
+
         ident = self.get_ident(request)
         redis = get_redis_connection("default", write=False)
         if redis.sismember("ip-whitelist", ident):

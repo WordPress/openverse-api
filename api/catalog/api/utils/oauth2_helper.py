@@ -10,7 +10,9 @@ parent_logger = logging.getLogger(__name__)
 
 
 def _valid(application: models.ThrottledApplication, token: AccessToken) -> bool:
-    return application.rate_limit_model == "exempt" or token.expires >= dt.datetime.now(token.expires.tzinfo)
+    return application.rate_limit_model == "exempt" or token.expires >= dt.datetime.now(
+        token.expires.tzinfo
+    )
 
 
 def get_token_info(token: str):
