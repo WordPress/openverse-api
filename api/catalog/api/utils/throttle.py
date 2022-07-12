@@ -39,8 +39,6 @@ class AbstractAnonRateThrottle(SimpleRateThrottle, metaclass=abc.ABCMeta):
             """
             return None
 
-        logger.info(f"throttling ident={ident}")
-
         return self.cache_format % {
             "scope": self.scope,
             "ident": ident,

@@ -164,7 +164,11 @@ REST_FRAMEWORK = {
 }
 
 if config("DISABLE_GLOBAL_THROTTLING", default=True, cast=bool):
-    del REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]
+    # Set all to ``None`` rather than deleting so that explicitly configured
+    # throttled views in tests still have the default rates to fall back onto
+    REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"].update(**{
+        k: None for k, _ in REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"].items()
+    })
     del REST_FRAMEWORK["DEFAULT_THROTTLE_CLASSES"]
 
 REDIS_HOST = config("REDIS_HOST", default="localhost")
