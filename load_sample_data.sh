@@ -106,8 +106,15 @@ sleep 2
 just ingest-upstream "audio"
 just wait-for-index "audio"
 
-just ingest-upstream "image"
-just wait-for-index "image"
+# Image ingestion is flaky; but usally works on the next attempt
+while true; do
+	just ingest-upstream "image"
+	just wait-for-index "image"
+	if [$? -eq 0 ]; then
+		break
+	fi
+	((c++)) && ((c==3)) && break
+done
 
 # Clear source cache since it's out of date after data has been loaded
 # See `api/catalog/api/controllers/elasticsearch/stats.py`
