@@ -9,12 +9,6 @@ from catalog.api import models
 parent_logger = logging.getLogger(__name__)
 
 
-def _valid(application: models.ThrottledApplication, token: AccessToken) -> bool:
-    return application.rate_limit_model == "exempt" or token.expires >= dt.datetime.now(
-        token.expires.tzinfo
-    )
-
-
 def get_token_info(token: str):
     """
     Recover an OAuth2 application client ID and rate limit model from an access
@@ -36,7 +30,8 @@ def get_token_info(token: str):
     except models.ThrottledApplication.DoesNotExist:
         logger.warning("Failed to find application associated with access token.")
 
-    if not _valid(application, token):
+    expired = token.expires < dt.datetime.now(token.expires.tzinfo)
+    if expired:
         logger.info(
             "rejected expired access token "
             f"application.name={application.name} "
