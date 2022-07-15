@@ -135,6 +135,20 @@ class AudioSerializer(AudioHyperlinksSerializer, MediaSerializer):
             obj = Audio.objects.get(identifier=obj.identifier)
         return obj.get_waveform()
 
+    def to_representation(self, instance):
+        # Get the original representation
+        output = super().to_representation(instance)
+        audio = instance
+
+        if isinstance(instance, Hit):
+            # TODO: Remove this DB query when updating ES index
+            audio = Audio.objects.get(identifier=instance.identifier)
+
+        if isinstance(audio, Audio) and not audio.thumbnail:
+            output["thumbnail"] = None
+
+        return output
+
 
 class AudioSearchSerializer(MediaSearchSerializer):
     """

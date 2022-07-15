@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import json
-import logging as log
-import pprint
-from typing import List, Literal, Tuple, Union
+import logging
+from typing import List, Literal, Optional, Tuple
 
 from django.conf import settings
 
 from elasticsearch.exceptions import RequestError
 from elasticsearch_dsl import Q, Search
+from elasticsearch_dsl.query import EMPTY_QUERY
 from elasticsearch_dsl.response import Hit
 
 from catalog.api.controllers.elasticsearch.utils import (
@@ -18,6 +18,33 @@ from catalog.api.controllers.elasticsearch.utils import (
     post_process_results,
 )
 from catalog.api.serializers.media_serializers import MediaSearchRequestSerializer
+
+
+parent_logger = logging.getLogger(__name__)
+
+
+class FieldMapping:
+    """
+    Establishes a mapping between a field in ``MediaSearchRequestSerializer`` and the
+    Elasticsearch index for a media.
+    """
+
+    def __init__(self, serializer_field: str, es_field: Optional[str] = None):
+        self.serializer_field: str = serializer_field
+        """the name of the field in ``MediaSearchRequestSerializer``"""
+
+        self.es_field: str = es_field or serializer_field
+        """the name of the field in the Elasticsearch index"""
+
+    def __str__(self):
+        return (
+            "FieldMapping("
+            f"serializer_field={self.serializer_field}, "
+            f"es_field={self.es_field})"
+        )
+
+    def __repr__(self):
+        return str(self)
 
 
 def _quote_escape(query_string: str) -> str:
@@ -39,7 +66,7 @@ def _quote_escape(query_string: str) -> str:
 def _apply_filter(
     s: Search,
     query_serializer: MediaSearchRequestSerializer,
-    basis: Union[str, tuple[str, str]],
+    mapping: FieldMapping,
     behaviour: Literal["filter", "exclude"] = "filter",
 ) -> Search:
     """
@@ -50,21 +77,23 @@ def _apply_filter(
 
     :param s: the search query to issue to Elasticsearch
     :param query_serializer: the ``MediaSearchRequestSerializer`` object with the query
-    :param basis: the name of the field in the serializer and Elasticsearch
+    :param mapping: the name of the field in the serializer and Elasticsearch
     :param behaviour: whether to accept (``filter``) or reject (``exclude``) the hit
     :return: the modified search query
     """
-
+    logger = parent_logger.getChild("_apply_filter")
     search_params = query_serializer.data
-    if isinstance(basis, tuple):
-        serializer_field, es_field = basis
-    else:
-        serializer_field = es_field = basis
-    if serializer_field in search_params:
+    if mapping.serializer_field in search_params:
         filters = []
-        for arg in search_params[serializer_field].split(","):
-            filters.append(Q("term", **{es_field: arg}))
+        for arg in search_params[mapping.serializer_field].split(","):
+            filters.append(Q("term", **{mapping.es_field: arg}))
         method = getattr(s, behaviour)  # can be ``s.filter`` or ``s.exclude``
+        logger.debug(
+            "applying filter "
+            f"behaviour={behaviour} "
+            f"mapping={mapping} "
+            f"filters={json.dumps(list(map(lambda f: f.to_dict(), filters)))} "
+        )
         return method("bool", should=filters)
     else:
         return s
@@ -85,31 +114,39 @@ def perform_search(
     :return: the list of search results with the page and result count
     """
 
+    logger = parent_logger.getChild("perform_search")
+    logger.info(
+        "searching with "
+        f"query_serializer.data={json.dumps(query_serializer.data)} "
+        f"index={index} "
+        f"(hashed) ip={ip} "
+    )
     s = Search(using="default", index=index)
     search_params = query_serializer.data
 
-    rules: dict[Literal["filter", "exclude"], list[Union[str, tuple[str, str]]]] = {
+    rules: dict[Literal["filter", "exclude"], list[FieldMapping]] = {
         "filter": [
-            "extension",
-            "category",
-            ("categories", "category"),
-            "aspect_ratio",
-            "size",
-            "length",
-            "source",
-            ("license", "license.keyword"),
-            ("license_type", "license.keyword"),
+            FieldMapping("extension"),
+            FieldMapping("category"),
+            FieldMapping("categories", "category"),
+            FieldMapping("aspect_ratio"),
+            FieldMapping("size"),
+            FieldMapping("length"),
+            FieldMapping("source"),
+            FieldMapping("license", "license.keyword"),
+            FieldMapping("license_type", "license.keyword"),
         ],
         "exclude": [
-            ("excluded_source", "source"),
+            FieldMapping("excluded_source", "source"),
         ],
     }
-    for behaviour, bases in rules.items():
-        for basis in bases:
-            s = _apply_filter(s, query_serializer, basis, behaviour)
+    for behaviour, mappings in rules.items():
+        for mapping in mappings:
+            s = _apply_filter(s, query_serializer, mapping, behaviour)
 
     # Exclude mature content
     if not search_params["mature"]:
+        logger.debug("excluding mature")
         s = s.exclude("term", mature=True)
     # Exclude sources with ``filter_content`` enabled
     s = exclude_filtered_providers(s)
@@ -119,15 +156,16 @@ def perform_search(
 
     search_fields = ["tags.name", "title", "description"]
     if "q" in search_params:
-        query = _quote_escape(search_params["q"])
+        escaped_query = _quote_escape(search_params["q"])
+        logger.info(f"searching with query term escaped_query={escaped_query}")
         s = s.query(
             "simple_query_string",
-            query=query,
+            query=escaped_query,
             fields=search_fields,
             default_operator="AND",
         )
         # Boost exact matches
-        quotes_stripped = query.replace('"', "")
+        quotes_stripped = escaped_query.replace('"', "")
         exact_match_boost = Q(
             "simple_query_string",
             fields=["title"],
@@ -136,6 +174,7 @@ def perform_search(
         )
         s.query = Q("bool", must=s.query, should=exact_match_boost)
     else:
+        logger.info("searching without query term")
         query_bases = ["creator", "title", ("tags", "tags.name")]
         for query_basis in query_bases:
             if isinstance(query_basis, tuple):
@@ -144,14 +183,23 @@ def perform_search(
                 serializer_field = es_field = query_basis
             if serializer_field in search_params:
                 value = _quote_escape(search_params[serializer_field])
+                logger.debug(
+                    "adding query for "
+                    f"value={value} "
+                    f"es_field={es_field}"
+                    f"serializer_field={serializer_field}"
+                )
                 s = s.query("simple_query_string", fields=[es_field], query=value)
 
     if settings.USE_RANK_FEATURES:
         feature_boost = {"standardized_popularity": 10000}
         rank_queries = []
         for field, boost in feature_boost.items():
+            logger.debug(
+                "applying ranked features " f"field={field} " f"boost={boost} "
+            )
             rank_queries.append(Q("rank_feature", field=field, boost=boost))
-        s.query = Q("bool", must=s.query, should=rank_queries)
+        s.query = Q("bool", must=s.query or EMPTY_QUERY, should=rank_queries)
 
     # Use highlighting to determine which fields contribute to the selection of
     # top results.
@@ -172,15 +220,16 @@ def perform_search(
     s = s[start:end]
 
     try:
-        if settings.VERBOSE_ES_RESPONSE:
-            log.info(pprint.pprint(s.to_dict()))
+        logger.info("executing query")
         search_response = s.execute()
-        log.info(
-            f"query={json.dumps(s.to_dict())}," f" es_took_ms={search_response.took}"
+        logger.debug(
+            "executed query "
+            f"es_took_ms={search_response.took} "
+            f"query={json.dumps(s.to_dict())} "
+            f"response={json.dumps(search_response.to_dict())} "
         )
-        if settings.VERBOSE_ES_RESPONSE:
-            log.info(pprint.pprint(search_response.to_dict()))
     except RequestError as e:
+        logger.error("encountered error executing query", exc_info=True)
         raise ValueError(e)
 
     results = post_process_results(
@@ -194,5 +243,18 @@ def perform_search(
 
     result_count, page_count = get_result_and_page_count(
         search_response, results, search_params["page_size"]
+    )
+
+    dumpable_results = (
+        results.to_dict()
+        if isinstance(results, Hit)
+        else list(map(lambda r: r.to_dict(), results))
+    )
+
+    logger.debug(
+        "finished post processing and returning "
+        f"result_count={result_count} "
+        f"page_count={page_count} "
+        f"results={json.dumps(dumpable_results)}"
     )
     return results, page_count, result_count

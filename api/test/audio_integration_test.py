@@ -7,6 +7,7 @@ import json
 from test.constants import API_URL
 from test.media_integration import (
     detail,
+    license_filter_case_insensitivity,
     report,
     search,
     search_all_excluded,
@@ -20,6 +21,7 @@ from test.media_integration import (
     thumb_compression,
     thumb_full_size,
     thumb_webp,
+    uuid_validation,
 )
 
 import pytest
@@ -49,7 +51,7 @@ def test_search_category_filtering_fails(audio_fixture):
 
 
 def test_search_all_excluded():
-    search_all_excluded("audio", ["jamendo", "wikimedia_audio"])
+    search_all_excluded("audio", ["freesound", "jamendo", "wikimedia_audio"])
 
 
 def test_search_source_and_excluded():
@@ -81,6 +83,21 @@ def test_audio_thumb(audio_fixture):
     thumb(audio_fixture)
 
 
+def test_audio_detail_without_thumb():
+    resp = requests.get(f"{API_URL}/v1/audio/44540200-91eb-483d-9e99-38ce86a52fb6")
+    assert resp.status_code == 200
+    parsed = json.loads(resp.text)
+    assert parsed["thumbnail"] is None
+
+
+def test_audio_search_without_thumb():
+    """The first audio of this search should not have a thumbnail."""
+    resp = requests.get(f"{API_URL}/v1/audio/?q=zaus&filter_dead=false")
+    assert resp.status_code == 200
+    parsed = json.loads(resp.text)
+    assert parsed["results"][0]["thumbnail"] is None
+
+
 def test_audio_thumb_compression(audio_fixture):
     thumb_compression(audio_fixture)
 
@@ -95,3 +112,13 @@ def test_audio_thumb_full_size(audio_fixture):
 
 def test_audio_report(audio_fixture):
     report("audio", audio_fixture)
+
+
+def test_audio_license_filter_case_insensitivity():
+    license_filter_case_insensitivity("audio")
+
+
+def test_audio_uuid_validation():
+    uuid_validation("audio", "123456789123456789123456789123456789")
+    uuid_validation("audio", "12345678-1234-5678-1234-1234567891234")
+    uuid_validation("audio", "abcd")

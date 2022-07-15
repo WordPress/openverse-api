@@ -7,6 +7,7 @@ from catalog.api.controllers.elasticsearch.stats import get_stats
 from catalog.api.models.media import AbstractMedia
 from catalog.api.serializers.base import BaseModelSerializer
 from catalog.api.serializers.fields import SchemableHyperlinkedIdentityField
+from catalog.api.utils.exceptions import get_api_exception
 from catalog.api.utils.help_text import make_comma_separated_help_text
 from catalog.api.utils.url import add_protocol
 
@@ -39,6 +40,8 @@ class MediaSearchRequestSerializer(serializers.Serializer):
         "extension",
         "mature",
         "qa",
+        "page",
+        "page_size",
     ]
     """
     Keep the fields names in sync with the actual fields below as this list is
@@ -134,7 +137,8 @@ class MediaSearchRequestSerializer(serializers.Serializer):
                 raise serializers.ValidationError(
                     f"License '{_license}' does not exist."
                 )
-        return value
+        # lowers the case of the value before returning
+        return value.lower()
 
     @staticmethod
     def validate_license_type(value):
@@ -159,6 +163,15 @@ class MediaSearchRequestSerializer(serializers.Serializer):
 
     def validate_title(self, value):
         return self._truncate(value)
+
+    def validate_page_size(self, value):
+        request = self.context.get("request")
+        is_anonymous = bool(request and request.user and request.user.is_anonymous)
+        if is_anonymous and value > 20:
+            raise get_api_exception(
+                "Page size must be between 1 & 20 for unauthenticated requests.", 401
+            )
+        return value
 
     @staticmethod
     def validate_extension(value):

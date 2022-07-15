@@ -43,9 +43,7 @@ DEBUG = config("DJANGO_DEBUG_ENABLED", default=False, cast=bool)
 
 ENVIRONMENT = config("ENVIRONMENT", default="local")
 
-ALLOWED_HOSTS = [
-    "api-dev.openverse.engineering",
-    "api.openverse.engineering",
+ALLOWED_HOSTS = config("ALLOWED_HOSTS").split(",") + [
     gethostname(),
     gethostbyname(gethostname()),
 ]
@@ -95,7 +93,14 @@ if USE_S3:
     AWS_S3_SIGNATURE_VERSION = "s3v4"
     INSTALLED_APPS.append("storages")
 
+# https://github.com/dabapps/django-log-request-id#logging-all-requests
+LOG_REQUESTS = True
+# https://github.com/dabapps/django-log-request-id#installation-and-usage
+REQUEST_ID_RESPONSE_HEADER = "X-Request-Id"
+
 MIDDLEWARE = [
+    # https://github.com/dabapps/django-log-request-id
+    "log_request_id.middleware.RequestIDMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -113,10 +118,16 @@ OAUTH2_PROVIDER = {
     "SCOPES": {
         "read": "Read scope",
         "write": "Write scope",
-    }
+    },
+    "ACCESS_TOKEN_EXPIRE_SECONDS": config(
+        "ACCESS_TOKEN_EXPIRE_SECONDS", default=3600 * 12, cast=int
+    ),
 }
 
 OAUTH2_PROVIDER_APPLICATION_MODEL = "api.ThrottledApplication"
+
+THROTTLE_ANON_BURST = config("THROTTLE_ANON_BURST", default="5/hour")
+THROTTLE_ANON_SUSTAINED = config("THROTTLE_ANON_SUSTAINED", default="100/day")
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
@@ -137,8 +148,8 @@ REST_FRAMEWORK = {
         "catalog.api.utils.throttle.EnhancedOAuth2IdThrottleBurstRate",
     ),
     "DEFAULT_THROTTLE_RATES": {
-        "anon_burst": "60/min",
-        "anon_sustained": "5000/day",
+        "anon_burst": THROTTLE_ANON_BURST,
+        "anon_sustained": THROTTLE_ANON_SUSTAINED,
         "oauth2_client_credentials_sustained": "10000/day",
         "oauth2_client_credentials_burst": "100/min",
         "enhanced_oauth2_client_credentials_sustained": "20000/day",

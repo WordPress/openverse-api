@@ -182,6 +182,12 @@ def assert_cleaned_and_sent(
         )
 
     assert_one_email_sent(captured_emails, keep)
+    for captured_email in captured_emails:
+        assert_valid_email_link(captured_email)
+
+
+def assert_valid_email_link(captured_email: CapturedEmail):
+    assert "https://api.openverse.engineering//" not in captured_email.message
 
 
 def call_resendoauthverification(input_response="YES", **options):
@@ -266,7 +272,9 @@ def test_should_not_count_email_as_sent_if_failed_and_rollback(
         )
 
     assert (
-        redis.sismember("resendoauthverification:processed", keep.registration.email)
+        redis.sismember(
+            "resendoauthverification-corrections:processed", keep.registration.email
+        )
         is False
     )
 
@@ -300,7 +308,9 @@ def test_should_not_delete_or_send_if_dry_run(cleanable_email, captured_emails, 
         )
 
     assert (
-        redis.sismember("resendoauthverification:processed", keep.registration.email)
+        redis.sismember(
+            "resendoauthverification-corrections:processed", keep.registration.email
+        )
         is False
     )
 

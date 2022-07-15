@@ -32,7 +32,10 @@ To verify your Openverse API credentials, click on the following link:
 
 {link}
 
-If you believe you received this message in error, please disregard it.
+We previously sent this message with an incorrectly formatted link.
+Apologies for the repeated contacts. If you believe you received this
+message in error or have already successfully verified your OAuth
+application, please disregard it.
 """
 
 
@@ -47,14 +50,15 @@ class Result:
 class Command(BaseCommand):
     help = "Resends verification emails for unverified Oauth applications."
     """
-    This command is meant to be used a single time in production to remediate
-    failed email sending.
+    This command sends a corrected oauth verification email to users who have
+    not yet verified their Openverse oauth applications. A previous version sent
+    an email with an incorrectly formatted link.
 
     It stores a cache of successfully sent emails in Redis, so running it multiple
     times (in case of failure) should not be an issue.
     """
 
-    processed_key = "resendoauthverification:processed"
+    processed_key = "resendoauthverification-corrections:processed"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -123,11 +127,11 @@ class Command(BaseCommand):
             # We don't have access to `request.build_absolute_uri` so we
             # have to build it ourselves for the production endpoint
             link = (
-                f"https://api.openverse.engineering/{reverse('verify-email', [token])}"
+                f"https://api.openverse.engineering{reverse('verify-email', [token])}"
             )
             verification_msg = verification_msg_template.format(link=link)
             send_mail(
-                subject="Verify your API credentials",
+                subject="Verify your API credentials (corrected)",
                 message=verification_msg,
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[verification.email],

@@ -1,5 +1,6 @@
 import json
 import logging as log
+from http.client import RemoteDisconnected
 from urllib.error import HTTPError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -26,7 +27,9 @@ class MediaViewSet(ReadOnlyModelViewSet):
 
     lookup_field = "identifier"
     # TODO: https://github.com/encode/django-rest-framework/pull/6789
-    lookup_value_regex = r"[0-9a-f\-]{36}"  # highly simplified approximation
+    lookup_value_regex = (
+        r"[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}"
+    )
 
     pagination_class = StandardPagination
 
@@ -54,7 +57,9 @@ class MediaViewSet(ReadOnlyModelViewSet):
     # Standard actions
 
     def list(self, request, *_, **__):
-        params = self.query_serializer_class(data=request.query_params)
+        params = self.query_serializer_class(
+            data=request.query_params, context={"request": request}
+        )
         params.is_valid(raise_exception=True)
 
         self.paginator.page_size = params.validated_data["page_size"]
@@ -107,6 +112,9 @@ class MediaViewSet(ReadOnlyModelViewSet):
             self.paginator.page_size = 10
         except ValueError as e:
             raise get_api_exception(getattr(e, "message", str(e)))
+        # If there are no hits in the search controller
+        except IndexError:
+            raise get_api_exception("Could not find items.", 404)
 
         serializer = self.get_serializer(results, many=True)
         return self.get_paginated_response(serializer.data)
@@ -164,7 +172,7 @@ class MediaViewSet(ReadOnlyModelViewSet):
             req = Request(upstream_url)
             for key, val in headers:
                 req.add_header(key, val)
-            upstream_response = urlopen(req, timeout=5)
+            upstream_response = urlopen(req, timeout=10)
 
             res_status = upstream_response.status
             content_type = upstream_response.headers.get("Content-Type")
@@ -174,8 +182,12 @@ class MediaViewSet(ReadOnlyModelViewSet):
             )
 
             return upstream_response, res_status, content_type
-        except HTTPError as exc:
+        except (HTTPError, RemoteDisconnected, TimeoutError) as exc:
             raise get_api_exception(f"Failed to render thumbnail: {exc}")
+        except Exception as exc:
+            raise get_api_exception(
+                f"Failed to render thumbnail due to unidentified exception: {exc}"
+            )
 
     @staticmethod
     def _get_proxied_image(

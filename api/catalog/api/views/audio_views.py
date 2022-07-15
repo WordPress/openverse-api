@@ -1,5 +1,3 @@
-import logging
-
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from rest_framework.decorators import action
@@ -27,9 +25,6 @@ from catalog.api.serializers.media_serializers import MediaThumbnailRequestSeria
 from catalog.api.utils.exceptions import get_api_exception
 from catalog.api.utils.throttle import OneThousandPerMinute
 from catalog.api.views.media_views import MediaViewSet
-
-
-log = logging.getLogger(__name__)
 
 
 @method_decorator(swagger_auto_schema(**AudioSearch.swagger_setup), "list")
