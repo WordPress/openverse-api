@@ -31,6 +31,7 @@ docker-compose exec -T "$DB_SERVICE_NAME" /bin/bash -c "psql -U deploy -d openle
 	VALUES
 		(now(), 'flickr', 'Flickr', 'https://www.flickr.com', false, 'image'),
 		(now(), 'stocksnap', 'StockSnap', 'https://stocksnap.io', false, 'image'),
+		(now(), 'freesound', 'Freesound', 'https://freesound.org/', false, 'audio'),
 		(now(), 'jamendo', 'Jamendo', 'https://www.jamendo.com', false, 'audio'),
 		(now(), 'wikimedia_audio', 'Wikimedia', 'https://commons.wikimedia.org', false, 'audio');
 	EOF"
@@ -113,5 +114,6 @@ just promote "image" "init" "image"
 just wait-for-index "image"
 
 # Clear source cache since it's out of date after data has been loaded
+# See `api/catalog/api/controllers/elasticsearch/stats.py`
 docker-compose exec -T "$CACHE_SERVICE_NAME" /bin/bash -c "echo \"del :1:sources-image\" | redis-cli"
 docker-compose exec -T "$CACHE_SERVICE_NAME" /bin/bash -c "echo \"del :1:sources-audio\" | redis-cli"
