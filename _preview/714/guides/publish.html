@@ -1,14 +1,14 @@
 <!doctype html>
-<html class="no-js">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Deploy" href="deploy.html" /><link rel="prev" title="Document" href="document.html" />
 
-    <link rel="shortcut icon" href="https://raw.githubusercontent.com/WordPress/openverse/master/brand/icon.svg"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
+    <link rel="shortcut icon" href="https://raw.githubusercontent.com/WordPress/openverse/master/brand/icon.svg"/><meta name="generator" content="sphinx-5.0.2, furo 2022.06.21"/>
         <title>Publish - Openverse API developer docs</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     <link rel="stylesheet" type="text/css" href="../_static/_css/brand.css" />
     
@@ -179,6 +179,7 @@
 <li class="toctree-l2"><a class="reference internal" href="document.html">Document</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Publish</a></li>
 <li class="toctree-l2"><a class="reference internal" href="deploy.html">Deploy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logging.html">Logging</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">Code reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -219,7 +220,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -234,7 +236,7 @@
         </div>
         <article role="main">
           <section id="publish">
-<h1>Publish<a class="headerlink" href="#publish" title="Permalink to this headline">#</a></h1>
+<h1>Publish<a class="headerlink" href="#publish" title="Permalink to this heading">#</a></h1>
 <p>The production API and ingestion server Docker images are published to <a class="reference external" href="https://ghcr.io">Github Container Registry</a>.
 They can be found here:</p>
 <ul class="simple">
@@ -243,7 +245,7 @@ They can be found here:</p>
 </ul>
 <p>These images are published under two conditions: on release, or manually.</p>
 <section id="on-release">
-<h2>On release<a class="headerlink" href="#on-release" title="Permalink to this headline">#</a></h2>
+<h2>On release<a class="headerlink" href="#on-release" title="Permalink to this heading">#</a></h2>
 <p>When a new release is cut, the <a class="reference external" href="https://github.com/WordPress/openverse-api/actions/workflows/ci_cd.yml?query=event%3Arelease">CI/CD action will run</a>.
 The final step of this action uploads the Docker images to their respective registries with the following tags:</p>
 <ul class="simple">
@@ -256,7 +258,7 @@ For instance, in a release where only the API was changed, the ingestion server 
 In these instances, the new tags are added to the existing image.</p>
 </section>
 <section id="manually">
-<h2>Manually<a class="headerlink" href="#manually" title="Permalink to this headline">#</a></h2>
+<h2>Manually<a class="headerlink" href="#manually" title="Permalink to this heading">#</a></h2>
 <p>The Docker image for a particular service can also be published manually.
 This process is initiated by the <a class="reference external" href="https://github.com/WordPress/openverse-api/actions/workflows/push_docker_image.yml">Publish Docker images on-demand</a> action.
 The workflow file for this action can be found here: <a class="reference external" href="https://github.com/WordPress/openverse-api/blob/main/.github/workflows/push_docker_image.yml"><code class="docutils literal notranslate"><span class="pre">push_docker_image.yml</span></code></a>.</p>
@@ -266,7 +268,7 @@ This action also <strong>requires that the CI/CD workflow has previously run on 
 This typically requires a PR in order to initiate.</p>
 <p>Note that this action can only run on commits that had successful CI/CD runs in the last 90 days <a class="reference external" href="https://docs.github.com/en/organizations/managing-organization-settings/configuring-the-retention-period-for-github-actions-artifacts-and-logs-in-your-organization">due to GitHub’s default artifact retention policy</a>.</p>
 <section id="steps">
-<h3>Steps<a class="headerlink" href="#steps" title="Permalink to this headline">#</a></h3>
+<h3>Steps<a class="headerlink" href="#steps" title="Permalink to this heading">#</a></h3>
 <p><em>Note: <a class="reference external" href="https://github.blog/changelog/2020-07-06-github-actions-manual-triggers-with-workflow_dispatch">GitHub’s documentation provides screenshots for the various steps</a></em></p>
 <ol class="arabic simple">
 <li><p>Navigate to the <code class="docutils literal notranslate"><span class="pre">openverse-api</span></code> “Actions” tab in GitHub: <a class="reference external" href="https://github.com/WordPress/openverse-api/actions">github.com/WordPress/openverse-api/actions</a>.</p></li>
@@ -281,7 +283,7 @@ This typically requires a PR in order to initiate.</p>
 <li><p>Click the green “Run workflow” button.</p></li>
 </ol>
 <p>The newest run should appear in the Action list, and its status can be tracked from there.</p>
-<p><img alt="Example Screenshot" src="../_images/publish_action_example.png"/></p>
+<p><img alt="Example Screenshot" src="../_images/publish_action_example.png" /></p>
 </section>
 </section>
 </section>
@@ -360,6 +362,7 @@ This typically requires a PR in order to initiate.</p>
 </div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/scripts/furo.js"></script>
     </body>

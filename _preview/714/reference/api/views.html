@@ -1,14 +1,14 @@
 <!doctype html>
-<html class="no-js">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="catalog.urls package" href="../urls.html" /><link rel="prev" title="catalog.api.utils package" href="utils.html" />
 
-    <link rel="shortcut icon" href="https://raw.githubusercontent.com/WordPress/openverse/master/brand/icon.svg"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
+    <link rel="shortcut icon" href="https://raw.githubusercontent.com/WordPress/openverse/master/brand/icon.svg"/><meta name="generator" content="sphinx-5.0.2, furo 2022.06.21"/>
         <title>catalog.api.views package - Openverse API developer docs</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     <link rel="stylesheet" type="text/css" href="../../_static/_css/brand.css" />
     
@@ -179,6 +179,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../guides/document.html">Document</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/publish.html">Publish</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/deploy.html">Deploy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/logging.html">Logging</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../index.html">Code reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -219,7 +220,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -234,76 +236,89 @@
         </div>
         <article role="main">
           <section id="catalog-api-views-package">
-<h1>catalog.api.views package<a class="headerlink" href="#catalog-api-views-package" title="Permalink to this headline">#</a></h1>
+<h1>catalog.api.views package<a class="headerlink" href="#catalog-api-views-package" title="Permalink to this heading">#</a></h1>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">#</a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
 </section>
 <section id="module-catalog.api.views.audio_views">
-<span id="catalog-api-views-audio-views-module"></span><h2>catalog.api.views.audio_views module<a class="headerlink" href="#module-catalog.api.views.audio_views" title="Permalink to this headline">#</a></h2>
+<span id="catalog-api-views-audio-views-module"></span><h2>catalog.api.views.audio_views module<a class="headerlink" href="#module-catalog.api.views.audio_views" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.views.audio_views.AudioViewSet">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.views.audio_views.</span></span><span class="sig-name descname"><span class="pre">AudioViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.audio_views.AudioViewSet" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.views.media_views.MediaViewSet" title="catalog.api.views.media_views.MediaViewSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.views.media_views.MediaViewSet</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.views.media_views.MediaViewSet" title="catalog.api.views.media_views.MediaViewSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">MediaViewSet</span></code></a></p>
 <p>Viewset for all endpoints pertaining to audio.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.audio_views.AudioViewSet.default_index">
 <span class="sig-name descname"><span class="pre">default_index</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'audio'</span></em><a class="headerlink" href="#catalog.api.views.audio_views.AudioViewSet.default_index" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.audio_views.AudioViewSet.list">
 <span class="sig-name descname"><span class="pre">list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">__</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.audio_views.AudioViewSet.list" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.audio_views.AudioViewSet.model_class">
 <span class="sig-name descname"><span class="pre">model_class</span></span><a class="headerlink" href="#catalog.api.views.audio_views.AudioViewSet.model_class" title="Permalink to this definition">#</a></dt>
-<dd><p>alias of <a class="reference internal" href="models.html#catalog.api.models.audio.Audio" title="catalog.api.models.audio.Audio"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.models.audio.Audio</span></code></a></p>
+<dd><p>alias of <a class="reference internal" href="models.html#catalog.api.models.audio.Audio" title="catalog.api.models.audio.Audio"><code class="xref py py-class docutils literal notranslate"><span class="pre">Audio</span></code></a></p>
 </dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.audio_views.AudioViewSet.qa_index">
 <span class="sig-name descname"><span class="pre">qa_index</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'search-qa-audio'</span></em><a class="headerlink" href="#catalog.api.views.audio_views.AudioViewSet.qa_index" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.audio_views.AudioViewSet.query_serializer_class">
 <span class="sig-name descname"><span class="pre">query_serializer_class</span></span><a class="headerlink" href="#catalog.api.views.audio_views.AudioViewSet.query_serializer_class" title="Permalink to this definition">#</a></dt>
-<dd><p>alias of <a class="reference internal" href="serializers.html#catalog.api.serializers.audio_serializers.AudioSearchRequestSerializer" title="catalog.api.serializers.audio_serializers.AudioSearchRequestSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.serializers.audio_serializers.AudioSearchRequestSerializer</span></code></a></p>
+<dd><p>alias of <a class="reference internal" href="serializers.html#catalog.api.serializers.audio_serializers.AudioSearchRequestSerializer" title="catalog.api.serializers.audio_serializers.AudioSearchRequestSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">AudioSearchRequestSerializer</span></code></a></p>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.audio_views.AudioViewSet.related">
 <span class="sig-name descname"><span class="pre">related</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">__</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.audio_views.AudioViewSet.related" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.audio_views.AudioViewSet.report">
 <span class="sig-name descname"><span class="pre">report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.audio_views.AudioViewSet.report" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.audio_views.AudioViewSet.retrieve">
 <span class="sig-name descname"><span class="pre">retrieve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.audio_views.AudioViewSet.retrieve" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.audio_views.AudioViewSet.serializer_class">
 <span class="sig-name descname"><span class="pre">serializer_class</span></span><a class="headerlink" href="#catalog.api.views.audio_views.AudioViewSet.serializer_class" title="Permalink to this definition">#</a></dt>
-<dd><p>alias of <a class="reference internal" href="serializers.html#catalog.api.serializers.audio_serializers.AudioSerializer" title="catalog.api.serializers.audio_serializers.AudioSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.serializers.audio_serializers.AudioSerializer</span></code></a></p>
+<dd><p>alias of <a class="reference internal" href="serializers.html#catalog.api.serializers.audio_serializers.AudioSerializer" title="catalog.api.serializers.audio_serializers.AudioSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">AudioSerializer</span></code></a></p>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.audio_views.AudioViewSet.stats">
 <span class="sig-name descname"><span class="pre">stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">__</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.audio_views.AudioViewSet.stats" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.audio_views.AudioViewSet.thumbnail">
 <span class="sig-name descname"><span class="pre">thumbnail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">__</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.audio_views.AudioViewSet.thumbnail" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.audio_views.AudioViewSet.waveform">
 <span class="sig-name descname"><span class="pre">waveform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">__</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.audio_views.AudioViewSet.waveform" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 </section>
 <section id="module-catalog.api.views.health_views">
-<span id="catalog-api-views-health-views-module"></span><h2>catalog.api.views.health_views module<a class="headerlink" href="#module-catalog.api.views.health_views" title="Permalink to this headline">#</a></h2>
+<span id="catalog-api-views-health-views-module"></span><h2>catalog.api.views.health_views module<a class="headerlink" href="#module-catalog.api.views.health_views" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.views.health_views.HealthCheck">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.views.health_views.</span></span><span class="sig-name descname"><span class="pre">HealthCheck</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.health_views.HealthCheck" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">rest_framework.views.APIView</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">APIView</span></code></p>
 <p>Returns a “200 OK” response if the server is running normally.</p>
 <p>This endpoint is used in production to ensure that the server should receive
 traffic. If no response is provided, the server is deregistered from the
@@ -312,86 +327,104 @@ load balancer and destroyed.</p>
 <dt class="sig sig-object py" id="catalog.api.views.health_views.HealthCheck.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.health_views.HealthCheck.get" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.health_views.HealthCheck.swagger_schema">
 <span class="sig-name descname"><span class="pre">swagger_schema</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#catalog.api.views.health_views.HealthCheck.swagger_schema" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 </section>
 <section id="module-catalog.api.views.image_views">
-<span id="catalog-api-views-image-views-module"></span><h2>catalog.api.views.image_views module<a class="headerlink" href="#module-catalog.api.views.image_views" title="Permalink to this headline">#</a></h2>
+<span id="catalog-api-views-image-views-module"></span><h2>catalog.api.views.image_views module<a class="headerlink" href="#module-catalog.api.views.image_views" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.views.image_views.ImageViewSet">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.views.image_views.</span></span><span class="sig-name descname"><span class="pre">ImageViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.image_views.ImageViewSet" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.views.media_views.MediaViewSet" title="catalog.api.views.media_views.MediaViewSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.views.media_views.MediaViewSet</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.views.media_views.MediaViewSet" title="catalog.api.views.media_views.MediaViewSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">MediaViewSet</span></code></a></p>
 <p>Viewset for all endpoints pertaining to images.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.image_views.ImageViewSet.default_index">
 <span class="sig-name descname"><span class="pre">default_index</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'image'</span></em><a class="headerlink" href="#catalog.api.views.image_views.ImageViewSet.default_index" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.image_views.ImageViewSet.list">
 <span class="sig-name descname"><span class="pre">list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">__</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.image_views.ImageViewSet.list" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.image_views.ImageViewSet.model_class">
 <span class="sig-name descname"><span class="pre">model_class</span></span><a class="headerlink" href="#catalog.api.views.image_views.ImageViewSet.model_class" title="Permalink to this definition">#</a></dt>
-<dd><p>alias of <a class="reference internal" href="models.html#catalog.api.models.image.Image" title="catalog.api.models.image.Image"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.models.image.Image</span></code></a></p>
+<dd><p>alias of <a class="reference internal" href="models.html#catalog.api.models.image.Image" title="catalog.api.models.image.Image"><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></a></p>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.image_views.ImageViewSet.oembed">
 <span class="sig-name descname"><span class="pre">oembed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">__</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.image_views.ImageViewSet.oembed" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.image_views.ImageViewSet.qa_index">
 <span class="sig-name descname"><span class="pre">qa_index</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'search-qa-image'</span></em><a class="headerlink" href="#catalog.api.views.image_views.ImageViewSet.qa_index" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.image_views.ImageViewSet.query_serializer_class">
 <span class="sig-name descname"><span class="pre">query_serializer_class</span></span><a class="headerlink" href="#catalog.api.views.image_views.ImageViewSet.query_serializer_class" title="Permalink to this definition">#</a></dt>
-<dd><p>alias of <a class="reference internal" href="serializers.html#catalog.api.serializers.image_serializers.ImageSearchRequestSerializer" title="catalog.api.serializers.image_serializers.ImageSearchRequestSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.serializers.image_serializers.ImageSearchRequestSerializer</span></code></a></p>
+<dd><p>alias of <a class="reference internal" href="serializers.html#catalog.api.serializers.image_serializers.ImageSearchRequestSerializer" title="catalog.api.serializers.image_serializers.ImageSearchRequestSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageSearchRequestSerializer</span></code></a></p>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.image_views.ImageViewSet.related">
 <span class="sig-name descname"><span class="pre">related</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">__</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.image_views.ImageViewSet.related" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.image_views.ImageViewSet.report">
 <span class="sig-name descname"><span class="pre">report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.image_views.ImageViewSet.report" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.image_views.ImageViewSet.retrieve">
 <span class="sig-name descname"><span class="pre">retrieve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.image_views.ImageViewSet.retrieve" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.image_views.ImageViewSet.serializer_class">
 <span class="sig-name descname"><span class="pre">serializer_class</span></span><a class="headerlink" href="#catalog.api.views.image_views.ImageViewSet.serializer_class" title="Permalink to this definition">#</a></dt>
-<dd><p>alias of <a class="reference internal" href="serializers.html#catalog.api.serializers.image_serializers.ImageSerializer" title="catalog.api.serializers.image_serializers.ImageSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.serializers.image_serializers.ImageSerializer</span></code></a></p>
+<dd><p>alias of <a class="reference internal" href="serializers.html#catalog.api.serializers.image_serializers.ImageSerializer" title="catalog.api.serializers.image_serializers.ImageSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageSerializer</span></code></a></p>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.image_views.ImageViewSet.stats">
 <span class="sig-name descname"><span class="pre">stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">__</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.image_views.ImageViewSet.stats" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.image_views.ImageViewSet.thumbnail">
 <span class="sig-name descname"><span class="pre">thumbnail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">__</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.image_views.ImageViewSet.thumbnail" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.image_views.ImageViewSet.watermark">
 <span class="sig-name descname"><span class="pre">watermark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">__</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.image_views.ImageViewSet.watermark" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 </section>
 <section id="module-catalog.api.views.media_views">
-<span id="catalog-api-views-media-views-module"></span><h2>catalog.api.views.media_views module<a class="headerlink" href="#module-catalog.api.views.media_views" title="Permalink to this headline">#</a></h2>
+<span id="catalog-api-views-media-views-module"></span><h2>catalog.api.views.media_views module<a class="headerlink" href="#module-catalog.api.views.media_views" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.views.media_views.MediaViewSet">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.views.media_views.</span></span><span class="sig-name descname"><span class="pre">MediaViewSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.media_views.MediaViewSet" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">rest_framework.viewsets.ReadOnlyModelViewSet</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ReadOnlyModelViewSet</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.media_views.MediaViewSet.default_index">
 <span class="sig-name descname"><span class="pre">default_index</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#catalog.api.views.media_views.MediaViewSet.default_index" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.media_views.MediaViewSet.get_queryset">
 <span class="sig-name descname"><span class="pre">get_queryset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.media_views.MediaViewSet.get_queryset" title="Permalink to this definition">#</a></dt>
@@ -405,142 +438,174 @@ are cached for all subsequent requests.</p>
 querysets depending on the incoming request.</p>
 <p>(Eg. return a list of items that is specific to the user)</p>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.media_views.MediaViewSet.list">
 <span class="sig-name descname"><span class="pre">list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">__</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.media_views.MediaViewSet.list" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.media_views.MediaViewSet.lookup_field">
 <span class="sig-name descname"><span class="pre">lookup_field</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'identifier'</span></em><a class="headerlink" href="#catalog.api.views.media_views.MediaViewSet.lookup_field" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.media_views.MediaViewSet.lookup_value_regex">
-<span class="sig-name descname"><span class="pre">lookup_value_regex</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'[0-9a-f\\-]{36}'</span></em><a class="headerlink" href="#catalog.api.views.media_views.MediaViewSet.lookup_value_regex" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">lookup_value_regex</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}'</span></em><a class="headerlink" href="#catalog.api.views.media_views.MediaViewSet.lookup_value_regex" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.media_views.MediaViewSet.model_class">
 <span class="sig-name descname"><span class="pre">model_class</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#catalog.api.views.media_views.MediaViewSet.model_class" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.media_views.MediaViewSet.pagination_class">
 <span class="sig-name descname"><span class="pre">pagination_class</span></span><a class="headerlink" href="#catalog.api.views.media_views.MediaViewSet.pagination_class" title="Permalink to this definition">#</a></dt>
-<dd><p>alias of <a class="reference internal" href="utils.html#catalog.api.utils.pagination.StandardPagination" title="catalog.api.utils.pagination.StandardPagination"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.utils.pagination.StandardPagination</span></code></a></p>
+<dd><p>alias of <a class="reference internal" href="utils.html#catalog.api.utils.pagination.StandardPagination" title="catalog.api.utils.pagination.StandardPagination"><code class="xref py py-class docutils literal notranslate"><span class="pre">StandardPagination</span></code></a></p>
 </dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.media_views.MediaViewSet.qa_index">
 <span class="sig-name descname"><span class="pre">qa_index</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#catalog.api.views.media_views.MediaViewSet.qa_index" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.media_views.MediaViewSet.query_serializer_class">
 <span class="sig-name descname"><span class="pre">query_serializer_class</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#catalog.api.views.media_views.MediaViewSet.query_serializer_class" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.media_views.MediaViewSet.related">
 <span class="sig-name descname"><span class="pre">related</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">__</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.media_views.MediaViewSet.related" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.media_views.MediaViewSet.report">
 <span class="sig-name descname"><span class="pre">report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">__</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.media_views.MediaViewSet.report" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.media_views.MediaViewSet.stats">
 <span class="sig-name descname"><span class="pre">stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">__</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.media_views.MediaViewSet.stats" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.media_views.MediaViewSet.swagger_schema">
 <span class="sig-name descname"><span class="pre">swagger_schema</span></span><a class="headerlink" href="#catalog.api.views.media_views.MediaViewSet.swagger_schema" title="Permalink to this definition">#</a></dt>
-<dd><p>alias of <a class="reference internal" href="../index.html#catalog.custom_auto_schema.CustomAutoSchema" title="catalog.custom_auto_schema.CustomAutoSchema"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.custom_auto_schema.CustomAutoSchema</span></code></a></p>
+<dd><p>alias of <a class="reference internal" href="../index.html#catalog.custom_auto_schema.CustomAutoSchema" title="catalog.custom_auto_schema.CustomAutoSchema"><code class="xref py py-class docutils literal notranslate"><span class="pre">CustomAutoSchema</span></code></a></p>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.media_views.MediaViewSet.thumbnail">
 <span class="sig-name descname"><span class="pre">thumbnail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">__</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.media_views.MediaViewSet.thumbnail" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 </section>
 <section id="module-catalog.api.views.oauth2_views">
-<span id="catalog-api-views-oauth2-views-module"></span><h2>catalog.api.views.oauth2_views module<a class="headerlink" href="#module-catalog.api.views.oauth2_views" title="Permalink to this headline">#</a></h2>
+<span id="catalog-api-views-oauth2-views-module"></span><h2>catalog.api.views.oauth2_views module<a class="headerlink" href="#module-catalog.api.views.oauth2_views" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.views.oauth2_views.CheckRates">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.views.oauth2_views.</span></span><span class="sig-name descname"><span class="pre">CheckRates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.oauth2_views.CheckRates" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">rest_framework.views.APIView</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">APIView</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.oauth2_views.CheckRates.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.oauth2_views.CheckRates.get" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.oauth2_views.CheckRates.key_info_bash">
-<span class="sig-name descname"><span class="pre">key_info_bash</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\ncurl</span> <span class="pre">\\\n</span>  <span class="pre">-H</span> <span class="pre">"Authorization:</span> <span class="pre">Bearer</span> <span class="pre">DLBYIcfnKfolaXKcmMC8RIDCavc2hW"</span> <span class="pre">\\\n</span>  <span class="pre">http://api.openverse.engineering/v1/rate_limit\n'</span></em><a class="headerlink" href="#catalog.api.views.oauth2_views.CheckRates.key_info_bash" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">key_info_bash</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\ncurl</span> <span class="pre">\\\n</span>&#160; <span class="pre">-H</span> <span class="pre">&quot;Authorization:</span> <span class="pre">Bearer</span> <span class="pre">DLBYIcfnKfolaXKcmMC8RIDCavc2hW&quot;</span> <span class="pre">\\\n</span>&#160; <span class="pre">http://api.openverse.engineering/v1/rate_limit\n'</span></em><a class="headerlink" href="#catalog.api.views.oauth2_views.CheckRates.key_info_bash" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.oauth2_views.CheckRates.key_info_description">
 <span class="sig-name descname"><span class="pre">key_info_description</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\nkey_info</span> <span class="pre">is</span> <span class="pre">an</span> <span class="pre">API</span> <span class="pre">endpoint</span> <span class="pre">to</span> <span class="pre">get</span> <span class="pre">information</span> <span class="pre">about</span> <span class="pre">your</span> <span class="pre">API</span> <span class="pre">key.\n\nYou</span> <span class="pre">can</span> <span class="pre">use</span> <span class="pre">this</span> <span class="pre">endpoint</span> <span class="pre">to</span> <span class="pre">get</span> <span class="pre">information</span> <span class="pre">about</span> <span class="pre">your</span> <span class="pre">API</span> <span class="pre">key</span> <span class="pre">such</span> <span class="pre">as\n`requests_this_minute`,</span> <span class="pre">`requests_today`,</span> <span class="pre">and</span> <span class="pre">`rate_limit_model`.\n\n&gt;</span> <span class="pre">**NOTE:**</span> <span class="pre">If</span> <span class="pre">you</span> <span class="pre">get</span> <span class="pre">a</span> <span class="pre">403</span> <span class="pre">Forbidden</span> <span class="pre">response,</span> <span class="pre">it</span> <span class="pre">means</span> <span class="pre">your</span> <span class="pre">access</span> <span class="pre">token</span> <span class="pre">has</span> <span class="pre">expired.\n\n\nYou</span> <span class="pre">can</span> <span class="pre">refer</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">cURL</span> <span class="pre">request</span> <span class="pre">samples</span> <span class="pre">for</span> <span class="pre">examples</span> <span class="pre">on</span> <span class="pre">how</span> <span class="pre">to</span> <span class="pre">consume</span> <span class="pre">this\nendpoint.\n'</span></em><a class="headerlink" href="#catalog.api.views.oauth2_views.CheckRates.key_info_description" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.oauth2_views.CheckRates.key_info_response">
 <span class="sig-name descname"><span class="pre">key_info_response</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'200':</span> <span class="pre">{'description':</span> <span class="pre">'OK',</span> <span class="pre">'examples':</span> <span class="pre">{'application/json':</span> <span class="pre">{'rate_limit_model':</span> <span class="pre">'enhanced',</span> <span class="pre">'requests_this_minute':</span> <span class="pre">2,</span> <span class="pre">'requests_today':</span> <span class="pre">40}},</span> <span class="pre">'schema':</span> <span class="pre">&lt;class</span> <span class="pre">'catalog.api.serializers.oauth2_serializers.OAuth2KeyInfo'&gt;},</span> <span class="pre">'403':</span> <span class="pre">{'description':</span> <span class="pre">'Forbidden',</span> <span class="pre">'examples':</span> <span class="pre">{'application/json':</span> <span class="pre">'Forbidden'},</span> <span class="pre">'schema':</span> <span class="pre">&lt;class</span> <span class="pre">'catalog.api.serializers.error_serializers.ForbiddenErrorSerializer'&gt;},</span> <span class="pre">'500':</span> <span class="pre">{'description':</span> <span class="pre">'Internal</span> <span class="pre">Server</span> <span class="pre">Error',</span> <span class="pre">'examples':</span> <span class="pre">{'application/json':</span> <span class="pre">'Unknown</span> <span class="pre">API</span> <span class="pre">key</span> <span class="pre">rate</span> <span class="pre">limit</span> <span class="pre">type'},</span> <span class="pre">'schema':</span> <span class="pre">&lt;class</span> <span class="pre">'catalog.api.serializers.error_serializers.InternalServerErrorSerializer'&gt;}}</span></em><a class="headerlink" href="#catalog.api.views.oauth2_views.CheckRates.key_info_response" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.oauth2_views.CheckRates.swagger_schema">
 <span class="sig-name descname"><span class="pre">swagger_schema</span></span><a class="headerlink" href="#catalog.api.views.oauth2_views.CheckRates.swagger_schema" title="Permalink to this definition">#</a></dt>
-<dd><p>alias of <a class="reference internal" href="../index.html#catalog.custom_auto_schema.CustomAutoSchema" title="catalog.custom_auto_schema.CustomAutoSchema"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.custom_auto_schema.CustomAutoSchema</span></code></a></p>
+<dd><p>alias of <a class="reference internal" href="../index.html#catalog.custom_auto_schema.CustomAutoSchema" title="catalog.custom_auto_schema.CustomAutoSchema"><code class="xref py py-class docutils literal notranslate"><span class="pre">CustomAutoSchema</span></code></a></p>
 </dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.oauth2_views.CheckRates.throttle_classes">
 <span class="sig-name descname"><span class="pre">throttle_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(&lt;class</span> <span class="pre">'catalog.api.utils.throttle.OnePerSecond'&gt;,)</span></em><a class="headerlink" href="#catalog.api.views.oauth2_views.CheckRates.throttle_classes" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.views.oauth2_views.Register">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.views.oauth2_views.</span></span><span class="sig-name descname"><span class="pre">Register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.oauth2_views.Register" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">rest_framework.views.APIView</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">APIView</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.oauth2_views.Register.post">
 <span class="sig-name descname"><span class="pre">post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.oauth2_views.Register.post" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.oauth2_views.Register.register_api_oauth2_bash">
-<span class="sig-name descname"><span class="pre">register_api_oauth2_bash</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\n#</span> <span class="pre">Register</span> <span class="pre">for</span> <span class="pre">a</span> <span class="pre">key\ncurl</span> <span class="pre">\\\n</span>  <span class="pre">-X</span> <span class="pre">POST</span> <span class="pre">\\\n</span>  <span class="pre">-H</span> <span class="pre">"Content-Type:</span> <span class="pre">application/json"</span> <span class="pre">\\\n</span>  <span class="pre">-d</span> <span class="pre">\'{"name":</span> <span class="pre">"My</span> <span class="pre">amazing</span> <span class="pre">project",</span> <span class="pre">"description":</span> <span class="pre">"To</span> <span class="pre">access</span> <span class="pre">Openverse</span> <span class="pre">API",</span> <span class="pre">"email":</span> <span class="pre">"user@example.com"}\'</span> <span class="pre">\\\n</span>  <span class="pre">https://api.openverse.engineering/v1/auth_tokens/register\n'</span></em><a class="headerlink" href="#catalog.api.views.oauth2_views.Register.register_api_oauth2_bash" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">register_api_oauth2_bash</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\n#</span> <span class="pre">Register</span> <span class="pre">for</span> <span class="pre">a</span> <span class="pre">key\ncurl</span> <span class="pre">\\\n</span>&#160; <span class="pre">-X</span> <span class="pre">POST</span> <span class="pre">\\\n</span>&#160; <span class="pre">-H</span> <span class="pre">&quot;Content-Type:</span> <span class="pre">application/json&quot;</span> <span class="pre">\\\n</span>&#160; <span class="pre">-d</span> <span class="pre">\'{&quot;name&quot;:</span> <span class="pre">&quot;My</span> <span class="pre">amazing</span> <span class="pre">project&quot;,</span> <span class="pre">&quot;description&quot;:</span> <span class="pre">&quot;To</span> <span class="pre">access</span> <span class="pre">Openverse</span> <span class="pre">API&quot;,</span> <span class="pre">&quot;email&quot;:</span> <span class="pre">&quot;user&#64;example.com&quot;}\'</span> <span class="pre">\\\n</span>&#160; <span class="pre">https://api.openverse.engineering/v1/auth_tokens/register\n'</span></em><a class="headerlink" href="#catalog.api.views.oauth2_views.Register.register_api_oauth2_bash" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.oauth2_views.Register.register_api_oauth2_description">
-<span class="sig-name descname"><span class="pre">register_api_oauth2_description</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">"\nregister_api_oauth2</span> <span class="pre">is</span> <span class="pre">an</span> <span class="pre">API</span> <span class="pre">endpoint</span> <span class="pre">to</span> <span class="pre">register</span> <span class="pre">access</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">API</span> <span class="pre">via</span> <span class="pre">OAuth2.\n\nUpon</span> <span class="pre">registering,</span> <span class="pre">you</span> <span class="pre">will</span> <span class="pre">receive</span> <span class="pre">a</span> <span class="pre">`client_id`</span> <span class="pre">and</span> <span class="pre">`client_secret`,</span> <span class="pre">which</span> <span class="pre">you</span> <span class="pre">can</span> <span class="pre">then\nuse</span> <span class="pre">to</span> <span class="pre">authenticate</span> <span class="pre">using</span> <span class="pre">the</span> <span class="pre">standard</span> <span class="pre">OAuth2</span> <span class="pre">Client</span> <span class="pre">Credentials</span> <span class="pre">flow.</span> <span class="pre">See</span> <span class="pre">the</span> <span class="pre">Register\nand</span> <span class="pre">Authenticate</span> <span class="pre">section</span> <span class="pre">for</span> <span class="pre">instructions</span> <span class="pre">on</span> <span class="pre">registering</span> <span class="pre">access</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">API</span> <span class="pre">via</span> <span class="pre">OAuth2.\n\n&gt;</span> <span class="pre">**WARNING:**</span> <span class="pre">You</span> <span class="pre">must</span> <span class="pre">keep</span> <span class="pre">`client_secret`</span> <span class="pre">confidential,</span> <span class="pre">as</span> <span class="pre">anybody</span> <span class="pre">with</span> <span class="pre">your\n&gt;</span> <span class="pre">`client_secret`</span> <span class="pre">can</span> <span class="pre">impersonate</span> <span class="pre">your</span> <span class="pre">application.\n\nAuthenticated</span> <span class="pre">users</span> <span class="pre">have</span> <span class="pre">higher</span> <span class="pre">rate</span> <span class="pre">limits</span> <span class="pre">than</span> <span class="pre">anonymous</span> <span class="pre">users.</span> <span class="pre">Additionally,</span> <span class="pre">by\nidentifying</span> <span class="pre">yourself,</span> <span class="pre">you</span> <span class="pre">can</span> <span class="pre">request</span> <span class="pre">Openverse</span> <span class="pre">to</span> <span class="pre">adjust</span> <span class="pre">your</span> <span class="pre">personal</span> <span class="pre">rate</span> <span class="pre">limit\ndepending</span> <span class="pre">on</span> <span class="pre">your</span> <span class="pre">organization's</span> <span class="pre">needs.\n\n\nYou</span> <span class="pre">can</span> <span class="pre">refer</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">cURL</span> <span class="pre">request</span> <span class="pre">samples</span> <span class="pre">for</span> <span class="pre">examples</span> <span class="pre">on</span> <span class="pre">how</span> <span class="pre">to</span> <span class="pre">consume</span> <span class="pre">this\nendpoint.\n"</span></em><a class="headerlink" href="#catalog.api.views.oauth2_views.Register.register_api_oauth2_description" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">register_api_oauth2_description</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&quot;\nregister_api_oauth2</span> <span class="pre">is</span> <span class="pre">an</span> <span class="pre">API</span> <span class="pre">endpoint</span> <span class="pre">to</span> <span class="pre">register</span> <span class="pre">access</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">API</span> <span class="pre">via</span> <span class="pre">OAuth2.\n\nUpon</span> <span class="pre">registering,</span> <span class="pre">you</span> <span class="pre">will</span> <span class="pre">receive</span> <span class="pre">a</span> <span class="pre">`client_id`</span> <span class="pre">and</span> <span class="pre">`client_secret`,</span> <span class="pre">which</span> <span class="pre">you</span> <span class="pre">can</span> <span class="pre">then\nuse</span> <span class="pre">to</span> <span class="pre">authenticate</span> <span class="pre">using</span> <span class="pre">the</span> <span class="pre">standard</span> <span class="pre">OAuth2</span> <span class="pre">Client</span> <span class="pre">Credentials</span> <span class="pre">flow.</span> <span class="pre">See</span> <span class="pre">the</span> <span class="pre">Register\nand</span> <span class="pre">Authenticate</span> <span class="pre">section</span> <span class="pre">for</span> <span class="pre">instructions</span> <span class="pre">on</span> <span class="pre">registering</span> <span class="pre">access</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">API</span> <span class="pre">via</span> <span class="pre">OAuth2.\n\n&gt;</span> <span class="pre">**WARNING:**</span> <span class="pre">You</span> <span class="pre">must</span> <span class="pre">keep</span> <span class="pre">`client_secret`</span> <span class="pre">confidential,</span> <span class="pre">as</span> <span class="pre">anybody</span> <span class="pre">with</span> <span class="pre">your\n&gt;</span> <span class="pre">`client_secret`</span> <span class="pre">can</span> <span class="pre">impersonate</span> <span class="pre">your</span> <span class="pre">application.\n\nAuthenticated</span> <span class="pre">users</span> <span class="pre">have</span> <span class="pre">higher</span> <span class="pre">rate</span> <span class="pre">limits</span> <span class="pre">than</span> <span class="pre">anonymous</span> <span class="pre">users.</span> <span class="pre">Additionally,</span> <span class="pre">by\nidentifying</span> <span class="pre">yourself,</span> <span class="pre">you</span> <span class="pre">can</span> <span class="pre">request</span> <span class="pre">Openverse</span> <span class="pre">to</span> <span class="pre">adjust</span> <span class="pre">your</span> <span class="pre">personal</span> <span class="pre">rate</span> <span class="pre">limit\ndepending</span> <span class="pre">on</span> <span class="pre">your</span> <span class="pre">organization's</span> <span class="pre">needs.\n\n\nYou</span> <span class="pre">can</span> <span class="pre">refer</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">cURL</span> <span class="pre">request</span> <span class="pre">samples</span> <span class="pre">for</span> <span class="pre">examples</span> <span class="pre">on</span> <span class="pre">how</span> <span class="pre">to</span> <span class="pre">consume</span> <span class="pre">this\nendpoint.\n&quot;</span></em><a class="headerlink" href="#catalog.api.views.oauth2_views.Register.register_api_oauth2_description" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.oauth2_views.Register.register_api_oauth2_request">
-<span class="sig-name descname"><span class="pre">register_api_oauth2_request</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'example':</span> <span class="pre">{'description':</span> <span class="pre">'To</span> <span class="pre">access</span> <span class="pre">Openverse</span> <span class="pre">API',</span> <span class="pre">'email':</span> <span class="pre">'user@example.com',</span> <span class="pre">'name':</span> <span class="pre">'My</span> <span class="pre">amazing</span> <span class="pre">project'},</span> <span class="pre">'properties':</span> <span class="pre">{'description':</span> <span class="pre">{'description':</span> <span class="pre">'A</span> <span class="pre">description</span> <span class="pre">of</span> <span class="pre">what</span> <span class="pre">you</span> <span class="pre">are</span> <span class="pre">trying</span> <span class="pre">to</span> <span class="pre">achieve</span> <span class="pre">with</span> <span class="pre">your</span> <span class="pre">project</span> <span class="pre">using</span> <span class="pre">the</span> <span class="pre">API.</span> <span class="pre">Please</span> <span class="pre">provide</span> <span class="pre">as</span> <span class="pre">much</span> <span class="pre">detail</span> <span class="pre">as</span> <span class="pre">possible!',</span> <span class="pre">'maxLength':</span> <span class="pre">10000,</span> <span class="pre">'minLength':</span> <span class="pre">1,</span> <span class="pre">'title':</span> <span class="pre">'Description',</span> <span class="pre">'type':</span> <span class="pre">'string'},</span> <span class="pre">'email':</span> <span class="pre">{'description':</span> <span class="pre">'A</span> <span class="pre">valid</span> <span class="pre">email</span> <span class="pre">that</span> <span class="pre">we</span> <span class="pre">can</span> <span class="pre">reach</span> <span class="pre">you</span> <span class="pre">at</span> <span class="pre">if</span> <span class="pre">we</span> <span class="pre">have</span> <span class="pre">any</span> <span class="pre">questions</span> <span class="pre">about</span> <span class="pre">your</span> <span class="pre">use</span> <span class="pre">case</span> <span class="pre">or</span> <span class="pre">data</span> <span class="pre">consumption.',</span> <span class="pre">'format':</span> <span class="pre">'email',</span> <span class="pre">'maxLength':</span> <span class="pre">254,</span> <span class="pre">'minLength':</span> <span class="pre">1,</span> <span class="pre">'title':</span> <span class="pre">'Email',</span> <span class="pre">'type':</span> <span class="pre">'string'},</span> <span class="pre">'name':</span> <span class="pre">{'description':</span> <span class="pre">'A</span> <span class="pre">unique</span> <span class="pre">human-readable</span> <span class="pre">name</span> <span class="pre">for</span> <span class="pre">your</span> <span class="pre">application</span> <span class="pre">or</span> <span class="pre">project</span> <span class="pre">requiring</span> <span class="pre">access</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">Openverse</span> <span class="pre">API.',</span> <span class="pre">'maxLength':</span> <span class="pre">150,</span> <span class="pre">'minLength':</span> <span class="pre">1,</span> <span class="pre">'title':</span> <span class="pre">'Name',</span> <span class="pre">'type':</span> <span class="pre">'string',</span> <span class="pre">'unique':</span> <span class="pre">True}},</span> <span class="pre">'required':</span> <span class="pre">['name',</span> <span class="pre">'description',</span> <span class="pre">'email'],</span> <span class="pre">'type':</span> <span class="pre">'object'}</span></em><a class="headerlink" href="#catalog.api.views.oauth2_views.Register.register_api_oauth2_request" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">register_api_oauth2_request</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'example':</span> <span class="pre">{'description':</span> <span class="pre">'To</span> <span class="pre">access</span> <span class="pre">Openverse</span> <span class="pre">API',</span> <span class="pre">'email':</span> <span class="pre">'user&#64;example.com',</span> <span class="pre">'name':</span> <span class="pre">'My</span> <span class="pre">amazing</span> <span class="pre">project'},</span> <span class="pre">'properties':</span> <span class="pre">{'description':</span> <span class="pre">{'description':</span> <span class="pre">'A</span> <span class="pre">description</span> <span class="pre">of</span> <span class="pre">what</span> <span class="pre">you</span> <span class="pre">are</span> <span class="pre">trying</span> <span class="pre">to</span> <span class="pre">achieve</span> <span class="pre">with</span> <span class="pre">your</span> <span class="pre">project</span> <span class="pre">using</span> <span class="pre">the</span> <span class="pre">API.</span> <span class="pre">Please</span> <span class="pre">provide</span> <span class="pre">as</span> <span class="pre">much</span> <span class="pre">detail</span> <span class="pre">as</span> <span class="pre">possible!',</span> <span class="pre">'maxLength':</span> <span class="pre">10000,</span> <span class="pre">'minLength':</span> <span class="pre">1,</span> <span class="pre">'title':</span> <span class="pre">'Description',</span> <span class="pre">'type':</span> <span class="pre">'string'},</span> <span class="pre">'email':</span> <span class="pre">{'description':</span> <span class="pre">'A</span> <span class="pre">valid</span> <span class="pre">email</span> <span class="pre">that</span> <span class="pre">we</span> <span class="pre">can</span> <span class="pre">reach</span> <span class="pre">you</span> <span class="pre">at</span> <span class="pre">if</span> <span class="pre">we</span> <span class="pre">have</span> <span class="pre">any</span> <span class="pre">questions</span> <span class="pre">about</span> <span class="pre">your</span> <span class="pre">use</span> <span class="pre">case</span> <span class="pre">or</span> <span class="pre">data</span> <span class="pre">consumption.',</span> <span class="pre">'format':</span> <span class="pre">'email',</span> <span class="pre">'maxLength':</span> <span class="pre">254,</span> <span class="pre">'minLength':</span> <span class="pre">1,</span> <span class="pre">'title':</span> <span class="pre">'Email',</span> <span class="pre">'type':</span> <span class="pre">'string'},</span> <span class="pre">'name':</span> <span class="pre">{'description':</span> <span class="pre">'A</span> <span class="pre">unique</span> <span class="pre">human-readable</span> <span class="pre">name</span> <span class="pre">for</span> <span class="pre">your</span> <span class="pre">application</span> <span class="pre">or</span> <span class="pre">project</span> <span class="pre">requiring</span> <span class="pre">access</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">Openverse</span> <span class="pre">API.',</span> <span class="pre">'maxLength':</span> <span class="pre">150,</span> <span class="pre">'minLength':</span> <span class="pre">1,</span> <span class="pre">'title':</span> <span class="pre">'Name',</span> <span class="pre">'type':</span> <span class="pre">'string',</span> <span class="pre">'unique':</span> <span class="pre">True}},</span> <span class="pre">'required':</span> <span class="pre">['name',</span> <span class="pre">'description',</span> <span class="pre">'email'],</span> <span class="pre">'type':</span> <span class="pre">'object'}</span></em><a class="headerlink" href="#catalog.api.views.oauth2_views.Register.register_api_oauth2_request" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.oauth2_views.Register.register_api_oauth2_response">
 <span class="sig-name descname"><span class="pre">register_api_oauth2_response</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'201':</span> <span class="pre">{'description':</span> <span class="pre">'OK',</span> <span class="pre">'examples':</span> <span class="pre">{'application/json':</span> <span class="pre">{'client_id':</span> <span class="pre">'pm8GMaIXIhkjQ4iDfXLOvVUUcIKGYRnMlZYApbda',</span> <span class="pre">'client_secret':</span> <span class="pre">'YhVjvIBc7TuRJSvO2wIi344ez5SEreXLksV7GjalLiKDpxfbiM8qfUb5sNvcwFOhBUVzGNdzmmHvfyt6yU3aGrN6TAbMW8EOkRMOwhyXkN1iDetmzMMcxLVELf00BR2e',</span> <span class="pre">'name':</span> <span class="pre">'My</span> <span class="pre">amazing</span> <span class="pre">project'}},</span> <span class="pre">'schema':</span> <span class="pre">&lt;class</span> <span class="pre">'catalog.api.serializers.oauth2_serializers.OAuth2RegistrationSuccessful'&gt;}}</span></em><a class="headerlink" href="#catalog.api.views.oauth2_views.Register.register_api_oauth2_response" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.oauth2_views.Register.swagger_schema">
 <span class="sig-name descname"><span class="pre">swagger_schema</span></span><a class="headerlink" href="#catalog.api.views.oauth2_views.Register.swagger_schema" title="Permalink to this definition">#</a></dt>
-<dd><p>alias of <a class="reference internal" href="../index.html#catalog.custom_auto_schema.CustomAutoSchema" title="catalog.custom_auto_schema.CustomAutoSchema"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.custom_auto_schema.CustomAutoSchema</span></code></a></p>
+<dd><p>alias of <a class="reference internal" href="../index.html#catalog.custom_auto_schema.CustomAutoSchema" title="catalog.custom_auto_schema.CustomAutoSchema"><code class="xref py py-class docutils literal notranslate"><span class="pre">CustomAutoSchema</span></code></a></p>
 </dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.oauth2_views.Register.throttle_classes">
 <span class="sig-name descname"><span class="pre">throttle_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(&lt;class</span> <span class="pre">'catalog.api.utils.throttle.TenPerDay'&gt;,)</span></em><a class="headerlink" href="#catalog.api.views.oauth2_views.Register.throttle_classes" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.views.oauth2_views.VerifyEmail">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.views.oauth2_views.</span></span><span class="sig-name descname"><span class="pre">VerifyEmail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.oauth2_views.VerifyEmail" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">rest_framework.views.APIView</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">APIView</span></code></p>
 <p>When the user follows the verification link sent to their email, enable
 their OAuth2 key.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.views.oauth2_views.VerifyEmail.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.views.oauth2_views.VerifyEmail.get" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.views.oauth2_views.VerifyEmail.swagger_schema">
 <span class="sig-name descname"><span class="pre">swagger_schema</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#catalog.api.views.oauth2_views.VerifyEmail.swagger_schema" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 </section>
 <section id="module-catalog.api.views">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-catalog.api.views" title="Permalink to this headline">#</a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-catalog.api.views" title="Permalink to this heading">#</a></h2>
 </section>
 </section>
 
@@ -620,6 +685,7 @@ their OAuth2 key.</p>
 </div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/scripts/furo.js"></script>
     </body>

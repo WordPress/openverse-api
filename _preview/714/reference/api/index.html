@@ -1,14 +1,14 @@
 <!doctype html>
-<html class="no-js">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="catalog.api.constants package" href="constants.html" /><link rel="prev" title="Code reference" href="../index.html" />
 
-    <link rel="shortcut icon" href="https://raw.githubusercontent.com/WordPress/openverse/master/brand/icon.svg"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
+    <link rel="shortcut icon" href="https://raw.githubusercontent.com/WordPress/openverse/master/brand/icon.svg"/><meta name="generator" content="sphinx-5.0.2, furo 2022.06.21"/>
         <title>catalog.api package - Openverse API developer docs</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     <link rel="stylesheet" type="text/css" href="../../_static/_css/brand.css" />
     
@@ -179,6 +179,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../guides/document.html">Document</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/publish.html">Publish</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/deploy.html">Deploy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/logging.html">Logging</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../index.html">Code reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -219,7 +220,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -234,9 +236,9 @@
         </div>
         <article role="main">
           <section id="catalog-api-package">
-<h1>catalog.api package<a class="headerlink" href="#catalog-api-package" title="Permalink to this headline">#</a></h1>
+<h1>catalog.api package<a class="headerlink" href="#catalog-api-package" title="Permalink to this heading">#</a></h1>
 <section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">#</a></h2>
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="constants.html">catalog.api.constants package</a><ul>
@@ -247,7 +249,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="controllers.html">catalog.api.controllers package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="controllers.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="controllers.html#module-catalog.api.controllers.search_controller">catalog.api.controllers.search_controller module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="controllers.html#catalog-api-controllers-search-controller-module">catalog.api.controllers.search_controller module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="controllers.html#module-catalog.api.controllers">Module contents</a></li>
 </ul>
 </li>
@@ -321,153 +323,184 @@
 </div>
 </section>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">#</a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
 </section>
 <section id="module-catalog.api.admin">
-<span id="catalog-api-admin-module"></span><h2>catalog.api.admin module<a class="headerlink" href="#module-catalog.api.admin" title="Permalink to this headline">#</a></h2>
+<span id="catalog-api-admin-module"></span><h2>catalog.api.admin module<a class="headerlink" href="#module-catalog.api.admin" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.admin.AudioReportAdmin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.admin.</span></span><span class="sig-name descname"><span class="pre">AudioReportAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.admin.AudioReportAdmin" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.admin.MediaReportAdmin" title="catalog.api.admin.MediaReportAdmin"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.admin.MediaReportAdmin</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.admin.MediaReportAdmin" title="catalog.api.admin.MediaReportAdmin"><code class="xref py py-class docutils literal notranslate"><span class="pre">MediaReportAdmin</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.admin.AudioReportAdmin.list_display">
 <span class="sig-name descname"><span class="pre">list_display</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('reason',</span> <span class="pre">'status',</span> <span class="pre">'audio_url',</span> <span class="pre">'description',</span> <span class="pre">'created_at')</span></em><a class="headerlink" href="#catalog.api.admin.AudioReportAdmin.list_display" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="catalog.api.admin.AudioReportAdmin.media">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#catalog.api.admin.AudioReportAdmin.media" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.admin.DeletedImage">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.admin.</span></span><span class="sig-name descname"><span class="pre">DeletedImage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.admin.DeletedImage" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">django.contrib.admin.options.ModelAdmin</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
 <dl class="py property">
 <dt class="sig sig-object py" id="catalog.api.admin.DeletedImage.media">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#catalog.api.admin.DeletedImage.media" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.admin.DeletedImage.search_fields">
 <span class="sig-name descname"><span class="pre">search_fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('identifier',)</span></em><a class="headerlink" href="#catalog.api.admin.DeletedImage.search_fields" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.admin.ImageReportAdmin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.admin.</span></span><span class="sig-name descname"><span class="pre">ImageReportAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.admin.ImageReportAdmin" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.admin.MediaReportAdmin" title="catalog.api.admin.MediaReportAdmin"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.admin.MediaReportAdmin</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.admin.MediaReportAdmin" title="catalog.api.admin.MediaReportAdmin"><code class="xref py py-class docutils literal notranslate"><span class="pre">MediaReportAdmin</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.admin.ImageReportAdmin.list_display">
 <span class="sig-name descname"><span class="pre">list_display</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('reason',</span> <span class="pre">'status',</span> <span class="pre">'image_url',</span> <span class="pre">'description',</span> <span class="pre">'created_at')</span></em><a class="headerlink" href="#catalog.api.admin.ImageReportAdmin.list_display" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="catalog.api.admin.ImageReportAdmin.media">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#catalog.api.admin.ImageReportAdmin.media" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.admin.InlineImage">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.admin.</span></span><span class="sig-name descname"><span class="pre">InlineImage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.admin.InlineImage" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">django.contrib.admin.options.TabularInline</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TabularInline</span></code></p>
 <dl class="py property">
 <dt class="sig sig-object py" id="catalog.api.admin.InlineImage.media">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#catalog.api.admin.InlineImage.media" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.admin.InlineImage.model">
 <span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#catalog.api.admin.InlineImage.model" title="Permalink to this definition">#</a></dt>
-<dd><p>alias of <a class="reference internal" href="models.html#catalog.api.models.models.SourceLogo" title="catalog.api.models.models.SourceLogo"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.models.models.SourceLogo</span></code></a></p>
+<dd><p>alias of <a class="reference internal" href="models.html#catalog.api.models.models.SourceLogo" title="catalog.api.models.models.SourceLogo"><code class="xref py py-class docutils literal notranslate"><span class="pre">SourceLogo</span></code></a></p>
 </dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.admin.MatureImageAdmin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.admin.</span></span><span class="sig-name descname"><span class="pre">MatureImageAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.admin.MatureImageAdmin" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">django.contrib.admin.options.ModelAdmin</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
 <dl class="py property">
 <dt class="sig sig-object py" id="catalog.api.admin.MatureImageAdmin.media">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#catalog.api.admin.MatureImageAdmin.media" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.admin.MatureImageAdmin.search_fields">
 <span class="sig-name descname"><span class="pre">search_fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('identifier',)</span></em><a class="headerlink" href="#catalog.api.admin.MatureImageAdmin.search_fields" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.admin.MediaReportAdmin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.admin.</span></span><span class="sig-name descname"><span class="pre">MediaReportAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.admin.MediaReportAdmin" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">django.contrib.admin.options.ModelAdmin</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.admin.MediaReportAdmin.actions">
 <span class="sig-name descname"><span class="pre">actions</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#catalog.api.admin.MediaReportAdmin.actions" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.admin.MediaReportAdmin.get_readonly_fields">
 <span class="sig-name descname"><span class="pre">get_readonly_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.admin.MediaReportAdmin.get_readonly_fields" title="Permalink to this definition">#</a></dt>
 <dd><p>Hook for specifying custom readonly fields.</p>
 </dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.admin.MediaReportAdmin.list_display_links">
 <span class="sig-name descname"><span class="pre">list_display_links</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('status',)</span></em><a class="headerlink" href="#catalog.api.admin.MediaReportAdmin.list_display_links" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.admin.MediaReportAdmin.list_filter">
 <span class="sig-name descname"><span class="pre">list_filter</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('status',</span> <span class="pre">'reason')</span></em><a class="headerlink" href="#catalog.api.admin.MediaReportAdmin.list_filter" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="catalog.api.admin.MediaReportAdmin.media">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#catalog.api.admin.MediaReportAdmin.media" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.admin.MediaReportAdmin.search_fields">
 <span class="sig-name descname"><span class="pre">search_fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('description',</span> <span class="pre">'identifier')</span></em><a class="headerlink" href="#catalog.api.admin.MediaReportAdmin.search_fields" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.admin.ProviderAdmin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.admin.</span></span><span class="sig-name descname"><span class="pre">ProviderAdmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_site</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.admin.ProviderAdmin" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">django.contrib.admin.options.ModelAdmin</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelAdmin</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.admin.ProviderAdmin.exclude">
 <span class="sig-name descname"><span class="pre">exclude</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('notes',)</span></em><a class="headerlink" href="#catalog.api.admin.ProviderAdmin.exclude" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.admin.ProviderAdmin.inlines">
 <span class="sig-name descname"><span class="pre">inlines</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'catalog.api.admin.InlineImage'&gt;]</span></em><a class="headerlink" href="#catalog.api.admin.ProviderAdmin.inlines" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.admin.ProviderAdmin.list_display">
 <span class="sig-name descname"><span class="pre">list_display</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('provider_name',</span> <span class="pre">'provider_identifier',</span> <span class="pre">'media_type')</span></em><a class="headerlink" href="#catalog.api.admin.ProviderAdmin.list_display" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="catalog.api.admin.ProviderAdmin.media">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#catalog.api.admin.ProviderAdmin.media" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.admin.ProviderAdmin.search_fields">
 <span class="sig-name descname"><span class="pre">search_fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('provider_name',</span> <span class="pre">'provider_identifier')</span></em><a class="headerlink" href="#catalog.api.admin.ProviderAdmin.search_fields" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 </section>
 <section id="module-catalog.api.apps">
-<span id="catalog-api-apps-module"></span><h2>catalog.api.apps module<a class="headerlink" href="#module-catalog.api.apps" title="Permalink to this headline">#</a></h2>
+<span id="catalog-api-apps-module"></span><h2>catalog.api.apps module<a class="headerlink" href="#module-catalog.api.apps" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.apps.ApiConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.apps.</span></span><span class="sig-name descname"><span class="pre">ApiConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_module</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.apps.ApiConfig" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">django.apps.config.AppConfig</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AppConfig</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.apps.ApiConfig.default_auto_field">
 <span class="sig-name descname"><span class="pre">default_auto_field</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'django.db.models.AutoField'</span></em><a class="headerlink" href="#catalog.api.apps.ApiConfig.default_auto_field" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.apps.ApiConfig.name">
 <span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'catalog.api'</span></em><a class="headerlink" href="#catalog.api.apps.ApiConfig.name" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 </section>
 <section id="catalog-api-licenses-module">
-<h2>catalog.api.licenses module<a class="headerlink" href="#catalog-api-licenses-module" title="Permalink to this headline">#</a></h2>
+<h2>catalog.api.licenses module<a class="headerlink" href="#catalog-api-licenses-module" title="Permalink to this heading">#</a></h2>
 </section>
 <section id="module-catalog.api">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-catalog.api" title="Permalink to this headline">#</a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-catalog.api" title="Permalink to this heading">#</a></h2>
 </section>
 </section>
 
@@ -546,6 +579,7 @@
 </div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/scripts/furo.js"></script>
     </body>

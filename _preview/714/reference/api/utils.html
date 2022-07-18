@@ -1,14 +1,14 @@
 <!doctype html>
-<html class="no-js">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="catalog.api.views package" href="views.html" /><link rel="prev" title="catalog.api.serializers package" href="serializers.html" />
 
-    <link rel="shortcut icon" href="https://raw.githubusercontent.com/WordPress/openverse/master/brand/icon.svg"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
+    <link rel="shortcut icon" href="https://raw.githubusercontent.com/WordPress/openverse/master/brand/icon.svg"/><meta name="generator" content="sphinx-5.0.2, furo 2022.06.21"/>
         <title>catalog.api.utils package - Openverse API developer docs</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     <link rel="stylesheet" type="text/css" href="../../_static/_css/brand.css" />
     
@@ -179,6 +179,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../guides/document.html">Document</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/publish.html">Publish</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/deploy.html">Deploy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/logging.html">Logging</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../index.html">Code reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -219,7 +220,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -234,19 +236,19 @@
         </div>
         <article role="main">
           <section id="catalog-api-utils-package">
-<h1>catalog.api.utils package<a class="headerlink" href="#catalog-api-utils-package" title="Permalink to this headline">#</a></h1>
+<h1>catalog.api.utils package<a class="headerlink" href="#catalog-api-utils-package" title="Permalink to this heading">#</a></h1>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">#</a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
 </section>
 <section id="module-catalog.api.utils.ccrel">
-<span id="catalog-api-utils-ccrel-module"></span><h2>catalog.api.utils.ccrel module<a class="headerlink" href="#module-catalog.api.utils.ccrel" title="Permalink to this headline">#</a></h2>
+<span id="catalog-api-utils-ccrel-module"></span><h2>catalog.api.utils.ccrel module<a class="headerlink" href="#module-catalog.api.utils.ccrel" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="catalog.api.utils.ccrel.embed_xmp_bytes">
-<span class="sig-prename descclassname"><span class="pre">catalog.api.utils.ccrel.</span></span><span class="sig-name descname"><span class="pre">embed_xmp_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_io.BytesIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_properties</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.ccrel.embed_xmp_bytes" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">catalog.api.utils.ccrel.</span></span><span class="sig-name descname"><span class="pre">embed_xmp_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BytesIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_properties</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.ccrel.embed_xmp_bytes" title="Permalink to this definition">#</a></dt>
 <dd><p>Given a file-like <cite>io.BytesIO</cite> object, embed ccREL metadata inside of it.
 For our purposes, we assume that the file is an image.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>image</strong> – A BytesIO representation of an image.</p></li>
 <li><p><strong>work_properties</strong> – A dictionary with keys ‘license_url’ and</p></li>
@@ -257,44 +259,47 @@ For our purposes, we assume that the file is an image.</p>
 recommended)
 :return: An <cite>io.BytesIO</cite> object containing XMP metadata.</p>
 </dd></dl>
+
 </section>
 <section id="module-catalog.api.utils.dead_link_mask">
-<span id="catalog-api-utils-dead-link-mask-module"></span><h2>catalog.api.utils.dead_link_mask module<a class="headerlink" href="#module-catalog.api.utils.dead_link_mask" title="Permalink to this headline">#</a></h2>
+<span id="catalog-api-utils-dead-link-mask-module"></span><h2>catalog.api.utils.dead_link_mask module<a class="headerlink" href="#module-catalog.api.utils.dead_link_mask" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="catalog.api.utils.dead_link_mask.get_query_hash">
-<span class="sig-prename descclassname"><span class="pre">catalog.api.utils.dead_link_mask.</span></span><span class="sig-name descname"><span class="pre">get_query_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">elasticsearch_dsl.search.Search</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#catalog.api.utils.dead_link_mask.get_query_hash" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">catalog.api.utils.dead_link_mask.</span></span><span class="sig-name descname"><span class="pre">get_query_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Search</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#catalog.api.utils.dead_link_mask.get_query_hash" title="Permalink to this definition">#</a></dt>
 <dd><p>Generates a deterministic Murmur3 or SHA256 hash from the serialized Search
 object using DeepHash so that two Search objects with the same content will
 produce the same hash.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>s</strong> – Search object to be serialized and hashed.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Serialized Search object hash.</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="catalog.api.utils.dead_link_mask.get_query_mask">
-<span class="sig-prename descclassname"><span class="pre">catalog.api.utils.dead_link_mask.</span></span><span class="sig-name descname"><span class="pre">get_query_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#catalog.api.utils.dead_link_mask.get_query_mask" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">catalog.api.utils.dead_link_mask.</span></span><span class="sig-name descname"><span class="pre">get_query_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#catalog.api.utils.dead_link_mask.get_query_mask" title="Permalink to this definition">#</a></dt>
 <dd><p>Fetches an existing query mask for a given query hash
 or returns an empty one.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>query_hash</strong> – Unique value for a particular query.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Boolean mask as a list of integers (0 or 1).</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="catalog.api.utils.dead_link_mask.save_query_mask">
 <span class="sig-prename descclassname"><span class="pre">catalog.api.utils.dead_link_mask.</span></span><span class="sig-name descname"><span class="pre">save_query_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.dead_link_mask.save_query_mask" title="Permalink to this definition">#</a></dt>
 <dd><p>Saves a query mask to redis.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mask</strong> – Boolean mask as a list of integers (0 or 1).</p></li>
 <li><p><strong>query_hash</strong> – Unique value to be used as key.</p></li>
@@ -302,26 +307,28 @@ or returns an empty one.</p>
 </dd>
 </dl>
 </dd></dl>
+
 </section>
 <section id="module-catalog.api.utils.exceptions">
-<span id="catalog-api-utils-exceptions-module"></span><h2>catalog.api.utils.exceptions module<a class="headerlink" href="#module-catalog.api.utils.exceptions" title="Permalink to this headline">#</a></h2>
+<span id="catalog-api-utils-exceptions-module"></span><h2>catalog.api.utils.exceptions module<a class="headerlink" href="#module-catalog.api.utils.exceptions" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="catalog.api.utils.exceptions.exception_handler">
 <span class="sig-prename descclassname"><span class="pre">catalog.api.utils.exceptions.</span></span><span class="sig-name descname"><span class="pre">exception_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ex</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.exceptions.exception_handler" title="Permalink to this definition">#</a></dt>
 <dd><p>Handle the exception raised in a DRF context. See <a href="#id1"><span class="problematic" id="id2">`DRF docs`_</span></a>.
 .. _DRF docs: <a class="reference external" href="https://www.django-rest-framework.org/api-guide/exceptions/#custom-exception-handling">https://www.django-rest-framework.org/api-guide/exceptions/#custom-exception-handling</a>  # noqa: E501</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ex</strong> – the exception that has occurred</p></li>
 <li><p><strong>context</strong> – additional data about the context of the exception</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>the response to show for the exception</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="catalog.api.utils.exceptions.get_api_exception">
 <span class="sig-prename descclassname"><span class="pre">catalog.api.utils.exceptions.</span></span><span class="sig-name descname"><span class="pre">get_api_exception</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.exceptions.get_api_exception" title="Permalink to this definition">#</a></dt>
@@ -329,70 +336,61 @@ or returns an empty one.</p>
 message, error code and response status code.</p>
 <p>The returned object should be used with the <code class="docutils literal notranslate"><span class="pre">raise</span></code> keyword.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>error_message</strong> – the detailed error message shown to the user</p></li>
 <li><p><strong>response_code</strong> – the HTTP response status code</p></li>
 <li><p><strong>error_code</strong> – the codename of the error</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>an instance of a subclass of <code class="docutils literal notranslate"><span class="pre">APIException</span></code></p>
 </dd>
 </dl>
 </dd></dl>
+
 </section>
 <section id="module-catalog.api.utils.oauth2_helper">
-<span id="catalog-api-utils-oauth2-helper-module"></span><h2>catalog.api.utils.oauth2_helper module<a class="headerlink" href="#module-catalog.api.utils.oauth2_helper" title="Permalink to this headline">#</a></h2>
+<span id="catalog-api-utils-oauth2-helper-module"></span><h2>catalog.api.utils.oauth2_helper module<a class="headerlink" href="#module-catalog.api.utils.oauth2_helper" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="catalog.api.utils.oauth2_helper.get_token_info">
 <span class="sig-prename descclassname"><span class="pre">catalog.api.utils.oauth2_helper.</span></span><span class="sig-name descname"><span class="pre">get_token_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.oauth2_helper.get_token_info" title="Permalink to this definition">#</a></dt>
 <dd><p>Recover an OAuth2 application client ID and rate limit model from an access
 token.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>token</strong> – An OAuth2 access token.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>If the token is valid, return the client ID associated with the</p>
 </dd>
 </dl>
 <p>token, rate limit model, and email verification status as a tuple; else
 return (None, None, None).</p>
 </dd></dl>
+
 </section>
 <section id="module-catalog.api.utils.pagination">
-<span id="catalog-api-utils-pagination-module"></span><h2>catalog.api.utils.pagination module<a class="headerlink" href="#module-catalog.api.utils.pagination" title="Permalink to this headline">#</a></h2>
+<span id="catalog-api-utils-pagination-module"></span><h2>catalog.api.utils.pagination module<a class="headerlink" href="#module-catalog.api.utils.pagination" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.pagination.StandardPagination">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.pagination.</span></span><span class="sig-name descname"><span class="pre">StandardPagination</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.pagination.StandardPagination" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">rest_framework.pagination.PageNumberPagination</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PageNumberPagination</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.utils.pagination.StandardPagination.get_paginated_response">
 <span class="sig-name descname"><span class="pre">get_paginated_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.pagination.StandardPagination.get_paginated_response" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="catalog.api.utils.pagination.StandardPagination.page">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">page</span></span><a class="headerlink" href="#catalog.api.utils.pagination.StandardPagination.page" title="Permalink to this definition">#</a></dt>
-<dd><p>the current page number being served</p>
-</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.pagination.StandardPagination.page_query_param">
-<span class="sig-name descname"><span class="pre">page_query_param</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'page'</span></em><a class="headerlink" href="#catalog.api.utils.pagination.StandardPagination.page_query_param" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">page_query_param</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#catalog.api.utils.pagination.StandardPagination.page_query_param" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="catalog.api.utils.pagination.StandardPagination.page_size">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">page_size</span></span><a class="headerlink" href="#catalog.api.utils.pagination.StandardPagination.page_size" title="Permalink to this definition">#</a></dt>
-<dd><p>the number of results to show in one page</p>
+
 </dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="catalog.api.utils.pagination.StandardPagination.page_size_query_param">
-<span class="sig-name descname"><span class="pre">page_size_query_param</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'page_size'</span></em><a class="headerlink" href="#catalog.api.utils.pagination.StandardPagination.page_size_query_param" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-</dd></dl>
+
 </section>
 <section id="module-catalog.api.utils.scheduled_tasks">
-<span id="catalog-api-utils-scheduled-tasks-module"></span><h2>catalog.api.utils.scheduled_tasks module<a class="headerlink" href="#module-catalog.api.utils.scheduled_tasks" title="Permalink to this headline">#</a></h2>
+<span id="catalog-api-utils-scheduled-tasks-module"></span><h2>catalog.api.utils.scheduled_tasks module<a class="headerlink" href="#module-catalog.api.utils.scheduled_tasks" title="Permalink to this heading">#</a></h2>
 <p>Cron-like tasks run at a set interval. <cite>python3 manage.py runcrons</cite> will
 execute any scheduled tasks. This is intended to run on all instances of the
 server.</p>
@@ -402,7 +400,7 @@ inside of the cache (shared by all instances of <cite>api</cite>).</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.scheduled_tasks.SaveCachedTrafficStats">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.scheduled_tasks.</span></span><span class="sig-name descname"><span class="pre">SaveCachedTrafficStats</span></span><a class="headerlink" href="#catalog.api.utils.scheduled_tasks.SaveCachedTrafficStats" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">django_cron.CronJobBase</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">CronJobBase</span></code></p>
 <p>Traffic statistics (view count, API usage) are stored in Redis for fast
 updates and retrieval. In order to ensure durability of statistics and
 minimize cache memory requirements, they are intermittently replicated to
@@ -415,56 +413,64 @@ replicated to Elasticsearch by es-syncer and used to compute trending views.</p>
 <dt class="sig sig-object py" id="catalog.api.utils.scheduled_tasks.SaveCachedTrafficStats.MIN_NUM_FAILURES">
 <span class="sig-name descname"><span class="pre">MIN_NUM_FAILURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#catalog.api.utils.scheduled_tasks.SaveCachedTrafficStats.MIN_NUM_FAILURES" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.scheduled_tasks.SaveCachedTrafficStats.RUN_EVERY_MINS">
 <span class="sig-name descname"><span class="pre">RUN_EVERY_MINS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">20</span></em><a class="headerlink" href="#catalog.api.utils.scheduled_tasks.SaveCachedTrafficStats.RUN_EVERY_MINS" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.scheduled_tasks.SaveCachedTrafficStats.code">
 <span class="sig-name descname"><span class="pre">code</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'catalog.api.utils.scheduled_tasks.SaveCachedTrafficStats'</span></em><a class="headerlink" href="#catalog.api.utils.scheduled_tasks.SaveCachedTrafficStats.code" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.utils.scheduled_tasks.SaveCachedTrafficStats.do">
 <span class="sig-name descname"><span class="pre">do</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.scheduled_tasks.SaveCachedTrafficStats.do" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.scheduled_tasks.SaveCachedTrafficStats.schedule">
 <span class="sig-name descname"><span class="pre">schedule</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django_cron.Schedule</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#catalog.api.utils.scheduled_tasks.SaveCachedTrafficStats.schedule" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 </section>
 <section id="module-catalog.api.utils.status_code_view">
-<span id="catalog-api-utils-status-code-view-module"></span><h2>catalog.api.utils.status_code_view module<a class="headerlink" href="#module-catalog.api.utils.status_code_view" title="Permalink to this headline">#</a></h2>
+<span id="catalog-api-utils-status-code-view-module"></span><h2>catalog.api.utils.status_code_view module<a class="headerlink" href="#module-catalog.api.utils.status_code_view" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="catalog.api.utils.status_code_view.get_status_code_view">
 <span class="sig-prename descclassname"><span class="pre">catalog.api.utils.status_code_view.</span></span><span class="sig-name descname"><span class="pre">get_status_code_view</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.status_code_view.get_status_code_view" title="Permalink to this definition">#</a></dt>
 <dd><p>Get a class-based view that returns the given data and status code on all
 HTTP methods. Useful for blanket discontinuation of API endpoints.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> – the dictionary to serialize as the JSON response</p></li>
 <li><p><strong>status_code</strong> – the status code of the returned response</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>the class based view that returns the same response for all methods</p>
 </dd>
 </dl>
 </dd></dl>
+
 </section>
 <section id="module-catalog.api.utils.throttle">
-<span id="catalog-api-utils-throttle-module"></span><h2>catalog.api.utils.throttle module<a class="headerlink" href="#module-catalog.api.utils.throttle" title="Permalink to this headline">#</a></h2>
+<span id="catalog-api-utils-throttle-module"></span><h2>catalog.api.utils.throttle module<a class="headerlink" href="#module-catalog.api.utils.throttle" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.AnonRateThrottle">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">AnonRateThrottle</span></span><a class="headerlink" href="#catalog.api.utils.throttle.AnonRateThrottle" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.ExemptionAwareThrottle" title="catalog.api.utils.throttle.ExemptionAwareThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.utils.throttle.ExemptionAwareThrottle</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.ExemptionAwareThrottle" title="catalog.api.utils.throttle.ExemptionAwareThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExemptionAwareThrottle</span></code></a></p>
 <p>Limits the rate of API calls that may be made by a anonymous users.</p>
 <p>The IP address of the request will be used as the unique cache key.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.AnonRateThrottle.exemption_classes">
 <span class="sig-name descname"><span class="pre">exemption_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'catalog.api.utils.throttle.InternalNetworkExemption'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'catalog.api.utils.throttle.ApiKeyExemption'&gt;]</span></em><a class="headerlink" href="#catalog.api.utils.throttle.AnonRateThrottle.exemption_classes" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.AnonRateThrottle.get_cache_key">
 <span class="sig-name descname"><span class="pre">get_cache_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">view</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.throttle.AnonRateThrottle.get_cache_key" title="Permalink to this definition">#</a></dt>
@@ -472,15 +478,18 @@ HTTP methods. Useful for blanket discontinuation of API endpoints.</p>
 Must be overridden.</p>
 <p>May return <cite>None</cite> if the request should not be throttled.</p>
 </dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.AnonRateThrottle.scope">
 <span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'anon'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.AnonRateThrottle.scope" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.ApiKeyExemption">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">ApiKeyExemption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">throttle_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.throttle.ApiKeyExemption" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.ThrottleExemption" title="catalog.api.utils.throttle.ThrottleExemption"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.utils.throttle.ThrottleExemption</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.ThrottleExemption" title="catalog.api.utils.throttle.ThrottleExemption"><code class="xref py py-class docutils literal notranslate"><span class="pre">ThrottleExemption</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.ApiKeyExemption.is_exempt">
 <span class="sig-name descname"><span class="pre">is_exempt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.throttle.ApiKeyExemption.is_exempt" title="Permalink to this definition">#</a></dt>
@@ -489,50 +498,61 @@ terms this is used to prevent large consumers of
 Openverse’s API like WordPress.com and Jetpack from
 being rate-limited.</p>
 </dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.ApiKeyExemption.redis_set_name">
 <span class="sig-name descname"><span class="pre">redis_set_name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'client-id-allowlist'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.ApiKeyExemption.redis_set_name" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.BurstRateThrottle">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">BurstRateThrottle</span></span><a class="headerlink" href="#catalog.api.utils.throttle.BurstRateThrottle" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AnonRateThrottle" title="catalog.api.utils.throttle.AnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.utils.throttle.AnonRateThrottle</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AnonRateThrottle" title="catalog.api.utils.throttle.AnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnonRateThrottle</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.BurstRateThrottle.scope">
 <span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'anon_burst'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.BurstRateThrottle.scope" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.EnhancedOAuth2IdThrottleBurstRate">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">EnhancedOAuth2IdThrottleBurstRate</span></span><a class="headerlink" href="#catalog.api.utils.throttle.EnhancedOAuth2IdThrottleBurstRate" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate" title="catalog.api.utils.throttle.OAuth2IdThrottleRate"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.utils.throttle.OAuth2IdThrottleRate</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate" title="catalog.api.utils.throttle.OAuth2IdThrottleRate"><code class="xref py py-class docutils literal notranslate"><span class="pre">OAuth2IdThrottleRate</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.EnhancedOAuth2IdThrottleBurstRate.applies_to_rate_limit_model">
 <span class="sig-name descname"><span class="pre">applies_to_rate_limit_model</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'enhanced'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.EnhancedOAuth2IdThrottleBurstRate.applies_to_rate_limit_model" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.EnhancedOAuth2IdThrottleBurstRate.scope">
 <span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'enhanced_oauth2_client_credentials_burst'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.EnhancedOAuth2IdThrottleBurstRate.scope" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.EnhancedOAuth2IdThrottleSustainedRate">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">EnhancedOAuth2IdThrottleSustainedRate</span></span><a class="headerlink" href="#catalog.api.utils.throttle.EnhancedOAuth2IdThrottleSustainedRate" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate" title="catalog.api.utils.throttle.OAuth2IdThrottleRate"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.utils.throttle.OAuth2IdThrottleRate</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate" title="catalog.api.utils.throttle.OAuth2IdThrottleRate"><code class="xref py py-class docutils literal notranslate"><span class="pre">OAuth2IdThrottleRate</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.EnhancedOAuth2IdThrottleSustainedRate.applies_to_rate_limit_model">
 <span class="sig-name descname"><span class="pre">applies_to_rate_limit_model</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'enhanced'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.EnhancedOAuth2IdThrottleSustainedRate.applies_to_rate_limit_model" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.EnhancedOAuth2IdThrottleSustainedRate.scope">
 <span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'enhanced_oauth2_client_credentials_sustained'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.EnhancedOAuth2IdThrottleSustainedRate.scope" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.ExemptionAwareThrottle">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">ExemptionAwareThrottle</span></span><a class="headerlink" href="#catalog.api.utils.throttle.ExemptionAwareThrottle" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">rest_framework.throttling.SimpleRateThrottle</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleRateThrottle</span></code></p>
 <p>An throttle exemption aware base throttle.</p>
 <p>Classes in <code class="docutils literal notranslate"><span class="pre">exemption_classes</span></code> are evaluated for each
 request. If any of them detect an exempted request then
@@ -543,15 +563,18 @@ the request will not be throttled.</p>
 <dd><p>Short circuit <code class="docutils literal notranslate"><span class="pre">allow_request</span></code> if _any_ exemption
 declares the request to be exempt from the throttle.</p>
 </dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.ExemptionAwareThrottle.exemption_classes">
 <span class="sig-name descname"><span class="pre">exemption_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#catalog.api.utils.throttle.ExemptionAwareThrottle.exemption_classes" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.InternalNetworkExemption">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">InternalNetworkExemption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">throttle_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.throttle.InternalNetworkExemption" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.ThrottleExemption" title="catalog.api.utils.throttle.ThrottleExemption"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.utils.throttle.ThrottleExemption</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.ThrottleExemption" title="catalog.api.utils.throttle.ThrottleExemption"><code class="xref py py-class docutils literal notranslate"><span class="pre">ThrottleExemption</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.InternalNetworkExemption.is_exempt">
 <span class="sig-name descname"><span class="pre">is_exempt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.throttle.InternalNetworkExemption.is_exempt" title="Permalink to this definition">#</a></dt>
@@ -559,28 +582,34 @@ declares the request to be exempt from the throttle.</p>
 network. In practical terms this prevents the Nuxt server
 from being rate-limited when server-side-rendering.</p>
 </dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.InternalNetworkExemption.redis_set_name">
 <span class="sig-name descname"><span class="pre">redis_set_name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ip-whitelist'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.InternalNetworkExemption.redis_set_name" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleBurstRate">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">OAuth2IdThrottleBurstRate</span></span><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleBurstRate" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate" title="catalog.api.utils.throttle.OAuth2IdThrottleRate"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.utils.throttle.OAuth2IdThrottleRate</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate" title="catalog.api.utils.throttle.OAuth2IdThrottleRate"><code class="xref py py-class docutils literal notranslate"><span class="pre">OAuth2IdThrottleRate</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleBurstRate.applies_to_rate_limit_model">
 <span class="sig-name descname"><span class="pre">applies_to_rate_limit_model</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'standard'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleBurstRate.applies_to_rate_limit_model" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleBurstRate.scope">
 <span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'oauth2_client_credentials_burst'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleBurstRate.scope" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleRate">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">OAuth2IdThrottleRate</span></span><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.ExemptionAwareThrottle" title="catalog.api.utils.throttle.ExemptionAwareThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.utils.throttle.ExemptionAwareThrottle</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.ExemptionAwareThrottle" title="catalog.api.utils.throttle.ExemptionAwareThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExemptionAwareThrottle</span></code></a></p>
 <p>Limits the rate of API calls that may be made by a given user’s Oauth2
 client ID. Can be configured to apply to either standard or enhanced
 API keys.</p>
@@ -588,10 +617,12 @@ API keys.</p>
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleRate.applies_to_rate_limit_model">
 <span class="sig-name descname"><span class="pre">applies_to_rate_limit_model</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'standard'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate.applies_to_rate_limit_model" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleRate.exemption_classes">
 <span class="sig-name descname"><span class="pre">exemption_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'catalog.api.utils.throttle.InternalNetworkExemption'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'catalog.api.utils.throttle.ApiKeyExemption'&gt;]</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate.exemption_classes" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleRate.get_cache_key">
 <span class="sig-name descname"><span class="pre">get_cache_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">view</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate.get_cache_key" title="Permalink to this definition">#</a></dt>
@@ -599,90 +630,108 @@ API keys.</p>
 Must be overridden.</p>
 <p>May return <cite>None</cite> if the request should not be throttled.</p>
 </dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleRate.scope">
 <span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'oauth2_client_credentials'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate.scope" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleSustainedRate">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">OAuth2IdThrottleSustainedRate</span></span><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleSustainedRate" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate" title="catalog.api.utils.throttle.OAuth2IdThrottleRate"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.utils.throttle.OAuth2IdThrottleRate</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate" title="catalog.api.utils.throttle.OAuth2IdThrottleRate"><code class="xref py py-class docutils literal notranslate"><span class="pre">OAuth2IdThrottleRate</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleSustainedRate.applies_to_rate_limit_model">
 <span class="sig-name descname"><span class="pre">applies_to_rate_limit_model</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'standard'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleSustainedRate.applies_to_rate_limit_model" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleSustainedRate.scope">
 <span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'oauth2_client_credentials_sustained'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleSustainedRate.scope" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.OnePerSecond">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">OnePerSecond</span></span><a class="headerlink" href="#catalog.api.utils.throttle.OnePerSecond" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AnonRateThrottle" title="catalog.api.utils.throttle.AnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.utils.throttle.AnonRateThrottle</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AnonRateThrottle" title="catalog.api.utils.throttle.AnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnonRateThrottle</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.OnePerSecond.rate">
 <span class="sig-name descname"><span class="pre">rate</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'1/second'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OnePerSecond.rate" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.OneThousandPerMinute">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">OneThousandPerMinute</span></span><a class="headerlink" href="#catalog.api.utils.throttle.OneThousandPerMinute" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AnonRateThrottle" title="catalog.api.utils.throttle.AnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.utils.throttle.AnonRateThrottle</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AnonRateThrottle" title="catalog.api.utils.throttle.AnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnonRateThrottle</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.OneThousandPerMinute.rate">
 <span class="sig-name descname"><span class="pre">rate</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'1000/min'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OneThousandPerMinute.rate" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.PostRequestThrottler">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">PostRequestThrottler</span></span><a class="headerlink" href="#catalog.api.utils.throttle.PostRequestThrottler" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AnonRateThrottle" title="catalog.api.utils.throttle.AnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.utils.throttle.AnonRateThrottle</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AnonRateThrottle" title="catalog.api.utils.throttle.AnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnonRateThrottle</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.PostRequestThrottler.rate">
 <span class="sig-name descname"><span class="pre">rate</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'30/day'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.PostRequestThrottler.rate" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.SustainedRateThrottle">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">SustainedRateThrottle</span></span><a class="headerlink" href="#catalog.api.utils.throttle.SustainedRateThrottle" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AnonRateThrottle" title="catalog.api.utils.throttle.AnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.utils.throttle.AnonRateThrottle</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AnonRateThrottle" title="catalog.api.utils.throttle.AnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnonRateThrottle</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.SustainedRateThrottle.scope">
 <span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'anon_sustained'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.SustainedRateThrottle.scope" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.TenPerDay">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">TenPerDay</span></span><a class="headerlink" href="#catalog.api.utils.throttle.TenPerDay" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AnonRateThrottle" title="catalog.api.utils.throttle.AnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">catalog.api.utils.throttle.AnonRateThrottle</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AnonRateThrottle" title="catalog.api.utils.throttle.AnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnonRateThrottle</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.TenPerDay.rate">
 <span class="sig-name descname"><span class="pre">rate</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'10/day'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.TenPerDay.rate" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.ThrottleExemption">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">ThrottleExemption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">throttle_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.throttle.ThrottleExemption" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <p>Abstract class describing a given throttle exemption.</p>
 <p>To be included in an iterable of <code class="docutils literal notranslate"><span class="pre">ThrottleExemption``s</span>
 <span class="pre">in</span> <span class="pre">children</span> <span class="pre">of</span> <span class="pre">``ExemptionAwareThrottle</span></code>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.ThrottleExemption.is_exempt">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_exempt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#catalog.api.utils.throttle.ThrottleExemption.is_exempt" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_exempt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#catalog.api.utils.throttle.ThrottleExemption.is_exempt" title="Permalink to this definition">#</a></dt>
 <dd><p>Whether the current request is exempt from throttling.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if exempt, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
 </dd>
 </dl>
 </dd></dl>
+
 </dd></dl>
+
 </section>
 <section id="module-catalog.api.utils.validate_images">
-<span id="catalog-api-utils-validate-images-module"></span><h2>catalog.api.utils.validate_images module<a class="headerlink" href="#module-catalog.api.utils.validate_images" title="Permalink to this headline">#</a></h2>
+<span id="catalog-api-utils-validate-images-module"></span><h2>catalog.api.utils.validate_images module<a class="headerlink" href="#module-catalog.api.utils.validate_images" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="catalog.api.utils.validate_images.validate_images">
 <span class="sig-prename descclassname"><span class="pre">catalog.api.utils.validate_images.</span></span><span class="sig-name descname"><span class="pre">validate_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_hash</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_slice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_urls</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.validate_images.validate_images" title="Permalink to this definition">#</a></dt>
@@ -692,37 +741,43 @@ placeholder.</p>
 <p>Results are cached in redis and shared amongst all API servers in the
 cluster.</p>
 </dd></dl>
+
 </section>
 <section id="module-catalog.api.utils.watermark">
-<span id="catalog-api-utils-watermark-module"></span><h2>catalog.api.utils.watermark module<a class="headerlink" href="#module-catalog.api.utils.watermark" title="Permalink to this headline">#</a></h2>
+<span id="catalog-api-utils-watermark-module"></span><h2>catalog.api.utils.watermark module<a class="headerlink" href="#module-catalog.api.utils.watermark" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.watermark.Dimension">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.watermark.</span></span><span class="sig-name descname"><span class="pre">Dimension</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.watermark.Dimension" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Flag</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Flag</span></code></p>
 <p>This enum represents the two dimensions of an image</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.watermark.Dimension.BOTH">
 <span class="sig-name descname"><span class="pre">BOTH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#catalog.api.utils.watermark.Dimension.BOTH" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.watermark.Dimension.HEIGHT">
 <span class="sig-name descname"><span class="pre">HEIGHT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#catalog.api.utils.watermark.Dimension.HEIGHT" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.watermark.Dimension.NONE">
 <span class="sig-name descname"><span class="pre">NONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#catalog.api.utils.watermark.Dimension.NONE" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.watermark.Dimension.WIDTH">
 <span class="sig-name descname"><span class="pre">WIDTH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#catalog.api.utils.watermark.Dimension.WIDTH" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="catalog.api.utils.watermark.watermark">
 <span class="sig-prename descclassname"><span class="pre">catalog.api.utils.watermark.</span></span><span class="sig-name descname"><span class="pre">watermark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">draw_frame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.watermark.watermark" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns a PIL Image with a watermark and embedded metadata.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>image_url</strong> – The URL of the image.</p></li>
 <li><p><strong>info</strong> – A dictionary with keys title, creator, license, and</p></li>
@@ -733,53 +788,58 @@ cluster.</p>
 :param draw_frame: Whether to draw an attribution frame.
 :returns: A PIL Image and its EXIF data, if included.</p>
 </dd></dl>
+
 </section>
 <section id="module-catalog.api.utils.waveform">
-<span id="catalog-api-utils-waveform-module"></span><h2>catalog.api.utils.waveform module<a class="headerlink" href="#module-catalog.api.utils.waveform" title="Permalink to this headline">#</a></h2>
+<span id="catalog-api-utils-waveform-module"></span><h2>catalog.api.utils.waveform module<a class="headerlink" href="#module-catalog.api.utils.waveform" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="catalog.api.utils.waveform.cleanup">
 <span class="sig-prename descclassname"><span class="pre">catalog.api.utils.waveform.</span></span><span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.waveform.cleanup" title="Permalink to this definition">#</a></dt>
 <dd><p>Delete the audio file after it has been processed.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>file_name</strong> – the name of the file to delete</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="catalog.api.utils.waveform.download_audio">
 <span class="sig-prename descclassname"><span class="pre">catalog.api.utils.waveform.</span></span><span class="sig-name descname"><span class="pre">download_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.waveform.download_audio" title="Permalink to this definition">#</a></dt>
 <dd><p>Download the audio from the given URL to a location on the disk.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>url</strong> – the URL to the file being downloaded</p></li>
 <li><p><strong>identifier</strong> – the identifier of the media object to name the file</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>the name of the file on the disk</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="catalog.api.utils.waveform.ext_from_url">
 <span class="sig-prename descclassname"><span class="pre">catalog.api.utils.waveform.</span></span><span class="sig-name descname"><span class="pre">ext_from_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.waveform.ext_from_url" title="Permalink to this definition">#</a></dt>
 <dd><p>Get the file extension from the given URL. Looks at the last part of the URL
 path, and returns the string after the last dot.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>url</strong> – the URL to the file whose extension is being determined</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>the file extension or <code class="docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="catalog.api.utils.waveform.generate_peaks">
-<span class="sig-prename descclassname"><span class="pre">catalog.api.utils.waveform.</span></span><span class="sig-name descname"><span class="pre">generate_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#catalog.api.utils.waveform.generate_peaks" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">catalog.api.utils.waveform.</span></span><span class="sig-name descname"><span class="pre">generate_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#catalog.api.utils.waveform.generate_peaks" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="catalog.api.utils.waveform.generate_waveform">
 <span class="sig-prename descclassname"><span class="pre">catalog.api.utils.waveform.</span></span><span class="sig-name descname"><span class="pre">generate_waveform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.waveform.generate_waveform" title="Permalink to this definition">#</a></dt>
@@ -787,7 +847,7 @@ path, and returns the string after the last dot.</p>
 The Python module <code class="docutils literal notranslate"><span class="pre">subprocess</span></code> is used to execute the binary and get the
 results that it emits to STDOUT.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>file_name</strong> – the name of the downloaded audio file</p></li>
 <li><p><strong>duration</strong> – the duration of the audio to determine pixels per second</p></li>
@@ -795,6 +855,7 @@ results that it emits to STDOUT.</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="catalog.api.utils.waveform.process_waveform_output">
 <span class="sig-prename descclassname"><span class="pre">catalog.api.utils.waveform.</span></span><span class="sig-name descname"><span class="pre">process_waveform_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_out</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.waveform.process_waveform_output" title="Permalink to this definition">#</a></dt>
@@ -803,17 +864,18 @@ output consists of alternating positive and negative values, that are almost
 equal in amplitude. We discard the negative values. We also scale down the
 amplitudes by the largest value so that they lie in the range [0, 1].</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>json_out</strong> – the JSON output generated by <code class="docutils literal notranslate"><span class="pre">audiowaveform</span></code></p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>the list of peaks</p>
 </dd>
 </dl>
 </dd></dl>
+
 </section>
 <section id="module-catalog.api.utils">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-catalog.api.utils" title="Permalink to this headline">#</a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-catalog.api.utils" title="Permalink to this heading">#</a></h2>
 </section>
 </section>
 
@@ -899,6 +961,7 @@ amplitudes by the largest value so that they lie in the range [0, 1].</p>
 </div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/scripts/furo.js"></script>
     </body>

@@ -1,14 +1,14 @@
 <!doctype html>
-<html class="no-js">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="catalog.api.docs package" href="docs.html" /><link rel="prev" title="catalog.api.constants package" href="constants.html" />
 
-    <link rel="shortcut icon" href="https://raw.githubusercontent.com/WordPress/openverse/master/brand/icon.svg"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
+    <link rel="shortcut icon" href="https://raw.githubusercontent.com/WordPress/openverse/master/brand/icon.svg"/><meta name="generator" content="sphinx-5.0.2, furo 2022.06.21"/>
         <title>catalog.api.controllers package - Openverse API developer docs</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     <link rel="stylesheet" type="text/css" href="../../_static/_css/brand.css" />
     
@@ -179,6 +179,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../guides/document.html">Document</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/publish.html">Publish</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guides/deploy.html">Deploy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guides/logging.html">Logging</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../index.html">Code reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -219,7 +220,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -234,66 +236,15 @@
         </div>
         <article role="main">
           <section id="catalog-api-controllers-package">
-<h1>catalog.api.controllers package<a class="headerlink" href="#catalog-api-controllers-package" title="Permalink to this headline">#</a></h1>
+<h1>catalog.api.controllers package<a class="headerlink" href="#catalog-api-controllers-package" title="Permalink to this heading">#</a></h1>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">#</a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
 </section>
-<section id="module-catalog.api.controllers.search_controller">
-<span id="catalog-api-controllers-search-controller-module"></span><h2>catalog.api.controllers.search_controller module<a class="headerlink" href="#module-catalog.api.controllers.search_controller" title="Permalink to this headline">#</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="catalog.api.controllers.search_controller.RankFeature">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.controllers.search_controller.</span></span><span class="sig-name descname"><span class="pre">RankFeature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_expand__to_dot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.controllers.search_controller.RankFeature" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">elasticsearch_dsl.query.Query</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="catalog.api.controllers.search_controller.RankFeature.name">
-<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'rank_feature'</span></em><a class="headerlink" href="#catalog.api.controllers.search_controller.RankFeature.name" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="catalog.api.controllers.search_controller.get_sources">
-<span class="sig-prename descclassname"><span class="pre">catalog.api.controllers.search_controller.</span></span><span class="sig-name descname"><span class="pre">get_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.controllers.search_controller.get_sources" title="Permalink to this definition">#</a></dt>
-<dd><p>Given an index, find all available data sources and return their counts.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>index</strong> – An Elasticsearch index, such as <cite>‘image’</cite>.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A dictionary mapping sources to the count of their images.`</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="catalog.api.controllers.search_controller.related_media">
-<span class="sig-prename descclassname"><span class="pre">catalog.api.controllers.search_controller.</span></span><span class="sig-name descname"><span class="pre">related_media</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_dead</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.controllers.search_controller.related_media" title="Permalink to this definition">#</a></dt>
-<dd><p>Given a UUID, find related search results.</p>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="catalog.api.controllers.search_controller.search">
-<span class="sig-prename descclassname"><span class="pre">catalog.api.controllers.search_controller.</span></span><span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="serializers.html#catalog.api.serializers.media_serializers.MediaSearchRequestSerializer" title="catalog.api.serializers.media_serializers.MediaSearchRequestSerializer"><span class="pre">catalog.api.serializers.media_serializers.MediaSearchRequestSerializer</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'image'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'audio'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">rest_framework.request.Request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_dead</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">elasticsearch_dsl.response.hit.Hit</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#catalog.api.controllers.search_controller.search" title="Permalink to this definition">#</a></dt>
-<dd><p>Given a set of keywords and an optional set of filters, perform a ranked
-paginated search.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>search_params</strong> – Search parameters. See
-:class: <cite>ImageSearchQueryStringSerializer</cite>.</p></li>
-<li><p><strong>index</strong> – The Elasticsearch index to search (e.g. ‘image’)</p></li>
-<li><p><strong>page_size</strong> – The number of results to return per page.</p></li>
-<li><p><strong>ip</strong> – The user’s hashed IP. Hashed IPs are used to anonymously but</p></li>
-</ul>
-</dd>
-</dl>
-<p>uniquely identify users exclusively for ensuring query consistency across
-Elasticsearch shards.
-:param request: Django’s request object.
-:param filter_dead: Whether dead links should be removed.
-:param page: The results page number.
-:return: Tuple with a List of Hits from elasticsearch, the total count of
-pages, and number of results.</p>
-</dd></dl>
+<section id="catalog-api-controllers-search-controller-module">
+<h2>catalog.api.controllers.search_controller module<a class="headerlink" href="#catalog-api-controllers-search-controller-module" title="Permalink to this heading">#</a></h2>
 </section>
 <section id="module-catalog.api.controllers">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-catalog.api.controllers" title="Permalink to this headline">#</a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-catalog.api.controllers" title="Permalink to this heading">#</a></h2>
 </section>
 </section>
 
@@ -353,7 +304,7 @@ pages, and number of results.</p>
             <ul>
 <li><a class="reference internal" href="#">catalog.api.controllers package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-catalog.api.controllers.search_controller">catalog.api.controllers.search_controller module</a></li>
+<li><a class="reference internal" href="#catalog-api-controllers-search-controller-module">catalog.api.controllers.search_controller module</a></li>
 <li><a class="reference internal" href="#module-catalog.api.controllers">Module contents</a></li>
 </ul>
 </li>
@@ -369,6 +320,7 @@ pages, and number of results.</p>
 </div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/scripts/furo.js"></script>
     </body>
