@@ -15,7 +15,8 @@ from falcon.media.validators import jsonschema
 
 from ingestion_server import slack
 from ingestion_server.constants.media_types import MEDIA_TYPES, MediaType
-from ingestion_server.indexer import TableIndexer, elasticsearch_connect
+from ingestion_server.es_helpers import elasticsearch_connect, get_stat
+from ingestion_server.indexer import TableIndexer
 from ingestion_server.state import clear_state, worker_finished
 from ingestion_server.tasks import TaskTracker, TaskTypes, perform_task
 
@@ -31,6 +32,25 @@ class HealthResource:
     def on_get(_, resp):
         resp.status = falcon.HTTP_200
         resp.media = {"status": "200 OK"}
+
+
+class StatResource:
+    @staticmethod
+    def on_get(_, res, name):
+        """
+        Handles an incoming GET request. Provides information about the given index or
+        alias.
+
+        :param _: the incoming request
+        :param res: the appropriate response
+        :param name: the name of the index or alias
+        :return: the information about the index or alias
+        """
+
+        elasticsearch = elasticsearch_connect()
+        stat = get_stat(elasticsearch, name)
+        res.status = falcon.HTTP_200
+        res.media = stat._asdict()
 
 
 class BaseTaskResource:
@@ -61,6 +81,7 @@ class TaskResource(BaseTaskResource):
                 "since_date": {"type": "string"},
                 "index_suffix": {"type": "string"},
                 "alias": {"type": "string"},
+                "force_delete": {"type": "boolean"},
             },
             "required": ["model", "action"],
             "allOf": [
@@ -80,6 +101,17 @@ class TaskResource(BaseTaskResource):
                         "properties": {"action": {"const": TaskTypes.UPDATE_INDEX.name}}
                     },
                     "then": {"required": ["index_suffix", "since_date"]},
+                },
+                {
+                    "if": {
+                        "properties": {"action": {"const": TaskTypes.DELETE_INDEX.name}}
+                    },
+                    "then": {
+                        "oneOf": [
+                            {"required": ["alias"]},
+                            {"required": ["index_suffix"]},
+                        ]
+                    },
                 },
             ],
         }
@@ -107,6 +139,7 @@ class TaskResource(BaseTaskResource):
         since_date = body.get("since_date")
         index_suffix = body.get("index_suffix", task_id)
         alias = body.get("alias")
+        force_delete = body.get("force_delete", False)
 
         # Shared memory
         progress = Value("d", 0.0)
@@ -127,6 +160,7 @@ class TaskResource(BaseTaskResource):
                 "since_date": since_date,
                 "index_suffix": index_suffix,
                 "alias": alias,
+                "force_delete": force_delete,
             },
         )
         task.start()
@@ -276,6 +310,7 @@ def create_api(log=True):
     task_tracker = TaskTracker()
 
     _api.add_route("/", HealthResource())
+    _api.add_route("/stat/{name}", StatResource())
     _api.add_route("/task", TaskResource(task_tracker))
     _api.add_route("/task/{task_id}", TaskStatus(task_tracker))
     _api.add_route("/worker_finished", WorkerFinishedResource(task_tracker))

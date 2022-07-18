@@ -10,7 +10,8 @@ from typing import Optional
 
 from ingestion_server import slack
 from ingestion_server.constants.media_types import MediaType
-from ingestion_server.indexer import TableIndexer, elasticsearch_connect
+from ingestion_server.es_helpers import elasticsearch_connect
+from ingestion_server.indexer import TableIndexer
 from ingestion_server.ingest import promote_api_table, refresh_api_table
 
 
@@ -47,6 +48,9 @@ class TaskTypes(Enum):
 
     UPDATE_INDEX = auto()  # TODO: delete eventually, rarely used
     """reindex updates to a model from the database since the given date"""
+
+    DELETE_INDEX = auto()
+    """delete the given index after it has been superseded by a new one"""
 
     LOAD_TEST_DATA = auto()
     """create indices in ES for QA tests; this is not intended to run in production but
