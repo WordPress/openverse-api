@@ -103,20 +103,25 @@ just load-test-data "image"
 sleep 2
 
 # Ingest and index the data
-just ingest-upstream "audio"
+just ingest-upstream "audio" "init"
+just wait-for-index "audio-init"
+just promote "audio" "init" "audio"
 just wait-for-index "audio"
 
 # Image ingestion is flaky; but usally works on the next attempt
 set +e
 while true; do
-	just ingest-upstream "image"
-	just wait-for-index "image"
+	just ingest-upstream "image" "init"
+	just wait-for-index "image-init"
 	if [$? -eq 0 ]; then
 		break
 	fi
 	((c++)) && ((c==3)) && break
 done
 set -e
+
+just promote "image" "init" "image"
+just wait-for-index "image"
 
 # Clear source cache since it's out of date after data has been loaded
 # See `api/catalog/api/controllers/elasticsearch/stats.py`
