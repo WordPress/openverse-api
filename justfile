@@ -53,6 +53,7 @@ recreate:
 logs services="" args=(if IS_CI != "" { "" } else { "-f" }):
     docker-compose {{ DOCKER_FILE }} logs {{ args }} {{ services }}
 
+# Attach to the specificed `service`. Enables interacting with the TTY of the running service.
 attach service:
     docker attach $(docker-compose ps | grep {{ service }} | awk '{print $1}')
 
