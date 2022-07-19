@@ -4,7 +4,7 @@ This document primarily serves to document our additions to DRF's built-in throt
 
 This document deals primarily with the server's perspective of the OAuth flow and assumes you are familiar with the user's perspective. If you are not familiar with the user's perspective, please study the [Register and Authenticate](https://api.openverse.engineering/v1/#section/Register-and-Authenticate) section of the API documentation.
 
-Furthermore, this section assumes at least a surface level understanding of the `django-oauth-toolkit` library and its concepts. In particular, it is necessary to understand the [`Application` concept, the docs for which can be found here].
+Furthermore, this section assumes at least a surface level understanding of the `django-oauth-toolkit` library and its concepts. In particular, it is necessary to understand the [`Application` concept, the docs for which can be found here](https://django-oauth-toolkit.readthedocs.io/en/latest/advanced_topics.html#extending-the-application-model).
 
 ## Flow
 
