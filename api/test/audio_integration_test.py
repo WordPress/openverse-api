@@ -8,6 +8,7 @@ from test.constants import API_URL
 from test.media_integration import (
     detail,
     license_filter_case_insensitivity,
+    related,
     report,
     search,
     search_all_excluded,
@@ -22,7 +23,6 @@ from test.media_integration import (
     thumb_full_size,
     thumb_webp,
     uuid_validation,
-    related,
 )
 
 import pytest
