@@ -22,6 +22,7 @@ from test.media_integration import (
     thumb_full_size,
     thumb_webp,
     uuid_validation,
+    related,
 )
 from urllib.parse import urlencode
 
@@ -139,3 +140,6 @@ def test_image_uuid_validation():
     uuid_validation("images", "123456789123456789123456789123456789")
     uuid_validation("images", "12345678-1234-5678-1234-1234567891234")
     uuid_validation("images", "abcd")
+
+def test_image_related(image_fixture):
+    related(image_fixture)
