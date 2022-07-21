@@ -184,6 +184,7 @@
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../index.html">Code reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current has-children"><a class="reference internal" href="index.html">catalog.api package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="authentication_and_throttling.html">Authentication and Throttling</a></li>
 <li class="toctree-l3"><a class="reference internal" href="constants.html">catalog.api.constants package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="controllers.html">catalog.api.controllers package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="docs.html">catalog.api.docs package</a></li>
@@ -366,7 +367,7 @@ token.</p>
 </dd>
 </dl>
 <p>token, rate limit model, and email verification status as a tuple; else
-return (None, None, None).</p>
+return <code class="docutils literal notranslate"><span class="pre">(None,</span> <span class="pre">None,</span> <span class="pre">None)</span></code>.</p>
 </dd></dl>
 
 </section>
@@ -461,55 +462,52 @@ HTTP methods. Useful for blanket discontinuation of API endpoints.</p>
 <section id="module-catalog.api.utils.throttle">
 <span id="catalog-api-utils-throttle-module"></span><h2>catalog.api.utils.throttle module<a class="headerlink" href="#module-catalog.api.utils.throttle" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.AnonRateThrottle">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">AnonRateThrottle</span></span><a class="headerlink" href="#catalog.api.utils.throttle.AnonRateThrottle" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.ExemptionAwareThrottle" title="catalog.api.utils.throttle.ExemptionAwareThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExemptionAwareThrottle</span></code></a></p>
+<dt class="sig sig-object py" id="catalog.api.utils.throttle.AbstractAnonRateThrottle">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">AbstractAnonRateThrottle</span></span><a class="headerlink" href="#catalog.api.utils.throttle.AbstractAnonRateThrottle" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleRateThrottle</span></code></p>
 <p>Limits the rate of API calls that may be made by a anonymous users.</p>
 <p>The IP address of the request will be used as the unique cache key.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.AnonRateThrottle.exemption_classes">
-<span class="sig-name descname"><span class="pre">exemption_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'catalog.api.utils.throttle.InternalNetworkExemption'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'catalog.api.utils.throttle.ApiKeyExemption'&gt;]</span></em><a class="headerlink" href="#catalog.api.utils.throttle.AnonRateThrottle.exemption_classes" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
 <dl class="py method">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.AnonRateThrottle.get_cache_key">
-<span class="sig-name descname"><span class="pre">get_cache_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">view</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.throttle.AnonRateThrottle.get_cache_key" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="catalog.api.utils.throttle.AbstractAnonRateThrottle.get_cache_key">
+<span class="sig-name descname"><span class="pre">get_cache_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">view</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.throttle.AbstractAnonRateThrottle.get_cache_key" title="Permalink to this definition">#</a></dt>
 <dd><p>Should return a unique cache-key which can be used for throttling.
 Must be overridden.</p>
 <p>May return <cite>None</cite> if the request should not be throttled.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.AnonRateThrottle.scope">
-<span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'anon'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.AnonRateThrottle.scope" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="catalog.api.utils.throttle.AbstractAnonRateThrottle.logger">
+<span class="sig-name descname"><span class="pre">logger</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Logger</span> <span class="pre">catalog.api.utils.throttle.AnonRateThrottle</span> <span class="pre">(INFO)&gt;</span></em><a class="headerlink" href="#catalog.api.utils.throttle.AbstractAnonRateThrottle.logger" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.ApiKeyExemption">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">ApiKeyExemption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">throttle_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.throttle.ApiKeyExemption" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.ThrottleExemption" title="catalog.api.utils.throttle.ThrottleExemption"><code class="xref py py-class docutils literal notranslate"><span class="pre">ThrottleExemption</span></code></a></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.ApiKeyExemption.is_exempt">
-<span class="sig-name descname"><span class="pre">is_exempt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.throttle.ApiKeyExemption.is_exempt" title="Permalink to this definition">#</a></dt>
-<dd><p>Exempt certain API keys from throttling. In practical
-terms this is used to prevent large consumers of
-Openverse’s API like WordPress.com and Jetpack from
-being rate-limited.</p>
-</dd></dl>
-
+<dt class="sig sig-object py" id="catalog.api.utils.throttle.AbstractOAuth2IdRateThrottle">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">AbstractOAuth2IdRateThrottle</span></span><a class="headerlink" href="#catalog.api.utils.throttle.AbstractOAuth2IdRateThrottle" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleRateThrottle</span></code></p>
+<p>Ties a particular configured throttling scope from <code class="docutils literal notranslate"><span class="pre">settings.py</span></code> to
+a “rate limit model”. See <code class="docutils literal notranslate"><span class="pre">ThrottledApplication.rate_limit_model</span></code>
+for an explanation of that concept.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.ApiKeyExemption.redis_set_name">
-<span class="sig-name descname"><span class="pre">redis_set_name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'client-id-allowlist'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.ApiKeyExemption.redis_set_name" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="catalog.api.utils.throttle.AbstractOAuth2IdRateThrottle.applies_to_rate_limit_model">
+<span class="sig-name descname"><span class="pre">applies_to_rate_limit_model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#catalog.api.utils.throttle.AbstractOAuth2IdRateThrottle.applies_to_rate_limit_model" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="catalog.api.utils.throttle.AbstractOAuth2IdRateThrottle.get_cache_key">
+<span class="sig-name descname"><span class="pre">get_cache_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">view</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.throttle.AbstractOAuth2IdRateThrottle.get_cache_key" title="Permalink to this definition">#</a></dt>
+<dd><p>Should return a unique cache-key which can be used for throttling.
+Must be overridden.</p>
+<p>May return <cite>None</cite> if the request should not be throttled.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.BurstRateThrottle">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">BurstRateThrottle</span></span><a class="headerlink" href="#catalog.api.utils.throttle.BurstRateThrottle" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AnonRateThrottle" title="catalog.api.utils.throttle.AnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnonRateThrottle</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AbstractAnonRateThrottle" title="catalog.api.utils.throttle.AbstractAnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractAnonRateThrottle</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.BurstRateThrottle.scope">
 <span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'anon_burst'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.BurstRateThrottle.scope" title="Permalink to this definition">#</a></dt>
@@ -518,138 +516,81 @@ being rate-limited.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.EnhancedOAuth2IdThrottleBurstRate">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">EnhancedOAuth2IdThrottleBurstRate</span></span><a class="headerlink" href="#catalog.api.utils.throttle.EnhancedOAuth2IdThrottleBurstRate" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate" title="catalog.api.utils.throttle.OAuth2IdThrottleRate"><code class="xref py py-class docutils literal notranslate"><span class="pre">OAuth2IdThrottleRate</span></code></a></p>
+<dt class="sig sig-object py" id="catalog.api.utils.throttle.EnhancedOAuth2IdBurstRateThrottle">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">EnhancedOAuth2IdBurstRateThrottle</span></span><a class="headerlink" href="#catalog.api.utils.throttle.EnhancedOAuth2IdBurstRateThrottle" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AbstractOAuth2IdRateThrottle" title="catalog.api.utils.throttle.AbstractOAuth2IdRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractOAuth2IdRateThrottle</span></code></a></p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.EnhancedOAuth2IdThrottleBurstRate.applies_to_rate_limit_model">
-<span class="sig-name descname"><span class="pre">applies_to_rate_limit_model</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'enhanced'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.EnhancedOAuth2IdThrottleBurstRate.applies_to_rate_limit_model" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="catalog.api.utils.throttle.EnhancedOAuth2IdBurstRateThrottle.applies_to_rate_limit_model">
+<span class="sig-name descname"><span class="pre">applies_to_rate_limit_model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'enhanced'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.EnhancedOAuth2IdBurstRateThrottle.applies_to_rate_limit_model" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.EnhancedOAuth2IdThrottleBurstRate.scope">
-<span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'enhanced_oauth2_client_credentials_burst'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.EnhancedOAuth2IdThrottleBurstRate.scope" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.EnhancedOAuth2IdThrottleSustainedRate">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">EnhancedOAuth2IdThrottleSustainedRate</span></span><a class="headerlink" href="#catalog.api.utils.throttle.EnhancedOAuth2IdThrottleSustainedRate" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate" title="catalog.api.utils.throttle.OAuth2IdThrottleRate"><code class="xref py py-class docutils literal notranslate"><span class="pre">OAuth2IdThrottleRate</span></code></a></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.EnhancedOAuth2IdThrottleSustainedRate.applies_to_rate_limit_model">
-<span class="sig-name descname"><span class="pre">applies_to_rate_limit_model</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'enhanced'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.EnhancedOAuth2IdThrottleSustainedRate.applies_to_rate_limit_model" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.EnhancedOAuth2IdThrottleSustainedRate.scope">
-<span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'enhanced_oauth2_client_credentials_sustained'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.EnhancedOAuth2IdThrottleSustainedRate.scope" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="catalog.api.utils.throttle.EnhancedOAuth2IdBurstRateThrottle.scope">
+<span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'enhanced_oauth2_client_credentials_burst'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.EnhancedOAuth2IdBurstRateThrottle.scope" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.ExemptionAwareThrottle">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">ExemptionAwareThrottle</span></span><a class="headerlink" href="#catalog.api.utils.throttle.ExemptionAwareThrottle" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleRateThrottle</span></code></p>
-<p>An throttle exemption aware base throttle.</p>
-<p>Classes in <code class="docutils literal notranslate"><span class="pre">exemption_classes</span></code> are evaluated for each
-request. If any of them detect an exempted request then
-the request will not be throttled.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.ExemptionAwareThrottle.allow_request">
-<span class="sig-name descname"><span class="pre">allow_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">view</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.throttle.ExemptionAwareThrottle.allow_request" title="Permalink to this definition">#</a></dt>
-<dd><p>Short circuit <code class="docutils literal notranslate"><span class="pre">allow_request</span></code> if _any_ exemption
-declares the request to be exempt from the throttle.</p>
-</dd></dl>
+<dt class="sig sig-object py" id="catalog.api.utils.throttle.EnhancedOAuth2IdSustainedRateThrottle">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">EnhancedOAuth2IdSustainedRateThrottle</span></span><a class="headerlink" href="#catalog.api.utils.throttle.EnhancedOAuth2IdSustainedRateThrottle" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AbstractOAuth2IdRateThrottle" title="catalog.api.utils.throttle.AbstractOAuth2IdRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractOAuth2IdRateThrottle</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="catalog.api.utils.throttle.EnhancedOAuth2IdSustainedRateThrottle.applies_to_rate_limit_model">
+<span class="sig-name descname"><span class="pre">applies_to_rate_limit_model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'enhanced'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.EnhancedOAuth2IdSustainedRateThrottle.applies_to_rate_limit_model" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.ExemptionAwareThrottle.exemption_classes">
-<span class="sig-name descname"><span class="pre">exemption_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#catalog.api.utils.throttle.ExemptionAwareThrottle.exemption_classes" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="catalog.api.utils.throttle.EnhancedOAuth2IdSustainedRateThrottle.scope">
+<span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'enhanced_oauth2_client_credentials_sustained'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.EnhancedOAuth2IdSustainedRateThrottle.scope" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.InternalNetworkExemption">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">InternalNetworkExemption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">throttle_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.throttle.InternalNetworkExemption" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.ThrottleExemption" title="catalog.api.utils.throttle.ThrottleExemption"><code class="xref py py-class docutils literal notranslate"><span class="pre">ThrottleExemption</span></code></a></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.InternalNetworkExemption.is_exempt">
-<span class="sig-name descname"><span class="pre">is_exempt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.throttle.InternalNetworkExemption.is_exempt" title="Permalink to this definition">#</a></dt>
-<dd><p>Exempts requests coming from within Openverse’s own
-network. In practical terms this prevents the Nuxt server
-from being rate-limited when server-side-rendering.</p>
-</dd></dl>
+<dt class="sig sig-object py" id="catalog.api.utils.throttle.ExemptOAuth2IdRateThrottle">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">ExemptOAuth2IdRateThrottle</span></span><a class="headerlink" href="#catalog.api.utils.throttle.ExemptOAuth2IdRateThrottle" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AbstractOAuth2IdRateThrottle" title="catalog.api.utils.throttle.AbstractOAuth2IdRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractOAuth2IdRateThrottle</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="catalog.api.utils.throttle.ExemptOAuth2IdRateThrottle.applies_to_rate_limit_model">
+<span class="sig-name descname"><span class="pre">applies_to_rate_limit_model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'exempt'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.ExemptOAuth2IdRateThrottle.applies_to_rate_limit_model" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.InternalNetworkExemption.redis_set_name">
-<span class="sig-name descname"><span class="pre">redis_set_name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ip-whitelist'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.InternalNetworkExemption.redis_set_name" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="catalog.api.utils.throttle.ExemptOAuth2IdRateThrottle.scope">
+<span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'exempt_oauth2_client_credentials'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.ExemptOAuth2IdRateThrottle.scope" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleBurstRate">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">OAuth2IdThrottleBurstRate</span></span><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleBurstRate" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate" title="catalog.api.utils.throttle.OAuth2IdThrottleRate"><code class="xref py py-class docutils literal notranslate"><span class="pre">OAuth2IdThrottleRate</span></code></a></p>
+<dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdBurstRateThrottle">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">OAuth2IdBurstRateThrottle</span></span><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdBurstRateThrottle" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AbstractOAuth2IdRateThrottle" title="catalog.api.utils.throttle.AbstractOAuth2IdRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractOAuth2IdRateThrottle</span></code></a></p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleBurstRate.applies_to_rate_limit_model">
-<span class="sig-name descname"><span class="pre">applies_to_rate_limit_model</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'standard'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleBurstRate.applies_to_rate_limit_model" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdBurstRateThrottle.applies_to_rate_limit_model">
+<span class="sig-name descname"><span class="pre">applies_to_rate_limit_model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'standard'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdBurstRateThrottle.applies_to_rate_limit_model" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleBurstRate.scope">
-<span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'oauth2_client_credentials_burst'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleBurstRate.scope" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleRate">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">OAuth2IdThrottleRate</span></span><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.ExemptionAwareThrottle" title="catalog.api.utils.throttle.ExemptionAwareThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExemptionAwareThrottle</span></code></a></p>
-<p>Limits the rate of API calls that may be made by a given user’s Oauth2
-client ID. Can be configured to apply to either standard or enhanced
-API keys.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleRate.applies_to_rate_limit_model">
-<span class="sig-name descname"><span class="pre">applies_to_rate_limit_model</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'standard'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate.applies_to_rate_limit_model" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleRate.exemption_classes">
-<span class="sig-name descname"><span class="pre">exemption_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'catalog.api.utils.throttle.InternalNetworkExemption'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'catalog.api.utils.throttle.ApiKeyExemption'&gt;]</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate.exemption_classes" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleRate.get_cache_key">
-<span class="sig-name descname"><span class="pre">get_cache_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">view</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate.get_cache_key" title="Permalink to this definition">#</a></dt>
-<dd><p>Should return a unique cache-key which can be used for throttling.
-Must be overridden.</p>
-<p>May return <cite>None</cite> if the request should not be throttled.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleRate.scope">
-<span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'oauth2_client_credentials'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate.scope" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdBurstRateThrottle.scope">
+<span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'oauth2_client_credentials_burst'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdBurstRateThrottle.scope" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleSustainedRate">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">OAuth2IdThrottleSustainedRate</span></span><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleSustainedRate" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.OAuth2IdThrottleRate" title="catalog.api.utils.throttle.OAuth2IdThrottleRate"><code class="xref py py-class docutils literal notranslate"><span class="pre">OAuth2IdThrottleRate</span></code></a></p>
+<dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdSustainedRateThrottle">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">OAuth2IdSustainedRateThrottle</span></span><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdSustainedRateThrottle" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AbstractOAuth2IdRateThrottle" title="catalog.api.utils.throttle.AbstractOAuth2IdRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractOAuth2IdRateThrottle</span></code></a></p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleSustainedRate.applies_to_rate_limit_model">
-<span class="sig-name descname"><span class="pre">applies_to_rate_limit_model</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'standard'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleSustainedRate.applies_to_rate_limit_model" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdSustainedRateThrottle.applies_to_rate_limit_model">
+<span class="sig-name descname"><span class="pre">applies_to_rate_limit_model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'standard'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdSustainedRateThrottle.applies_to_rate_limit_model" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdThrottleSustainedRate.scope">
-<span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'oauth2_client_credentials_sustained'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdThrottleSustainedRate.scope" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="catalog.api.utils.throttle.OAuth2IdSustainedRateThrottle.scope">
+<span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'oauth2_client_credentials_sustained'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OAuth2IdSustainedRateThrottle.scope" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -657,7 +598,7 @@ Must be overridden.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.OnePerSecond">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">OnePerSecond</span></span><a class="headerlink" href="#catalog.api.utils.throttle.OnePerSecond" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AnonRateThrottle" title="catalog.api.utils.throttle.AnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnonRateThrottle</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AbstractAnonRateThrottle" title="catalog.api.utils.throttle.AbstractAnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractAnonRateThrottle</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.OnePerSecond.rate">
 <span class="sig-name descname"><span class="pre">rate</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'1/second'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OnePerSecond.rate" title="Permalink to this definition">#</a></dt>
@@ -668,7 +609,7 @@ Must be overridden.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.OneThousandPerMinute">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">OneThousandPerMinute</span></span><a class="headerlink" href="#catalog.api.utils.throttle.OneThousandPerMinute" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AnonRateThrottle" title="catalog.api.utils.throttle.AnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnonRateThrottle</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AbstractAnonRateThrottle" title="catalog.api.utils.throttle.AbstractAnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractAnonRateThrottle</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.OneThousandPerMinute.rate">
 <span class="sig-name descname"><span class="pre">rate</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'1000/min'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.OneThousandPerMinute.rate" title="Permalink to this definition">#</a></dt>
@@ -677,20 +618,9 @@ Must be overridden.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.PostRequestThrottler">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">PostRequestThrottler</span></span><a class="headerlink" href="#catalog.api.utils.throttle.PostRequestThrottler" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AnonRateThrottle" title="catalog.api.utils.throttle.AnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnonRateThrottle</span></code></a></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.PostRequestThrottler.rate">
-<span class="sig-name descname"><span class="pre">rate</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'30/day'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.PostRequestThrottler.rate" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.SustainedRateThrottle">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">SustainedRateThrottle</span></span><a class="headerlink" href="#catalog.api.utils.throttle.SustainedRateThrottle" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AnonRateThrottle" title="catalog.api.utils.throttle.AnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnonRateThrottle</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AbstractAnonRateThrottle" title="catalog.api.utils.throttle.AbstractAnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractAnonRateThrottle</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.SustainedRateThrottle.scope">
 <span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'anon_sustained'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.SustainedRateThrottle.scope" title="Permalink to this definition">#</a></dt>
@@ -701,31 +631,11 @@ Must be overridden.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.TenPerDay">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">TenPerDay</span></span><a class="headerlink" href="#catalog.api.utils.throttle.TenPerDay" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AnonRateThrottle" title="catalog.api.utils.throttle.AnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnonRateThrottle</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#catalog.api.utils.throttle.AbstractAnonRateThrottle" title="catalog.api.utils.throttle.AbstractAnonRateThrottle"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractAnonRateThrottle</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="catalog.api.utils.throttle.TenPerDay.rate">
 <span class="sig-name descname"><span class="pre">rate</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'10/day'</span></em><a class="headerlink" href="#catalog.api.utils.throttle.TenPerDay.rate" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.ThrottleExemption">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catalog.api.utils.throttle.</span></span><span class="sig-name descname"><span class="pre">ThrottleExemption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">throttle_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catalog.api.utils.throttle.ThrottleExemption" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
-<p>Abstract class describing a given throttle exemption.</p>
-<p>To be included in an iterable of <code class="docutils literal notranslate"><span class="pre">ThrottleExemption``s</span>
-<span class="pre">in</span> <span class="pre">children</span> <span class="pre">of</span> <span class="pre">``ExemptionAwareThrottle</span></code>.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="catalog.api.utils.throttle.ThrottleExemption.is_exempt">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_exempt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#catalog.api.utils.throttle.ThrottleExemption.is_exempt" title="Permalink to this definition">#</a></dt>
-<dd><p>Whether the current request is exempt from throttling.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if exempt, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
-</dd>
-</dl>
-</dd></dl>
 
 </dd></dl>
 

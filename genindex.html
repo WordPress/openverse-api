@@ -182,6 +182,7 @@
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Code reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="reference/api/index.html">catalog.api package</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/api/authentication_and_throttling.html">Authentication and Throttling</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/api/constants.html">catalog.api.constants package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/api/controllers.html">catalog.api.controllers package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference/api/docs.html">catalog.api.docs package</a></li>
@@ -270,6 +271,8 @@
         </ul></li>
         <li><a href="reference/api/models.html#catalog.api.models.media.AbstractAltFile">AbstractAltFile (class in catalog.api.models.media)</a>
 </li>
+        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.AbstractAnonRateThrottle">AbstractAnonRateThrottle (class in catalog.api.utils.throttle)</a>
+</li>
         <li><a href="reference/api/models.html#catalog.api.models.media.AbstractDeletedMedia">AbstractDeletedMedia (class in catalog.api.models.media)</a>
 </li>
         <li><a href="reference/api/models.html#catalog.api.models.media.AbstractDeletedMedia.Meta">AbstractDeletedMedia.Meta (class in catalog.api.models.media)</a>
@@ -290,13 +293,13 @@
 </li>
         <li><a href="reference/api/models.html#catalog.api.models.media.AbstractMediaReport.Meta">AbstractMediaReport.Meta (class in catalog.api.models.media)</a>
 </li>
+        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.AbstractOAuth2IdRateThrottle">AbstractOAuth2IdRateThrottle (class in catalog.api.utils.throttle)</a>
+</li>
         <li><a href="reference/api/models.html#catalog.api.models.oauth.ThrottledApplication.accesstoken_set">accesstoken_set (catalog.api.models.oauth.ThrottledApplication attribute)</a>
 </li>
         <li><a href="reference/api/index.html#catalog.api.admin.MediaReportAdmin.actions">actions (catalog.api.admin.MediaReportAdmin attribute)</a>
 </li>
         <li><a href="reference/api/models.html#catalog.api.models.oauth.ThrottledApplication.algorithm">algorithm (catalog.api.models.oauth.ThrottledApplication attribute)</a>
-</li>
-        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.ExemptionAwareThrottle.allow_request">allow_request() (catalog.api.utils.throttle.ExemptionAwareThrottle method)</a>
 </li>
         <li><a href="reference/api/models.html#catalog.api.models.audio.Audio.alt_files">alt_files (catalog.api.models.audio.Audio attribute)</a>
 </li>
@@ -304,22 +307,20 @@
 </li>
         <li><a href="reference/api/models.html#catalog.api.models.audio.Audio.alternative_files">alternative_files (catalog.api.models.audio.Audio property)</a>
 </li>
-        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.AnonRateThrottle">AnonRateThrottle (class in catalog.api.utils.throttle)</a>
-</li>
         <li><a href="reference/api/index.html#catalog.api.apps.ApiConfig">ApiConfig (class in catalog.api.apps)</a>
 </li>
-        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.ApiKeyExemption">ApiKeyExemption (class in catalog.api.utils.throttle)</a>
-</li>
-        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.EnhancedOAuth2IdThrottleBurstRate.applies_to_rate_limit_model">applies_to_rate_limit_model (catalog.api.utils.throttle.EnhancedOAuth2IdThrottleBurstRate attribute)</a>
+        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.AbstractOAuth2IdRateThrottle.applies_to_rate_limit_model">applies_to_rate_limit_model (catalog.api.utils.throttle.AbstractOAuth2IdRateThrottle attribute)</a>
 
         <ul>
-          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.EnhancedOAuth2IdThrottleSustainedRate.applies_to_rate_limit_model">(catalog.api.utils.throttle.EnhancedOAuth2IdThrottleSustainedRate attribute)</a>
+          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.EnhancedOAuth2IdBurstRateThrottle.applies_to_rate_limit_model">(catalog.api.utils.throttle.EnhancedOAuth2IdBurstRateThrottle attribute)</a>
 </li>
-          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.OAuth2IdThrottleBurstRate.applies_to_rate_limit_model">(catalog.api.utils.throttle.OAuth2IdThrottleBurstRate attribute)</a>
+          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.EnhancedOAuth2IdSustainedRateThrottle.applies_to_rate_limit_model">(catalog.api.utils.throttle.EnhancedOAuth2IdSustainedRateThrottle attribute)</a>
 </li>
-          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.OAuth2IdThrottleRate.applies_to_rate_limit_model">(catalog.api.utils.throttle.OAuth2IdThrottleRate attribute)</a>
+          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.ExemptOAuth2IdRateThrottle.applies_to_rate_limit_model">(catalog.api.utils.throttle.ExemptOAuth2IdRateThrottle attribute)</a>
 </li>
-          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.OAuth2IdThrottleSustainedRate.applies_to_rate_limit_model">(catalog.api.utils.throttle.OAuth2IdThrottleSustainedRate attribute)</a>
+          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.OAuth2IdBurstRateThrottle.applies_to_rate_limit_model">(catalog.api.utils.throttle.OAuth2IdBurstRateThrottle attribute)</a>
+</li>
+          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.OAuth2IdSustainedRateThrottle.applies_to_rate_limit_model">(catalog.api.utils.throttle.OAuth2IdSustainedRateThrottle attribute)</a>
 </li>
         </ul></li>
         <li><a href="reference/api/models.html#catalog.api.models.oauth.OAuth2Verification.associated_application">associated_application (catalog.api.models.oauth.OAuth2Verification attribute)</a>
@@ -1077,25 +1078,17 @@
         </ul></li>
         <li><a href="reference/api/utils.html#catalog.api.utils.ccrel.embed_xmp_bytes">embed_xmp_bytes() (in module catalog.api.utils.ccrel)</a>
 </li>
-        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.EnhancedOAuth2IdThrottleBurstRate">EnhancedOAuth2IdThrottleBurstRate (class in catalog.api.utils.throttle)</a>
-</li>
-        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.EnhancedOAuth2IdThrottleSustainedRate">EnhancedOAuth2IdThrottleSustainedRate (class in catalog.api.utils.throttle)</a>
-</li>
-        <li><a href="reference/api/utils.html#catalog.api.utils.exceptions.exception_handler">exception_handler() (in module catalog.api.utils.exceptions)</a>
+        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.EnhancedOAuth2IdBurstRateThrottle">EnhancedOAuth2IdBurstRateThrottle (class in catalog.api.utils.throttle)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.EnhancedOAuth2IdSustainedRateThrottle">EnhancedOAuth2IdSustainedRateThrottle (class in catalog.api.utils.throttle)</a>
+</li>
+        <li><a href="reference/api/utils.html#catalog.api.utils.exceptions.exception_handler">exception_handler() (in module catalog.api.utils.exceptions)</a>
+</li>
         <li><a href="reference/api/index.html#catalog.api.admin.ProviderAdmin.exclude">exclude (catalog.api.admin.ProviderAdmin attribute)</a>
 </li>
-        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.AnonRateThrottle.exemption_classes">exemption_classes (catalog.api.utils.throttle.AnonRateThrottle attribute)</a>
-
-        <ul>
-          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.ExemptionAwareThrottle.exemption_classes">(catalog.api.utils.throttle.ExemptionAwareThrottle attribute)</a>
-</li>
-          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.OAuth2IdThrottleRate.exemption_classes">(catalog.api.utils.throttle.OAuth2IdThrottleRate attribute)</a>
-</li>
-        </ul></li>
-        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.ExemptionAwareThrottle">ExemptionAwareThrottle (class in catalog.api.utils.throttle)</a>
+        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.ExemptOAuth2IdRateThrottle">ExemptOAuth2IdRateThrottle (class in catalog.api.utils.throttle)</a>
 </li>
         <li><a href="reference/api/utils.html#catalog.api.utils.waveform.ext_from_url">ext_from_url() (in module catalog.api.utils.waveform)</a>
 </li>
@@ -1233,10 +1226,10 @@
 </li>
         <li><a href="reference/api/models.html#catalog.api.models.oauth.ThrottledApplication.get_authorization_grant_type_display">get_authorization_grant_type_display() (catalog.api.models.oauth.ThrottledApplication method)</a>
 </li>
-        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.AnonRateThrottle.get_cache_key">get_cache_key() (catalog.api.utils.throttle.AnonRateThrottle method)</a>
+        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.AbstractAnonRateThrottle.get_cache_key">get_cache_key() (catalog.api.utils.throttle.AbstractAnonRateThrottle method)</a>
 
         <ul>
-          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.OAuth2IdThrottleRate.get_cache_key">(catalog.api.utils.throttle.OAuth2IdThrottleRate method)</a>
+          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.AbstractOAuth2IdRateThrottle.get_cache_key">(catalog.api.utils.throttle.AbstractOAuth2IdRateThrottle method)</a>
 </li>
         </ul></li>
         <li><a href="reference/api/models.html#catalog.api.models.oauth.ThrottledApplication.get_client_type_display">get_client_type_display() (catalog.api.models.oauth.ThrottledApplication method)</a>
@@ -1549,12 +1542,12 @@
 </li>
         <li><a href="reference/api/models.html#catalog.api.models.models.SourceLogo.image">image (catalog.api.models.models.SourceLogo attribute)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="reference/api/models.html#catalog.api.models.image.Image">Image (class in catalog.api.models.image)</a>
 </li>
         <li><a href="reference/api/models.html#catalog.api.models.image.Image.DoesNotExist">Image.DoesNotExist</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="reference/api/models.html#catalog.api.models.image.Image.MultipleObjectsReturned">Image.MultipleObjectsReturned</a>
 </li>
         <li><a href="reference/api/models.html#catalog.api.models.image.ImageReport.image_url">image_url (catalog.api.models.image.ImageReport property)</a>
@@ -1613,18 +1606,8 @@
 </li>
         <li><a href="reference/api/serializers.html#catalog.api.serializers.error_serializers.InputErrorSerializer">InputErrorSerializer (class in catalog.api.serializers.error_serializers)</a>
 </li>
-        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.InternalNetworkExemption">InternalNetworkExemption (class in catalog.api.utils.throttle)</a>
-</li>
         <li><a href="reference/api/serializers.html#catalog.api.serializers.error_serializers.InternalServerErrorSerializer">InternalServerErrorSerializer (class in catalog.api.serializers.error_serializers)</a>
 </li>
-        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.ApiKeyExemption.is_exempt">is_exempt() (catalog.api.utils.throttle.ApiKeyExemption method)</a>
-
-        <ul>
-          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.InternalNetworkExemption.is_exempt">(catalog.api.utils.throttle.InternalNetworkExemption method)</a>
-</li>
-          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.ThrottleExemption.is_exempt">(catalog.api.utils.throttle.ThrottleExemption method)</a>
-</li>
-        </ul></li>
     </ul></td>
   </tr></table>
 </section>
@@ -1703,6 +1686,8 @@
           <li><a href="reference/api/models.html#catalog.api.models.image.Image.lists">(catalog.api.models.image.Image attribute)</a>
 </li>
         </ul></li>
+        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.AbstractAnonRateThrottle.logger">logger (catalog.api.utils.throttle.AbstractAnonRateThrottle attribute)</a>
+</li>
         <li><a href="reference/api/views.html#catalog.api.views.media_views.MediaViewSet.lookup_field">lookup_field (catalog.api.views.media_views.MediaViewSet attribute)</a>
 </li>
         <li><a href="reference/api/views.html#catalog.api.views.media_views.MediaViewSet.lookup_value_regex">lookup_value_regex (catalog.api.views.media_views.MediaViewSet attribute)</a>
@@ -1978,11 +1963,9 @@
   <h2>O</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.OAuth2IdThrottleBurstRate">OAuth2IdThrottleBurstRate (class in catalog.api.utils.throttle)</a>
+        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.OAuth2IdBurstRateThrottle">OAuth2IdBurstRateThrottle (class in catalog.api.utils.throttle)</a>
 </li>
-        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.OAuth2IdThrottleRate">OAuth2IdThrottleRate (class in catalog.api.utils.throttle)</a>
-</li>
-        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.OAuth2IdThrottleSustainedRate">OAuth2IdThrottleSustainedRate (class in catalog.api.utils.throttle)</a>
+        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.OAuth2IdSustainedRateThrottle">OAuth2IdSustainedRateThrottle (class in catalog.api.utils.throttle)</a>
 </li>
         <li><a href="reference/api/serializers.html#catalog.api.serializers.oauth2_serializers.OAuth2KeyInfo">OAuth2KeyInfo (class in catalog.api.serializers.oauth2_serializers)</a>
 </li>
@@ -2082,8 +2065,6 @@
 </li>
         <li><a href="reference/api/views.html#catalog.api.views.oauth2_views.Register.post">post() (catalog.api.views.oauth2_views.Register method)</a>
 </li>
-        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.PostRequestThrottler">PostRequestThrottler (class in catalog.api.utils.throttle)</a>
-</li>
         <li><a href="reference/api/utils.html#catalog.api.utils.waveform.process_waveform_output">process_waveform_output() (in module catalog.api.utils.waveform)</a>
 </li>
         <li><a href="reference/api/models.html#catalog.api.models.audio.Audio.provider">provider (catalog.api.models.audio.Audio attribute)</a>
@@ -2149,8 +2130,6 @@
         <ul>
           <li><a href="reference/api/utils.html#catalog.api.utils.throttle.OneThousandPerMinute.rate">(catalog.api.utils.throttle.OneThousandPerMinute attribute)</a>
 </li>
-          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.PostRequestThrottler.rate">(catalog.api.utils.throttle.PostRequestThrottler attribute)</a>
-</li>
           <li><a href="reference/api/utils.html#catalog.api.utils.throttle.TenPerDay.rate">(catalog.api.utils.throttle.TenPerDay attribute)</a>
 </li>
         </ul></li>
@@ -2170,12 +2149,6 @@
         </ul></li>
         <li><a href="reference/api/models.html#catalog.api.models.oauth.ThrottledApplication.redirect_uris">redirect_uris (catalog.api.models.oauth.ThrottledApplication attribute)</a>
 </li>
-        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.ApiKeyExemption.redis_set_name">redis_set_name (catalog.api.utils.throttle.ApiKeyExemption attribute)</a>
-
-        <ul>
-          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.InternalNetworkExemption.redis_set_name">(catalog.api.utils.throttle.InternalNetworkExemption attribute)</a>
-</li>
-        </ul></li>
         <li><a href="reference/api/models.html#catalog.api.models.oauth.ThrottledApplication.refreshtoken_set">refreshtoken_set (catalog.api.models.oauth.ThrottledApplication attribute)</a>
 </li>
         <li><a href="reference/api/views.html#catalog.api.views.oauth2_views.Register">Register (class in catalog.api.views.oauth2_views)</a>
@@ -2196,8 +2169,6 @@
           <li><a href="reference/api/views.html#catalog.api.views.media_views.MediaViewSet.related">(catalog.api.views.media_views.MediaViewSet method)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="reference/api/models.html#catalog.api.models.audio.Audio.removed_from_source">removed_from_source (catalog.api.models.audio.Audio attribute)</a>
 
         <ul>
@@ -2206,6 +2177,8 @@
           <li><a href="reference/api/models.html#catalog.api.models.media.AbstractMedia.removed_from_source">(catalog.api.models.media.AbstractMedia attribute)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="reference/api/views.html#catalog.api.views.audio_views.AudioViewSet.report">report() (catalog.api.views.audio_views.AudioViewSet method)</a>
 
         <ul>
@@ -2288,20 +2261,18 @@
 </li>
         <li><a href="reference/api/utils.html#catalog.api.utils.scheduled_tasks.SaveCachedTrafficStats.schedule">schedule (catalog.api.utils.scheduled_tasks.SaveCachedTrafficStats attribute)</a>
 </li>
-        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.AnonRateThrottle.scope">scope (catalog.api.utils.throttle.AnonRateThrottle attribute)</a>
+        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.BurstRateThrottle.scope">scope (catalog.api.utils.throttle.BurstRateThrottle attribute)</a>
 
         <ul>
-          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.BurstRateThrottle.scope">(catalog.api.utils.throttle.BurstRateThrottle attribute)</a>
+          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.EnhancedOAuth2IdBurstRateThrottle.scope">(catalog.api.utils.throttle.EnhancedOAuth2IdBurstRateThrottle attribute)</a>
 </li>
-          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.EnhancedOAuth2IdThrottleBurstRate.scope">(catalog.api.utils.throttle.EnhancedOAuth2IdThrottleBurstRate attribute)</a>
+          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.EnhancedOAuth2IdSustainedRateThrottle.scope">(catalog.api.utils.throttle.EnhancedOAuth2IdSustainedRateThrottle attribute)</a>
 </li>
-          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.EnhancedOAuth2IdThrottleSustainedRate.scope">(catalog.api.utils.throttle.EnhancedOAuth2IdThrottleSustainedRate attribute)</a>
+          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.ExemptOAuth2IdRateThrottle.scope">(catalog.api.utils.throttle.ExemptOAuth2IdRateThrottle attribute)</a>
 </li>
-          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.OAuth2IdThrottleBurstRate.scope">(catalog.api.utils.throttle.OAuth2IdThrottleBurstRate attribute)</a>
+          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.OAuth2IdBurstRateThrottle.scope">(catalog.api.utils.throttle.OAuth2IdBurstRateThrottle attribute)</a>
 </li>
-          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.OAuth2IdThrottleRate.scope">(catalog.api.utils.throttle.OAuth2IdThrottleRate attribute)</a>
-</li>
-          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.OAuth2IdThrottleSustainedRate.scope">(catalog.api.utils.throttle.OAuth2IdThrottleSustainedRate attribute)</a>
+          <li><a href="reference/api/utils.html#catalog.api.utils.throttle.OAuth2IdSustainedRateThrottle.scope">(catalog.api.utils.throttle.OAuth2IdSustainedRateThrottle attribute)</a>
 </li>
           <li><a href="reference/api/utils.html#catalog.api.utils.throttle.SustainedRateThrottle.scope">(catalog.api.utils.throttle.SustainedRateThrottle attribute)</a>
 </li>
@@ -2477,8 +2448,6 @@
         <li><a href="reference/api/models.html#catalog.api.models.oauth.ThrottledApplication.DoesNotExist">ThrottledApplication.DoesNotExist</a>
 </li>
         <li><a href="reference/api/models.html#catalog.api.models.oauth.ThrottledApplication.MultipleObjectsReturned">ThrottledApplication.MultipleObjectsReturned</a>
-</li>
-        <li><a href="reference/api/utils.html#catalog.api.utils.throttle.ThrottleExemption">ThrottleExemption (class in catalog.api.utils.throttle)</a>
 </li>
         <li><a href="reference/api/models.html#catalog.api.models.audio.Audio.thumbnail">thumbnail (catalog.api.models.audio.Audio attribute)</a>
 
