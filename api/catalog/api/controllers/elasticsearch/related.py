@@ -55,7 +55,7 @@ def related_media(uuid, index, filter_dead):
     dumpable_results = (
         results.to_dict()
         if isinstance(results, Hit)
-        else list(map(lambda r: r.to_dict(), results))
+        else [r.to_dict() for r in results]
     )
 
     logger.debug(
