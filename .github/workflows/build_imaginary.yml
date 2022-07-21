@@ -1,10 +1,21 @@
 name: Build imaginary
 on:
   workflow_dispatch:
+    inputs:
+      deploy-to:
+        type: string
+        default: null
+        description: The environment to deploy to, if a deploy is desired. Currently only `staging` is available.
+
+      deploy-only:
+        type: boolean
+        default: false
+        description: Set to `true` to trigger _just_ a redeployment
 
 jobs:
   build:
     name: Build
+    if: github.events.inputs.deploy-only == false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout h2non/imaginary repository
@@ -55,3 +66,20 @@ jobs:
           push: true
           tags: |
             ghcr.io/wordpress/openverse-imaginary:latest
+
+  deploy:
+    name: Deploy Imaginary
+    runs-on: ubuntu-latest
+    if: github.event.inputs.deploy-to != null
+    depends-on: [build]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./.github/actions/staging-thumbnails-deploy
+        if: github.event.inputs.deploy-to == "staging"
+        with:
+          tag: latest
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          slack-webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
