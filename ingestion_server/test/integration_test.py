@@ -518,8 +518,7 @@ class TestIngestion(unittest.TestCase):
 
     @pytest.mark.order(15)
     def test_alias_ambiguous_deletion_fails(self):
-        self._ingest_upstream("audio", "temporary")
-        self._promote("audio", "temporary", "audio-temp")
+        # No need to ingest or promote, index and alias exist
         self._soft_delete_index("audio", "audio-temp", "temporary", True)
 
     @pytest.mark.order(16)
