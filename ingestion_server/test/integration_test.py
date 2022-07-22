@@ -41,7 +41,7 @@ if platform.system() == "Linux":
     host_address = "172.17.0.1"
 else:
     host_address = "host.docker.internal"
-bottle_url = f"http://host.docker.internal:{bottle_port}{bottle_path}"
+bottle_url = f"http://{host_address}:{bottle_port}{bottle_path}"
 
 
 def start_bottle(queue):
