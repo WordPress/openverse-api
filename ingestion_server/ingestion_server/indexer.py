@@ -117,6 +117,7 @@ class TableIndexer:
         callback_url: Optional[str] = None,
         progress: Optional[Value] = None,
         active_workers: Optional[Value] = None,
+        is_bad_request: Optional[Value] = None,
     ):
         self.es = es_instance
         connections.connections.add_connection("default", self.es)
@@ -125,6 +126,7 @@ class TableIndexer:
         self.callback_url = callback_url
         self.progress = progress
         self.active_workers = active_workers
+        self.is_bad_request = is_bad_request
 
     # Helpers
     # =======
@@ -436,6 +438,8 @@ class TableIndexer:
             if target_stat.is_alias:
                 if not force_delete:
                     # Alias cannot be deleted unless forced.
+                    if self.is_bad_request is not None:
+                        self.is_bad_request.value = 1
                     message = (
                         f"Alias {target} might be in use so it cannot be deleted. "
                         f"Verify that the API does not use this alias and then use the "
@@ -448,6 +452,8 @@ class TableIndexer:
             else:
                 if target_stat.alt_names:
                     # Index mapped to alias cannot be deleted.
+                    if self.is_bad_request is not None:
+                        self.is_bad_request.value = 1
                     message = (
                         f"Index {target} is associated with aliases "
                         f"{target_stat.alt_names}, cannot delete. Delete aliases first."
@@ -462,6 +468,8 @@ class TableIndexer:
             slack.info(message)
         else:
             # Cannot delete as target does not exist.
+            if self.is_bad_request is not None:
+                self.is_bad_request.value = 1
             message = f"Target {target} does not exist and cannot be deleted."
             log.info(message)
             slack.info(message)

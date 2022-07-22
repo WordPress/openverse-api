@@ -145,6 +145,7 @@ class TaskResource(BaseTaskResource):
         progress = Value("d", 0.0)
         finish_time = Value("d", 0.0)
         active_workers = Value("i", int(False))
+        is_bad_request = Value("i", 0)
 
         task = Process(
             target=perform_task,
@@ -156,6 +157,7 @@ class TaskResource(BaseTaskResource):
                 "progress": progress,
                 "finish_time": finish_time,
                 "active_workers": active_workers,
+                "is_bad_request": is_bad_request,
                 # Task-specific keyword arguments
                 "since_date": since_date,
                 "index_suffix": index_suffix,
@@ -174,6 +176,7 @@ class TaskResource(BaseTaskResource):
             progress=progress,
             finish_time=finish_time,
             active_workers=active_workers,
+            is_bad_request=is_bad_request,
         )
 
         base_url = self._get_base_url(req)
@@ -196,6 +199,12 @@ class TaskResource(BaseTaskResource):
                 "message": "Successfully completed task",
                 "task_id": task_id,
                 "status_check": status_url,
+            }
+        elif is_bad_request.value:  # set to 1 for bad tasks
+            res.status = falcon.HTTP_400
+            res.media = {
+                "message": "Failed during task execution due to bad request. Check "
+                "scheduler logs."
             }
         else:
             res.status = falcon.HTTP_500
