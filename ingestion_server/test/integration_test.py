@@ -41,7 +41,7 @@ if platform.system() == "Linux":
     host_address = "172.17.0.1"
 else:
     host_address = "host.docker.internal"
-bottle_url = f"http://{host_address}:{bottle_port}{bottle_path}"
+bottle_url = f"http://host.docker.internal:{bottle_port}{bottle_path}"
 
 
 def start_bottle(queue):
@@ -213,6 +213,10 @@ class TestIngestion(unittest.TestCase):
             cursor.execute(constraint_sql)
             return {constraint: name for name, constraint in cursor}
 
+    def check_index_exists(self, index_name):
+        es = self._get_es()
+        assert es.indices.get(index=index_name) is not None
+
     def _ingest_upstream(self, model, suffix="integration"):
         """
         Check that INGEST_UPSTREAM task completes successfully and responds
@@ -290,6 +294,26 @@ class TestIngestion(unittest.TestCase):
         es = self._get_es()
         with pytest.raises(NotFoundError):
             es.indices.get(index=f"{model}-{suffix}")
+
+    def _soft_delete_index(self, model, alias, suffix="integration", ambiguous=False):
+        req = {
+            "model": model,
+            "action": "DELETE_INDEX",
+            "alias": alias,
+        }
+        if not ambiguous:
+            req |= {"force_delete": False}
+        res = requests.post(f"{ingestion_server}/task", json=req)
+        stat_msg = "The job should launch successfully and return 202 ACCEPTED."
+        self.assertEqual(res.status_code, 202, msg=stat_msg)
+
+        data = res.json()
+        while True:
+            is_task_active = requests.get(data["status_check"]).json()["active"]
+            if not is_task_active:
+                break
+            time.sleep(5)
+        self.check_index_exists(f"{model}-{suffix}")
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -488,26 +512,38 @@ class TestIngestion(unittest.TestCase):
         self._delete_index("audio", "temporary")
 
     @pytest.mark.order(13)
-    def test_index_force_deletion_succeeds(self):
+    def test_alias_force_deletion_succeeds(self):
         self._ingest_upstream("audio", "temporary")
         self._promote("audio", "temporary", "audio-temp")
         self._delete_index("audio", "temporary", "audio-temp")
 
     @pytest.mark.order(14)
+    def test_alias_soft_deletion_fails(self):
+        self._ingest_upstream("audio", "temporary")
+        self._promote("audio", "temporary", "audio-temp")
+        self._soft_delete_index("audio", "audio-temp", "temporary")
+
+    @pytest.mark.order(14)
+    def test_alias_ambiguous_deletion_fails(self):
+        self._ingest_upstream("audio", "temporary")
+        self._promote("audio", "temporary", "audio-temp")
+        self._soft_delete_index("audio", "audio-temp", "temporary", True)
+
+    @pytest.mark.order(15)
     def test_stat_endpoint_for_index(self):
         res = requests.get(f"{ingestion_server}/stat/audio-integration")
         data = res.json()
         assert data["exists"]
         assert data["alt_names"] == ["audio-main"]
 
-    @pytest.mark.order(15)
+    @pytest.mark.order(16)
     def test_stat_endpoint_for_alias(self):
         res = requests.get(f"{ingestion_server}/stat/audio-main")
         data = res.json()
         assert data["exists"]
         assert data["alt_names"] == "audio-integration"
 
-    @pytest.mark.order(16)
+    @pytest.mark.order(17)
     def test_stat_endpoint_for_non_existent(self):
         res = requests.get(f"{ingestion_server}/stat/non-existent")
         data = res.json()
