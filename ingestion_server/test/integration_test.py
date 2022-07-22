@@ -306,13 +306,6 @@ class TestIngestion(unittest.TestCase):
         res = requests.post(f"{ingestion_server}/task", json=req)
         stat_msg = "The job should fail fast and return 400 BAD REQUEST."
         self.assertEqual(res.status_code, 400, msg=stat_msg)
-
-        data = res.json()
-        while True:
-            is_task_active = requests.get(data["status_check"]).json()["active"]
-            if not is_task_active:
-                break
-            time.sleep(5)
         self.check_index_exists(f"{model}-{suffix}")
 
     @classmethod
