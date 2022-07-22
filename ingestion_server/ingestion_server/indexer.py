@@ -437,8 +437,9 @@ class TableIndexer:
                 if not force_delete:
                     # Alias cannot be deleted unless forced.
                     message = (
-                        f"Alias {target} might be in use so it cannot be deleted. Use"
-                        f"the `force_delete` parameter."
+                        f"Alias {target} might be in use so it cannot be deleted. "
+                        f"Verify that the API does not use this alias and then use the "
+                        f"`force_delete` parameter."
                     )
                     log.error(message)
                     slack.error(message)
