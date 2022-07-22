@@ -304,8 +304,8 @@ class TestIngestion(unittest.TestCase):
         if not ambiguous:
             req |= {"force_delete": False}
         res = requests.post(f"{ingestion_server}/task", json=req)
-        stat_msg = "The job should launch successfully and return 202 ACCEPTED."
-        self.assertEqual(res.status_code, 202, msg=stat_msg)
+        stat_msg = "The job should fail fast and return 400 BAD REQUEST."
+        self.assertEqual(res.status_code, 400, msg=stat_msg)
 
         data = res.json()
         while True:
