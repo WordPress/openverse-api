@@ -516,27 +516,27 @@ class TestIngestion(unittest.TestCase):
         self._promote("audio", "temporary", "audio-temp")
         self._soft_delete_index("audio", "audio-temp", "temporary")
 
-    @pytest.mark.order(14)
+    @pytest.mark.order(15)
     def test_alias_ambiguous_deletion_fails(self):
         self._ingest_upstream("audio", "temporary")
         self._promote("audio", "temporary", "audio-temp")
         self._soft_delete_index("audio", "audio-temp", "temporary", True)
 
-    @pytest.mark.order(15)
+    @pytest.mark.order(16)
     def test_stat_endpoint_for_index(self):
         res = requests.get(f"{ingestion_server}/stat/audio-integration")
         data = res.json()
         assert data["exists"]
         assert data["alt_names"] == ["audio-main"]
 
-    @pytest.mark.order(16)
+    @pytest.mark.order(17)
     def test_stat_endpoint_for_alias(self):
         res = requests.get(f"{ingestion_server}/stat/audio-main")
         data = res.json()
         assert data["exists"]
         assert data["alt_names"] == "audio-integration"
 
-    @pytest.mark.order(17)
+    @pytest.mark.order(18)
     def test_stat_endpoint_for_non_existent(self):
         res = requests.get(f"{ingestion_server}/stat/non-existent")
         data = res.json()
