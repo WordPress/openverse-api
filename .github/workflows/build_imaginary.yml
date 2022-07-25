@@ -15,7 +15,7 @@ on:
 jobs:
   build:
     name: Build
-    if: github.events.inputs.deploy-only == false
+    if: github.event.inputs.deploy-only == false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout h2non/imaginary repository
@@ -71,7 +71,7 @@ jobs:
     name: Deploy Imaginary
     runs-on: ubuntu-latest
     if: github.event.inputs.deploy-to != null
-    depends-on: [build]
+    needs: [build]
 
     steps:
       - uses: actions/github-script@v6
@@ -96,7 +96,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - uses: ./.github/actions/staging-thumbnails-deploy
-        if: github.event.inputs.deploy-to == "staging"
+        if: github.event.inputs.deploy-to == 'staging'
         with:
           tag: latest
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
