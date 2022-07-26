@@ -285,7 +285,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: gh-pages
-      
+
       - name: Preserve previews
         run: mv _preview /tmp/gh-pages/_preview
 
@@ -354,7 +354,7 @@ jobs:
         run: |
           just sphinx-make
           mv ./api/build/html /tmp/preview
-      
+
       # Otherwise we end up with any extra stuff not git-ignored in the gh-pages branch
       - name: Recreate working directory to avoid supurflouous files
         run: |
