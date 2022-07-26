@@ -359,7 +359,7 @@ jobs:
       - name: Recreate working directory to avoid supurflouous files
         run: |
           cd ..
-          rm -rf openverse-api
+          sudo rm -rf openverse-api
           mkdir openverse-api
 
       - uses: actions/checkout@v3
