@@ -353,6 +353,7 @@ jobs:
       - name: Build docs
         run: |
           just sphinx-make
+          sudo chown $USER:$USER -R ./api
           mv ./api/build/html /tmp/preview
 
       # Otherwise we end up with any extra stuff not git-ignored in the gh-pages branch
