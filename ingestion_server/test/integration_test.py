@@ -295,13 +295,21 @@ class TestIngestion(unittest.TestCase):
         with pytest.raises(NotFoundError):
             es.indices.get(index=f"{model}-{suffix}")
 
-    def _soft_delete_index(self, model, alias, suffix="integration", ambiguous=False):
+    def _soft_delete_index(
+        self, model, alias, suffix="integration", omit_force_delete=False
+    ):
+        """
+        Deleting without the ``force_delete`` flag set to ``True`` is
+        considered a soft-delete because it will be declined if the target is
+        an alias. Not providing the flag is equivalent to setting it to
+        ``False``.
+        """
         req = {
             "model": model,
             "action": "DELETE_INDEX",
             "alias": alias,
         }
-        if not ambiguous:
+        if not omit_force_delete:
             req |= {"force_delete": False}
         res = requests.post(f"{ingestion_server}/task", json=req)
         stat_msg = "The job should fail fast and return 400 BAD REQUEST."
