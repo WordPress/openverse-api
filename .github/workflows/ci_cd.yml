@@ -1,6 +1,13 @@
 name: CI + CD
 on:
   pull_request:
+  pull_request_target:
+    types:
+      - synchronize
+    branches:
+      - main
+    paths:
+      - 'api/catalog/api/migrations/*.py'
   push:
     branches:
       - main
@@ -13,6 +20,7 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request_target'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -42,6 +50,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Rebase with main
+        if: github.event_name == 'pull_request_target'
+        run: |
+          git fetch main
+          # does non-zero exit code cause the script to exit here?
+          git rebase main || exit(1)
+
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v1
         with:
@@ -65,6 +80,7 @@ jobs:
 
   test-ing:
     name: Run tests for ingestion-server
+    if: github.event_name != 'pull_request_target'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs:
@@ -119,6 +135,7 @@ jobs:
 
   test-api:
     name: Run tests for the API
+    if: github.event_name != 'pull_request_target'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs:
@@ -169,7 +186,7 @@ jobs:
       - build-images
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup just
         uses: extractions/setup-just@v1
@@ -210,7 +227,7 @@ jobs:
           docker load --input /tmp/ingestion_server/ingestion_server.tar
 
       - name: Run makemigrations
-        run: just dj makemigrations --check --noinput
+        run: just dj makemigrations --check --noinput --merge
 
   push:
     name: Publish Docker images
