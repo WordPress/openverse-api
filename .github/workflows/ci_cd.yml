@@ -7,7 +7,7 @@ on:
     branches:
       - "add/migration-safety-check__test-base-branch"
     paths:
-      - "api/catalog/api/migrations/*.py"
+      - "**/migrations/*"
   push:
     branches:
       - main
