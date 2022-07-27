@@ -5,9 +5,9 @@ on:
     types:
       - synchronize
     branches:
-      - 'add/migration-safety-check__test-base-branch'
+      - "add/migration-safety-check__test-base-branch"
     paths:
-      - 'api/catalog/api/migrations/*.py'
+      - "api/catalog/api/migrations/*.py"
   push:
     branches:
       - main
@@ -54,8 +54,8 @@ jobs:
         if: github.event_name == 'pull_request_target'
         run: |
           git fetch add/migration-safety-check__test-base-branch
-          # does non-zero exit code cause the script to exit here?
-          git rebase add/migration-safety-check__test-base-branch || exit(1)
+          # does non-zero exit code cause the script to exit here already or do we need an `|| exit 1`?
+          git rebase add/migration-safety-check__test-base-branch
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v1
