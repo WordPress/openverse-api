@@ -200,7 +200,7 @@ class TaskResource(BaseTaskResource):
                 "task_id": task_id,
                 "status_check": status_url,
             }
-        elif is_bad_request.value:  # set to 1 for bad tasks
+        elif is_bad_request.value == 1:
             res.status = falcon.HTTP_400
             res.media = {
                 "message": "Failed during task execution due to bad request. Check "
