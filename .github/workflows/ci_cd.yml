@@ -5,7 +5,7 @@ on:
     types:
       - synchronize
     branches:
-      - "add/migration-safety-check__test-base-branch"
+      - "add/migration-safety-check"
     paths:
       - "**/migrations/*"
   push:
