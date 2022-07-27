@@ -203,14 +203,18 @@ class TaskResource(BaseTaskResource):
         elif is_bad_request.value == 1:
             res.status = falcon.HTTP_400
             res.media = {
-                "message": "Failed during task execution due to bad request. Check "
-                "scheduler logs."
+                "message": (
+                    "Failed during task execution due to bad request. "
+                    "Check scheduler logs."
+                )
             }
         else:
             res.status = falcon.HTTP_500
             res.media = {
-                "message": "Failed to schedule task due to an internal server "
-                "error. Check scheduler logs."
+                "message": (
+                    "Failed to schedule task due to an internal server error. "
+                    "Check scheduler logs."
+                )
             }
 
     def on_get(self, _, res):
