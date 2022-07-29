@@ -15,6 +15,8 @@ from ingestion_server.authority import get_authority_boost
 class RankFeature(Field):
     name = "rank_feature"
 
+ILLUSTRATION_CATEGORY = "illustration"
+
 
 def _verify_rank_feature(value, low, high):
     """
@@ -239,6 +241,7 @@ class Image(Media):
         authority_boost = Image.get_authority_boost(meta, provider)
 
         attrs = Image.get_instance_attrs(row, schema)
+        attrs["category"] = attrs["category"] or Image.get_category(extension, row[schema["filetype"]])
         popularity = attrs["standardized_popularity"]
 
         return Image(
@@ -276,6 +279,13 @@ class Image(Media):
             return None
         else:
             return extension
+
+    @staticmethod
+    def get_category(extension, filetype):
+        if extension == "svg" or filetype == "svg":
+            return ILLUSTRATION_CATEGORY
+        return None
+
 
     @staticmethod
     def get_size(height, width):
