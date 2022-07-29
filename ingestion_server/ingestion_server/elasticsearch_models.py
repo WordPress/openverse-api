@@ -10,7 +10,6 @@ from enum import Enum, auto
 from elasticsearch_dsl import Document, Field, Integer
 
 from ingestion_server.authority import get_authority_boost
-from ingestion_server.categorize import get_category
 
 
 class RankFeature(Field):
@@ -112,6 +111,7 @@ class Media(SyncableDocType):
             "license_url": Media.get_license_url(meta),
             "provider": row[schema["provider"]],
             "source": row[schema["source"]],
+            "category": row[schema["category"]],
             "created_on": row[schema["created_on"]],
             "tags": Media.parse_detailed_tags(row[schema["tags"]]),
             "mature": Media.get_maturity(meta, row[schema["mature"]]),
@@ -227,11 +227,7 @@ class Image(Media):
 
     @staticmethod
     def database_row_to_elasticsearch_doc(row, schema):
-        source = row[schema["source"]]
         extension = Image.get_extension(row[schema["url"]])
-        category = get_category(extension, source)
-        if "category" in schema:
-            category = row[schema["category"]]
 
         height = row[schema["height"]]
         width = row[schema["width"]]
@@ -247,7 +243,6 @@ class Image(Media):
 
         return Image(
             thumbnail=row[schema["thumbnail"]],
-            category=category,
             aspect_ratio=aspect_ratio,
             extension=extension,
             size=size,
@@ -333,7 +328,6 @@ class Audio(Media):
             bit_rate=row[schema["bit_rate"]],
             sample_rate=row[schema["sample_rate"]],
             genres=row[schema["genres"]],
-            category=row[schema["category"]],
             duration=row[schema["duration"]],
             length=length,
             filetype=filetype,
