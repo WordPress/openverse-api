@@ -103,9 +103,7 @@ def copy_table_upstream(
         f"pg_dump -s -t {name} -U deploy -d openledger -h {DB_SERVICE_NAME} | "
         f"{PSQL}"
     )
-    delete = (
-        f"DROP TABLE IF EXISTS {target_name} CASCADE;\n" if delete_if_exists else ""
-    )
+    delete = f"DROP TABLE IF EXISTS {target_name} CASCADE;" if delete_if_exists else ""
     rename = (
         f"ALTER TABLE {name} RENAME TO {target_name}" if target_name != name else ""
     )
@@ -244,14 +242,14 @@ def load_sample_data(media_type: MediaType, extra_columns: list[Column] = None):
         add_directives = ", ".join(
             [f"ADD COLUMN {column.name} {column.type}" for column in extra_columns]
         )
-        add = f"ALTER TABLE {dest_table} {add_directives};\n"
+        add = f"ALTER TABLE {dest_table} {add_directives};"
 
     sample_file_path = f"./sample_data/sample_{media_type}.csv"
     with open(sample_file_path, "r") as sample_file:
         columns = sample_file.readline().strip()
     copy = (
         f"\\copy {dest_table} ({columns}) from '{sample_file_path}' "
-        "with (FORMAT csv, HEADER true);\n"
+        "with (FORMAT csv, HEADER true);"
     )
 
     bash_input = f"""{PSQL} <<EOF
