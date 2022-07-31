@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import json
+import re
 import subprocess
 import sys
 import time
@@ -68,6 +69,7 @@ def compose_exec(service: str, bash_input: str) -> str:
     :return: the output of the operation
     """
 
+    bash_input = re.sub(r"\n\s{8}", r"\n", bash_input)
     return docker.compose.execute(service, ["/bin/bash", "-c", bash_input], tty=False)
 
 
@@ -155,22 +157,22 @@ def create_users(names: list[str]):
     """
 
     bash_input = f"""python manage.py shell <<EOF
-from django.contrib.auth.models import User
-usernames = {names}
-for username in usernames:
-    if User.objects.filter(username=username).exists():
-        print(f'User {{username}} already exists')
-        continue
-    if username == 'deploy':
-        user = User.objects.create_superuser(
-            username, f'{{username}}@example.com', 'deploy'
-        )
-    else:
-        user = User.objects.create_user(
-            username, f'{{username}}@example.com', 'deploy'
-        )
-        user.save()
-EOF"""
+        from django.contrib.auth.models import User
+        usernames = {names}
+        for username in usernames:
+            if User.objects.filter(username=username).exists():
+                print(f'User {{username}} already exists')
+                continue
+            if username == 'deploy':
+                user = User.objects.create_superuser(
+                    username, f'{{username}}@example.com', 'deploy'
+                )
+            else:
+                user = User.objects.create_user(
+                    username, f'{{username}}@example.com', 'deploy'
+                )
+                user.save()
+        EOF"""
     print(compose_exec(WEB_SERVICE_NAME, bash_input))
 
 
@@ -184,15 +186,15 @@ def backup_table(media_type: MediaType):
     """
 
     bash_input = f"""psql -U deploy -d openledger <<EOF
-CREATE TABLE {media_type}_template
-    (LIKE {media_type} INCLUDING ALL);
-CREATE SEQUENCE {media_type}_template_id_seq;
-ALTER TABLE {media_type}_template
-    ALTER COLUMN id
-    SET DEFAULT nextval('{media_type}_template_id_seq');
-ALTER SEQUENCE {media_type}_template_id_seq
-    OWNED BY {media_type}_template.id;
-EOF"""
+        CREATE TABLE {media_type}_template
+            (LIKE {media_type} INCLUDING ALL);
+        CREATE SEQUENCE {media_type}_template_id_seq;
+        ALTER TABLE {media_type}_template
+            ALTER COLUMN id
+            SET DEFAULT nextval('{media_type}_template_id_seq');
+        ALTER SEQUENCE {media_type}_template_id_seq
+            OWNED BY {media_type}_template.id;
+        EOF"""
     print(compose_exec(DB_SERVICE_NAME, bash_input))
 
 
@@ -208,13 +210,13 @@ def load_content_providers(providers: list[Provider]):
     values = ", ".join([provider.sql_value for provider in providers])
 
     bash_input = f"""psql -U deploy -d openledger <<EOF
-DELETE FROM content_provider
-    WHERE provider_identifier IN ({identifiers});
-INSERT INTO content_provider
-    (created_on,provider_identifier,provider_name,domain_name,media_type,filter_content)
-VALUES
-    {values};
-EOF"""
+        DELETE FROM content_provider
+            WHERE provider_identifier IN ({identifiers});
+        INSERT INTO content_provider
+            (created_on,provider_identifier,provider_name,domain_name,media_type,filter_content)
+        VALUES
+            {values};
+        EOF"""
     print(compose_exec(DB_SERVICE_NAME, bash_input))
 
 
@@ -247,9 +249,9 @@ def load_sample_data(media_type: MediaType, extra_columns: list[Column] = None):
     )
 
     bash_input = f"""psql -U deploy -d openledger <<EOF
-{add}
-{copy}
-EOF"""
+        {add}
+        {copy}
+        EOF"""
     print(compose_exec(UPSTREAM_DB_SERVICE_NAME, bash_input))
 
 
@@ -278,17 +280,17 @@ def create_audioset_view():
     )
 
     bash_input = f"""psql -U deploy -d openledger <<EOF
-UPDATE audio_view
-    SET audio_set_foreign_identifier = audio_set ->> 'foreign_identifier';
-DROP VIEW IF EXISTS audioset_view;
-CREATE VIEW audioset_view
-AS
-    SELECT DISTINCT
-        {select_directives},
-        provider
-    FROM audio_view
-    WHERE audio_set IS NOT NULL;
-EOF"""
+        UPDATE audio_view
+            SET audio_set_foreign_identifier = audio_set ->> 'foreign_identifier';
+        DROP VIEW IF EXISTS audioset_view;
+        CREATE VIEW audioset_view
+        AS
+            SELECT DISTINCT
+                {select_directives},
+                provider
+            FROM audio_view
+            WHERE audio_set IS NOT NULL;
+        EOF"""
     print(compose_exec(UPSTREAM_DB_SERVICE_NAME, bash_input))
 
 
