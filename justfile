@@ -83,16 +83,17 @@ init: up wait-for-es wait-for-ing wait-for-web
 
 # Install Python dependencies in Pipenv environments
 @install:
+    pipenv install
     just _api-install
     just _ing-install
 
 # Setup pre-commit as a Git hook
 precommit:
-    cd api && pipenv run pre-commit install
+    pipenv run pre-commit install
 
 # Run pre-commit to lint and reformat all files
 lint:
-    cd api && pipenv run pre-commit run --all-files
+    pipenv run pre-commit run --all-files
 
 # Make locally trusted certificates
 cert:
