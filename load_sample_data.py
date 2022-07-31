@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 from decouple import config
-from python_on_whales import docker
+from python_on_whales import DockerException, docker
 
 
 WEB_SERVICE_NAME = config("WEB_SERVICE_NAME", default="web")
@@ -199,7 +199,12 @@ def backup_table(media_type: MediaType):
         ALTER SEQUENCE {media_type}_template_id_seq
             OWNED BY {media_type}_template.id;
         EOF"""
-    print(compose_exec(DB_SERVICE_NAME, bash_input))
+    try:
+        print(compose_exec(DB_SERVICE_NAME, bash_input))
+    except DockerException as exc:
+        # Do nothing if the error was caused by an existing backup
+        if re.match(r'relation "\w+_template" already exists', exc.stderr):
+            raise
 
 
 def load_content_providers(providers: list[Provider]):
