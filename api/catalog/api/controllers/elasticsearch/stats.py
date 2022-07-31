@@ -17,7 +17,7 @@ SOURCE_CACHE_TIMEOUT = 60 * 20  # seconds
 def get_stats(index: Literal["image", "audio"]):
     """
     Given an index, find all available data sources and return their counts. This data
-    is cached in Redis. See ``load_sample_data.sh`` for example of clearing the cache.
+    is cached in Redis. See ``load_sample_data.py`` for example of clearing the cache.
 
     :param index: the Elasticsearch index name
     :return: a dictionary mapping sources to the count of their media items

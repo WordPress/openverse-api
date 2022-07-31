@@ -74,7 +74,7 @@ env:
 
 # Load sample data into the Docker Compose services
 init: up wait-for-es wait-for-ing wait-for-web
-    ./load_sample_data.sh
+    pipenv run python load_sample_data.py
 
 
 #######
@@ -145,6 +145,9 @@ _ing-api data port="8001":
       -w "\n" \
       'http://localhost:{{ port }}/task'
 
+@stat name port="8001":
+    curl 'http://localhost:{{ port }}/stat/{{ name }}'
+
 # Check the health of the ingestion-server
 @ing-health ing_host:
     -curl -s -o /dev/null -w '%{http_code}' 'http://{{ ing_host }}/'
@@ -166,6 +169,9 @@ _ing-api data port="8001":
 # Promote temp table to prod in API and new index to primary in Elasticsearch
 @promote model="image" suffix="init" alias="image":
     just _ing-api '{"model": "{{ model }}", "action": "PROMOTE", "index_suffix": "{{ suffix }}", "alias": "{{ alias }}"}'
+
+@delete-index model="image" suffix="init":
+    just _ing-api '{"model": "{{ model }}", "action": "DELETE_INDEX", "index_suffix": "{{ suffix }}"}'
 
 # Run ingestion-server tests locally
 ing-testlocal *args:
