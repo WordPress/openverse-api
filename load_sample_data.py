@@ -89,26 +89,23 @@ def copy_table_upstream(
     if target_name is None:
         target_name = name
 
-    bash_input = (
+    copy = (
         "PGPASSWORD=deploy "
         f"pg_dump -s -t {name} -U deploy -d openledger -h {DB_SERVICE_NAME} | "
         "psql -U deploy -d openledger"
     )
+    delete = (
+        f"DROP TABLE IF EXISTS {target_name} CASCADE;\n" if delete_if_exists else ""
+    )
+    rename = (
+        f"ALTER TABLE {name} RENAME TO {target_name}" if target_name != name else ""
+    )
 
-    if delete_if_exists:
-        # Delete existing table before copying.
-        bash_input = f"""psql -U deploy -d openledger <<EOF
-DROP TABLE IF EXISTS {target_name} CASCADE;
-EOF
-{bash_input}"""
-
-    if target_name != name:
-        # Rename table after copying.
-        bash_input = f"""{bash_input}
-psql -U deploy -d openledger <<EOF
-ALTER TABLE {name}
-    RENAME TO {target_name};
-EOF"""
+    bash_input = f"""{copy}
+        psql -U deploy -d openledger <<EOF
+        {delete}
+        {rename}
+        EOF"""
     print(compose_exec(UPSTREAM_DB_SERVICE_NAME, bash_input))
 
 
