@@ -21,6 +21,15 @@ MEDIA_TYPES = ["image", "audio"]
 MediaType = Literal["image", "audio"]
 
 
+##############
+# Subscripts #
+##############
+
+
+PSQL = "psql -U deploy -d openledger -v ON_ERROR_STOP=1 -X"
+DJ_SHELL = "python manage.py shell"
+
+
 ##########
 # Models #
 ##########
@@ -92,7 +101,7 @@ def copy_table_upstream(
     copy = (
         "PGPASSWORD=deploy "
         f"pg_dump -s -t {name} -U deploy -d openledger -h {DB_SERVICE_NAME} | "
-        "psql -U deploy -d openledger"
+        f"{PSQL}"
     )
     delete = (
         f"DROP TABLE IF EXISTS {target_name} CASCADE;\n" if delete_if_exists else ""
@@ -102,7 +111,7 @@ def copy_table_upstream(
     )
 
     bash_input = f"""{copy}
-        psql -U deploy -d openledger <<EOF
+        {PSQL} <<EOF
         {delete}
         {rename}
         EOF"""
@@ -153,7 +162,7 @@ def create_users(names: list[str]):
     users is always set to "deploy". Users that already exist will not be recreated.
     """
 
-    bash_input = f"""python manage.py shell <<EOF
+    bash_input = f"""{DJ_SHELL} <<EOF
         from django.contrib.auth.models import User
         usernames = {names}
         for username in usernames:
@@ -182,7 +191,7 @@ def backup_table(media_type: MediaType):
     :param media_type: the media type whose table is being backed up
     """
 
-    bash_input = f"""psql -U deploy -d openledger <<EOF
+    bash_input = f"""{PSQL} <<EOF
         CREATE TABLE {media_type}_template
             (LIKE {media_type} INCLUDING ALL);
         CREATE SEQUENCE {media_type}_template_id_seq;
@@ -206,7 +215,7 @@ def load_content_providers(providers: list[Provider]):
     identifiers = ", ".join([f"'{provider.identifier}'" for provider in providers])
     values = ", ".join([provider.sql_value for provider in providers])
 
-    bash_input = f"""psql -U deploy -d openledger <<EOF
+    bash_input = f"""{PSQL} <<EOF
         DELETE FROM content_provider
             WHERE provider_identifier IN ({identifiers});
         INSERT INTO content_provider
@@ -245,7 +254,7 @@ def load_sample_data(media_type: MediaType, extra_columns: list[Column] = None):
         "with (FORMAT csv, HEADER true);\n"
     )
 
-    bash_input = f"""psql -U deploy -d openledger <<EOF
+    bash_input = f"""{PSQL} <<EOF
         {add}
         {copy}
         EOF"""
@@ -276,7 +285,7 @@ def create_audioset_view():
         ]
     )
 
-    bash_input = f"""psql -U deploy -d openledger <<EOF
+    bash_input = f"""{PSQL} <<EOF
         UPDATE audio_view
             SET audio_set_foreign_identifier = audio_set ->> 'foreign_identifier';
         DROP VIEW IF EXISTS audioset_view;
