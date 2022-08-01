@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+import csv
 import json
+import logging
 import re
 import subprocess
-import sys
 import time
 import uuid
 from dataclasses import dataclass
@@ -10,6 +11,15 @@ from typing import Literal
 
 from decouple import config
 from python_on_whales import DockerException, docker
+
+
+log_level = config("LOG_LEVEL", default="INFO").upper()
+logging.basicConfig(level=log_level)
+
+
+#############
+# Constants #
+#############
 
 
 WEB_SERVICE_NAME = config("WEB_SERVICE_NAME", default="web")
@@ -76,15 +86,19 @@ def compose_exec(service: str, bash_input: str) -> str:
     :param service: the name of the service inside which to execute the commands
     :param bash_input: the input for the Bash shell
     :return: the output of the operation
+    :raise: ``DockerException`` if the command fails during execution
     """
 
     bash_input = re.sub(r"\n\s{8}", r"\n", bash_input)
-    return docker.compose.execute(service, ["/bin/bash", "-c", bash_input], tty=False)
+    logging.debug(f"Bash input: {bash_input}")
+    output = docker.compose.execute(service, ["/bin/bash", "-c", bash_input], tty=False)
+    logging.debug(f"Docker output: {output}")
+    return output
 
 
 def copy_table_upstream(
     name: str, target_name: str = None, delete_if_exists: bool = True
-):
+) -> str:
     """
     Copy the given table from the downstream DB to the upstream DB. Any existing table
     with the same name can be deleted before copying and the table can be renamed after
@@ -97,6 +111,8 @@ def copy_table_upstream(
 
     if target_name is None:
         target_name = name
+
+    logging.info(f"Copying table '{name}' to '{target_name}'...")
 
     copy = (
         "PGPASSWORD=deploy "
@@ -115,7 +131,9 @@ def copy_table_upstream(
         {PSQL} <<EOF
         {rename}
         EOF"""
-    print(compose_exec(UPSTREAM_DB_SERVICE_NAME, bash_input))
+    output = compose_exec(UPSTREAM_DB_SERVICE_NAME, bash_input)
+    logging.info(f"Table '{name}' copied to '{target_name}'.")
+    return output
 
 
 def run_just(recipe: str, argv: list[str]) -> subprocess.CompletedProcess:
@@ -128,18 +146,37 @@ def run_just(recipe: str, argv: list[str]) -> subprocess.CompletedProcess:
     """
 
     try:
+        logging.debug(f"just {recipe} {' '.join(argv)}")
         proc = subprocess.run(
             ["just", recipe, *argv],
             check=True,
             capture_output=True,
             text=True,
         )
-        print(proc.stdout)
+        logging.debug(f"Output: {proc.stdout}")
         return proc
     except subprocess.CalledProcessError as exc:
-        print(exc.stdout)
-        print(exc.stderr, file=sys.stderr)
+        logging.error("Just call failed.")
+        logging.error(f"STDOUT: {exc.stdout}")
+        logging.error(f"STDERR: {exc.stderr}")
         raise
+
+
+def get_actual_providers() -> list[str]:
+    """
+    Get the list of all distinct providers mentioned in the sample data.
+
+    :return: the list of unique providers in the sample data
+    """
+
+    providers = set()
+    for media_type in MEDIA_TYPES:
+        sample_file_path = f"./sample_data/sample_{media_type}.csv"
+        with open(sample_file_path, "r") as sample_file:
+            reader = csv.DictReader(sample_file)
+            for row in reader:
+                providers.add(row["provider"])
+    return list(providers)
 
 
 #########
@@ -152,8 +189,10 @@ def run_migrations():
     Run all migrations for the API.
     """
 
+    logging.info("Executing migrations...")
     bash_input = "python manage.py migrate --noinput"
-    print(compose_exec(WEB_SERVICE_NAME, bash_input))
+    compose_exec(WEB_SERVICE_NAME, bash_input)
+    logging.info("Migrations executed.")
 
 
 def create_users(names: list[str]):
@@ -162,6 +201,7 @@ def create_users(names: list[str]):
     users is always set to "deploy". Users that already exist will not be recreated.
     """
 
+    logging.info("Creating users...")
     bash_input = f"""{DJ_SHELL} <<EOF
         from django.contrib.auth.models import User
         usernames = {names}
@@ -179,7 +219,8 @@ def create_users(names: list[str]):
                 )
                 user.save()
         EOF"""
-    print(compose_exec(WEB_SERVICE_NAME, bash_input))
+    compose_exec(WEB_SERVICE_NAME, bash_input)
+    logging.info("Users created.")
 
 
 def backup_table(media_type: MediaType):
@@ -191,6 +232,7 @@ def backup_table(media_type: MediaType):
     :param media_type: the media type whose table is being backed up
     """
 
+    logging.info(f"Backing up '{media_type}' table...")
     bash_input = f"""{PSQL} <<EOF
         CREATE TABLE {media_type}_template
             (LIKE {media_type} INCLUDING ALL);
@@ -202,10 +244,13 @@ def backup_table(media_type: MediaType):
             OWNED BY {media_type}_template.id;
         EOF"""
     try:
-        print(compose_exec(DB_SERVICE_NAME, bash_input))
+        compose_exec(DB_SERVICE_NAME, bash_input)
+        logging.info(f"Backed up '{media_type}' table to '{media_type}_template'.")
     except DockerException as exc:
-        # Do nothing if the error was caused by an existing backup
-        if re.match(r'relation "\w+_template" already exists', exc.stderr):
+        if f'relation "{media_type}_template" already exists' in exc.stderr:
+            logging.warning(f"Backup table '{media_type}_template' already exists.")
+            # Do nothing if the error was caused by an existing backup
+        else:
             raise
 
 
@@ -216,6 +261,8 @@ def load_content_providers(providers: list[Provider]):
 
     :param providers: the list of providers to load
     """
+
+    logging.info(f"Creating {len(providers)} providers...")
 
     identifiers = ", ".join([f"'{provider.identifier}'" for provider in providers])
     values = ", ".join([provider.sql_value for provider in providers])
@@ -228,7 +275,8 @@ def load_content_providers(providers: list[Provider]):
         VALUES
             {values};
         EOF"""
-    print(compose_exec(DB_SERVICE_NAME, bash_input))
+    compose_exec(DB_SERVICE_NAME, bash_input)
+    logging.info(f"Created {len(providers)} providers.")
 
 
 def load_sample_data(media_type: MediaType, extra_columns: list[Column] = None):
@@ -239,6 +287,8 @@ def load_sample_data(media_type: MediaType, extra_columns: list[Column] = None):
     :param media_type: the name of the model to copy sample data for
     :param extra_columns: the list of additional columns to create on the table
     """
+
+    logging.info(f"Loading sample data for media type '{media_type}'...")
 
     source_table = f"{media_type}_template"
     dest_table = f"{media_type}_view"
@@ -254,6 +304,7 @@ def load_sample_data(media_type: MediaType, extra_columns: list[Column] = None):
     sample_file_path = f"./sample_data/sample_{media_type}.csv"
     with open(sample_file_path, "r") as sample_file:
         columns = sample_file.readline().strip()
+        logging.debug(f"CSV columns: {columns}")
     copy = (
         f"\\copy {dest_table} ({columns}) from '{sample_file_path}' "
         "with (FORMAT csv, HEADER true);"
@@ -263,7 +314,8 @@ def load_sample_data(media_type: MediaType, extra_columns: list[Column] = None):
         {add}
         {copy}
         EOF"""
-    print(compose_exec(UPSTREAM_DB_SERVICE_NAME, bash_input))
+    compose_exec(UPSTREAM_DB_SERVICE_NAME, bash_input)
+    logging.info(f"Sample data for media type '{media_type}' loaded.")
 
 
 def create_audioset_view():
@@ -271,6 +323,8 @@ def create_audioset_view():
     Create the ``audioset_view`` view from the ``audio_view`` table by breaking the
     ``audio_set`` JSONB field into its constituent keys as separate columns.
     """
+
+    logging.info("Creating audio set view...")
 
     columns = [
         Column("foreign_identifier", "varchar(1000)"),
@@ -302,7 +356,8 @@ def create_audioset_view():
             FROM audio_view
             WHERE audio_set IS NOT NULL;
         EOF"""
-    print(compose_exec(UPSTREAM_DB_SERVICE_NAME, bash_input))
+    compose_exec(UPSTREAM_DB_SERVICE_NAME, bash_input)
+    logging.info("Audio set view created.")
 
 
 def ingest(media_type: MediaType):
@@ -313,54 +368,79 @@ def ingest(media_type: MediaType):
     :param media_type: the media type for which to create ES indices
     """
 
+    logging.info(f"Loading test data for media type '{media_type}'...")
     run_just("load-test-data", [media_type])
     time.sleep(2)  # seconds
+    logging.info("Test data loaded.")
 
+    logging.info(f"Getting current index status for media type '{media_type}'...")
     proc = run_just("stat", [media_type])
     data = json.loads(proc.stdout)
+    logging.debug(f"Stat response: {data}")
+    logging.info("Current index status fetched.")
 
     suffix = uuid.uuid4().hex
+    logging.debug(f"New index suffix: {suffix}")
 
     # TODO: Find the cause of flaky image ingestion.
     retries = 2 if media_type == "image" else 0
     while True:
         try:
+            logging.info("Running data ingestion...")
             run_just("ingest-upstream", [media_type, suffix])
             run_just("wait-for-index", [f"{media_type}-{suffix}"])
+            logging.info("Data ingestion completed.")
             break
         except subprocess.CalledProcessError:
             if not retries:
+                logging.critical("Failed and no retries left. Crashing.")
                 raise
-            print("Retrying due to failure")
+            print(f"Failed but {retries} retries left. Re-attempting.")
             retries -= 1
 
+    logging.info(f"Promoting index '{media_type}-{suffix}'...")
     run_just("promote", [media_type, suffix, media_type])
     run_just("wait-for-index", [media_type])
+    logging.info(f"Index '{media_type}-{suffix}' promoted.")
 
     if data["exists"]:
         old_suffix = data["alt_names"].lstrip(f"{media_type}-")
+        logging.info(f"Deleting old index '{media_type}-{old_suffix}'...")
         run_just("delete-index", [media_type, old_suffix])
+        logging.info("Old index deleted.")
 
 
 if __name__ == "__main__":
     # API initialisation
+    logging.info("\n---\nAPI initialisation\n---\n")
     run_migrations()
     create_users(["deploy", "continuous_integration"])
     for media_type in MEDIA_TYPES:
         backup_table(media_type)
 
-    providers = [
-        Provider("flickr", "Flickr", "https://www.flickr.com", "image"),
-        Provider("stocksnap", "StockSnap", "https://stocksnap.io", "image"),
-        Provider("freesound", "Freesound", "https://freesound.org/", "audio"),
-        Provider("jamendo", "Jamendo", "https://www.jamendo.com", "audio"),
-        Provider(
+    providers = {
+        "flickr": Provider("flickr", "Flickr", "https://www.flickr.com", "image"),
+        "stocksnap": Provider(
+            "stocksnap", "StockSnap", "https://stocksnap.io", "image"
+        ),
+        "freesound": Provider(
+            "freesound", "Freesound", "https://freesound.org/", "audio"
+        ),
+        "jamendo": Provider("jamendo", "Jamendo", "https://www.jamendo.com", "audio"),
+        "wikimedia_audio": Provider(
             "wikimedia_audio", "Wikimedia", "https://commons.wikimedia.org", "audio"
         ),
-    ]
-    load_content_providers(providers)
+        "thingiverse": Provider(
+            "thingiverse", "Thingiverse", "https://www.thingiverse.com", "model_3d"
+        ),
+    }
+    logging.debug(f"Total providers: {len(providers)}")
+    actual_providers = get_actual_providers()
+    logging.debug(f"Used providers: {len(actual_providers)}")
+    load_content_providers([providers[provider] for provider in actual_providers])
 
     # Upstream initialisation
+    logging.info("\n---\nUpstream initialisation\n---\n")
     copy_table_upstream("content_provider")
 
     standardized_popularity = Column("standardized_popularity", "double precision")
@@ -376,11 +456,15 @@ if __name__ == "__main__":
     create_audioset_view()
 
     # Data refresh
+    logging.info("\n---\nData refresh\n---\n")
     for media_type in MEDIA_TYPES:
         ingest(media_type)
 
     # Cache bust
+    logging.info("\n---\nCache bust\n---\n")
     for media_type in MEDIA_TYPES:
+        logging.info(f"Busting cache for media type '{media_type}'...")
         compose_exec(
             CACHE_SERVICE_NAME, f'echo "del :1:sources-{media_type}" | redis-cli'
         )
+        logging.info("Cache busted.")
