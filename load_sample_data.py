@@ -108,9 +108,11 @@ def copy_table_upstream(
         f"ALTER TABLE {name} RENAME TO {target_name}" if target_name != name else ""
     )
 
-    bash_input = f"""{copy}
-        {PSQL} <<EOF
+    bash_input = f"""{PSQL} <<EOF
         {delete}
+        EOF
+        {copy}
+        {PSQL} <<EOF
         {rename}
         EOF"""
     print(compose_exec(UPSTREAM_DB_SERVICE_NAME, bash_input))
