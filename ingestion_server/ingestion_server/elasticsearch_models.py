@@ -64,7 +64,7 @@ class Media(SyncableDocType):
         name = "media"
 
     @staticmethod
-    def database_row_to_elasticsearch_doc(row, schema):
+    def database_row_to_elasticsearch_doc(row: tuple, schema: dict[str, int]):
         """
         Map each row in the downstream database to a Python dictionary that
         represents a document in the ElasticSearch index.
