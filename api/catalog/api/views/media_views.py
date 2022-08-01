@@ -94,7 +94,7 @@ class MediaViewSet(ReadOnlyModelViewSet):
 
         providers = ContentProvider.objects.filter(
             media_type=self.default_index, filter_content=False
-        )
+        ).order_by("provider_name")
         serializer = self.get_serializer(providers, many=True, context=context)
         return Response(serializer.data)
 
