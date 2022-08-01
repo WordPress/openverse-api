@@ -5,8 +5,10 @@ verify_ssl = true
 
 [dev-packages]
 ipython = "*"
+pycodestyle = "*"
 pytest-django = ">=3.5"
 remote-pdb = "*"
+pre-commit = "*"
 locust = "*"
 sphinx = "*"
 sphinx-autobuild = "*"
