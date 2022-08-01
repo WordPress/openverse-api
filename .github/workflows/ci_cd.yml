@@ -146,7 +146,6 @@ jobs:
         run: |
           pip install -U pip
           pip install pipenv
-          pipenv install
 
       - name: Download all images
         uses: actions/download-artifact@v2

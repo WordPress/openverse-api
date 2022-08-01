@@ -73,7 +73,7 @@ env:
     cp ingestion_server/env.template ingestion_server/.env
 
 # Load sample data into the Docker Compose services
-init log_level="INFO": up wait-for-es wait-for-ing wait-for-web
+init log_level="INFO": _root-install up wait-for-es wait-for-ing wait-for-web
     env LOG_LEVEL={{ log_level }} pipenv run python load_sample_data.py
 
 
@@ -83,9 +83,13 @@ init log_level="INFO": up wait-for-es wait-for-ing wait-for-web
 
 # Install Python dependencies in Pipenv environments
 @install:
-    pipenv install
+    just _root-install
     just _api-install
     just _ing-install
+
+# Install dependencies for the root
+_root-install:
+    pipenv install --dev
 
 # Setup pre-commit as a Git hook
 precommit:
