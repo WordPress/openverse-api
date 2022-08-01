@@ -95,6 +95,9 @@ class Media(SyncableDocType):
             popularity = Media.get_popularity(row[schema["standardized_popularity"]])
         else:
             popularity = None
+        # Extracted for compatibility with the old image schema to pass the
+        # cleanup tests in CI: test/unit_tests/test_cleanup.py
+        category = row[schema["category"]] if "category" in schema else None
 
         return {
             "_id": row[schema["id"]],
@@ -111,7 +114,7 @@ class Media(SyncableDocType):
             "license_url": Media.get_license_url(meta),
             "provider": row[schema["provider"]],
             "source": row[schema["source"]],
-            "category": row[schema["category"]],
+            "category": category,
             "created_on": row[schema["created_on"]],
             "tags": Media.parse_detailed_tags(row[schema["tags"]]),
             "mature": Media.get_maturity(meta, row[schema["mature"]]),
