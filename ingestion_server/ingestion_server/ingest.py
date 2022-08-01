@@ -24,7 +24,6 @@ from psycopg2.extras import DictCursor
 from psycopg2.sql import SQL, Identifier, Literal
 
 from ingestion_server import slack
-from ingestion_server.cleanup import clean_image_data
 from ingestion_server.constants.internal_types import ApproachType
 from ingestion_server.indexer import database_connect
 from ingestion_server.queries import (
@@ -261,7 +260,6 @@ def refresh_api_table(
     2. Create the FDW extension if it does not exist
     3. Create FDW for the data transfer: ``get_fdw_query``
     4. Import data into a temporary table: ``get_copy_data_query``
-    5. Clean the data: ``clean_image_data``
 
     This is the main function of this module.
 
@@ -319,21 +317,7 @@ def refresh_api_table(
         log.info(f"Running copy-data query: \n{copy_data.as_string(downstream_cur)}")
         downstream_cur.execute(copy_data)
 
-    next_step = (
-        "_Next: {starting data cleaning}_"
-        if table == "image"
-        else "Finished refreshing table"
-    )
-    slack.verbose(f"`{table}`: Data copy complete | {next_step}")
-
-    if table == "image":
-        # Step 5: Clean the data
-        log.info("Cleaning data...")
-        clean_image_data(table)
-        log.info("Cleaning completed!")
-        slack.verbose(
-            f"`{table}`: Data cleaning complete | " f"Finished refreshing table"
-        )
+    slack.verbose(f"`{table}`: Data copy complete | Finished refreshing table")
 
     downstream_db.close()
     log.info(f"Finished refreshing table '{table}'.")
