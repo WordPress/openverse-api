@@ -109,8 +109,7 @@ def copy_table_upstream(
     :param delete_if_exists: whether to delete any existing tables with the target name
     """
 
-    if target_name is None:
-        target_name = name
+    target_name = target_name or name
 
     logging.info(f"Copying table '{name}' to '{target_name}'...")
 
