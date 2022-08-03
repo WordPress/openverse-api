@@ -197,7 +197,7 @@ api-doctest: _api-up
     curl --fail 'http://localhost:8000/v1/?format=openapi'
 
 # Run API tests inside Docker
-@api-test *args: _api-up
+api-test *args: _api-up
     just exec web ./test/run_test.sh {{ args }}
 
 # Run API tests locally
