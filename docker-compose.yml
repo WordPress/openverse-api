@@ -2,8 +2,8 @@ version: "2.4"
 services:
   db:
     image: postgres:13.2-alpine
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     env_file:
       - postgres/env.docker
     healthcheck:
@@ -13,8 +13,8 @@ services:
 
   thumbnails:
     image: ghcr.io/wordpress/openverse-imaginary:latest
-    ports:
-      - "8222:8222"
+    expose:
+      - "8222"
     environment:
       PORT: 8222
       MALLOC_ARENA_MAX: 2
@@ -22,8 +22,8 @@ services:
 
   upstream_db:
     image: postgres:13.2-alpine
-    ports:
-      - "5433:5432"
+    expose:
+      - "5432"
     volumes:
       - catalog-postgres:/var/lib/postgresql/data
       - ./sample_data:/sample_data
@@ -34,8 +34,8 @@ services:
 
   cache:
     image: redis:4.0.10
-    ports:
-      - "6379:6379"
+    expose:
+      - "6379"
 
   es:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.12.0
@@ -104,8 +104,8 @@ services:
     build: ./ingestion_server/
     image: openverse-ingestion_server
     command: gunicorn -c ./gunicorn_worker.conf.py
-    ports:
-      - "8002:8002"
+    expose:
+      - "8002"
     depends_on:
       - db
       - es
