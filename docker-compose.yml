@@ -121,10 +121,13 @@ services:
     ports:
       - "9080:9080"
       - "9443:9443"
+    environment:
+      HTTPS_PORT: 9443 # See `ports` mapping above.
     depends_on:
       - web
     volumes:
-      - ./nginx:/etc/nginx/conf.d
+      - ./nginx/templates:/etc/nginx/templates
+      - ./nginx/certs:/etc/nginx/certs
 
 volumes:
   api-postgres:
