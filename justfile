@@ -73,8 +73,12 @@ env:
     cp api/env.template api/.env
     cp ingestion_server/env.template ingestion_server/.env
 
+# Ensure all services are up and running
+@_api-up: up wait-for-ing wait-for-web
+    exit 0
+
 # Load sample data into the Docker Compose services
-init: up wait-for-ing wait-for-web
+init: _api-up
     ./load_sample_data.sh
 
 
@@ -188,9 +192,6 @@ _api-install:
     '"$(just web-health)" != "200"' \
     "Waiting for the API to be healthy..."
 
-@_api-up: up wait-for-ing wait-for-web
-    exit 0
-
 # Run API tests inside Docker
 @api-test *args: _api-up
     just exec web ./test/run_test.sh {{ args }}
@@ -221,11 +222,11 @@ ipython:
 ##########
 
 # Compile Sphinx documentation into HTML output
-sphinx-make: up wait-for-ing wait-for-web
+sphinx-make: _api-up
     just exec web sphinx-build -M html docs/ build/
 
 # Serve Sphinx documentation via a live-reload server
-sphinx-live port="3000": up wait-for-ing wait-for-web
+sphinx-live port="3000": _api-up
     just exec web sphinx-autobuild --host 0.0.0.0 --port {{ port }} docs/ build/html/
 
 # Serve the Sphinx documentation from the HTML output directory
