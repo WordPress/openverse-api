@@ -40,7 +40,7 @@ services:
   es:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.12.0
     ports:
-      - "9200:9200"
+      - "50292:9200"
     environment:
       # disable XPack
       # https://www.elastic.co/guide/en/elasticsearch/reference/5.3/docker.html#_security_note
@@ -72,8 +72,8 @@ services:
     volumes:
       - ./api:/api
     ports:
-      - "8000:8000"
-      - "3000:3000"
+      - "50280:8000"
+      - "50230:3000"
     depends_on:
       - db
       - es
@@ -88,7 +88,7 @@ services:
     image: openverse-ingestion_server
     command: gunicorn -c ./gunicorn.conf.py
     ports:
-      - "8001:8001"
+      - "50281:8001"
     depends_on:
       - db
       - es
@@ -119,10 +119,10 @@ services:
   proxy:
     image: nginx:alpine
     ports:
-      - "9080:9080"
-      - "9443:9443"
+      - "50200:9080"
+      - "50243:9443"
     environment:
-      HTTPS_PORT: 9443 # See `ports` mapping above.
+      HTTPS_PORT: 50243 # See `ports` mapping above.
     depends_on:
       - web
     volumes:

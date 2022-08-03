@@ -122,7 +122,7 @@ cert:
     "Waiting for Elasticsearch to be healthy..."
 
 @check-index index="image":
-    -curl -sb -H "Accept:application/json" "http://localhost:9200/_cat/indices/{{ index }}" | grep -o "{{ index }}" | wc -l | xargs
+    -curl -sb -H "Accept:application/json" "http://localhost:50292/_cat/indices/{{ index }}" | grep -o "{{ index }}" | wc -l | xargs
 
 # Wait for the media to be indexed in Elasticsearch
 @wait-for-index index="image":
@@ -140,7 +140,7 @@ _ing-install:
     cd ingestion_server && pipenv install --dev
 
 # Perform the given action on the given model by invoking the ingestion-server API
-_ing-api data port="8001":
+_ing-api data port="50281":
     curl \
       -X POST \
       -H 'Content-Type: application/json' \
@@ -152,7 +152,7 @@ _ing-api data port="8001":
     -curl -s -o /dev/null -w '%{http_code}' 'http://{{ ing_host }}/'
 
 # Wait for the ingestion-server to be healthy
-@wait-for-ing ing_host="localhost:8001":
+@wait-for-ing ing_host="localhost:50281":
     just _loop \
     '"$(just ing-health {{ ing_host }})" != "200"' \
     "Waiting for the ingestion-server to be healthy..."
@@ -184,7 +184,7 @@ _api-install:
 
 # Check the health of the API
 @web-health:
-    -curl -s -o /dev/null -w '%{http_code}' 'http://localhost:8000/healthcheck'
+    -curl -s -o /dev/null -w '%{http_code}' 'http://localhost:50280/healthcheck'
 
 # Wait for the API to be healthy
 @wait-for-web:
@@ -194,7 +194,7 @@ _api-install:
 
 # Run smoke test for the API docs
 api-doctest: _api-up
-    curl --fail 'http://localhost:8000/v1/?format=openapi'
+    curl --fail 'http://localhost:50280/v1/?format=openapi'
 
 # Run API tests inside Docker
 api-test *args: _api-up
@@ -214,7 +214,7 @@ dj-local +args:
 
 # Make a test cURL request to the API
 stats media="images":
-    curl "http://localhost:8000/v1/{{ media }}/stats/"
+    curl "http://localhost:50280/v1/{{ media }}/stats/"
 
 # Get Django shell with IPython
 ipython:
@@ -230,9 +230,9 @@ sphinx-make: _api-up
     just exec web sphinx-build -M html docs/ build/
 
 # Serve Sphinx documentation via a live-reload server
-sphinx-live port="3000": _api-up
-    just exec web sphinx-autobuild --host 0.0.0.0 --port {{ port }} docs/ build/html/
+sphinx-live: _api-up
+    just exec web sphinx-autobuild --host 0.0.0.0 --port 3000 docs/ build/html/
 
 # Serve the Sphinx documentation from the HTML output directory
-sphinx-serve dir="api" port="3001":
+sphinx-serve dir="api" port="50231":
     cd {{ dir }}/build/html && pipenv run python -m http.server {{ port }}
