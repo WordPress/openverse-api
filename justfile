@@ -74,7 +74,7 @@ env:
     cp ingestion_server/env.template ingestion_server/.env
 
 # Load sample data into the Docker Compose services
-init: up wait-for-es wait-for-ing wait-for-web
+init: up wait-for-ing wait-for-web
     ./load_sample_data.sh
 
 
@@ -109,15 +109,14 @@ cert:
 
 # Check the health of Elasticsearch
 @es-health es_host:
-    -curl -s -o /dev/null -w '%{http_code}' 'http://{{ es_host }}/_cluster/health?pretty'
+    -curl -s -o /dev/null -w '%{http_code}' 'http://{{ es_host }}/_cluster/health'
 
 # Wait for Elasticsearch to be healthy
-@wait-for-es es_host="localhost:9200":
+@wait-for-es es_host="localhost:50292":
     just _loop \
     '"$(just es-health {{ es_host }})" != "200"' \
     "Waiting for Elasticsearch to be healthy..."
 
-# Check if the media is indexed in Elasticsearch
 @check-index index="image":
     -curl -sb -H "Accept:application/json" "http://localhost:9200/_cat/indices/{{ index }}" | grep -o "{{ index }}" | wc -l | xargs
 
@@ -189,7 +188,7 @@ _api-install:
     '"$(just web-health)" != "200"' \
     "Waiting for the API to be healthy..."
 
-@_api-up: up wait-for-es wait-for-ing wait-for-web
+@_api-up: up wait-for-ing wait-for-web
     exit 0
 
 # Run API tests inside Docker
@@ -222,11 +221,11 @@ ipython:
 ##########
 
 # Compile Sphinx documentation into HTML output
-sphinx-make: up wait-for-es wait-for-ing wait-for-web
+sphinx-make: up wait-for-ing wait-for-web
     just exec web sphinx-build -M html docs/ build/
 
 # Serve Sphinx documentation via a live-reload server
-sphinx-live port="3000": up wait-for-es wait-for-ing wait-for-web
+sphinx-live port="3000": up wait-for-ing wait-for-web
     just exec web sphinx-autobuild --host 0.0.0.0 --port {{ port }} docs/ build/html/
 
 # Serve the Sphinx documentation from the HTML output directory
