@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.utils.decorators import method_decorator
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -25,6 +24,7 @@ from catalog.api.serializers.media_serializers import MediaThumbnailRequestSeria
 from catalog.api.utils.exceptions import get_api_exception
 from catalog.api.utils.throttle import OneThousandPerMinute
 from catalog.api.views.media_views import MediaViewSet
+from catalog.configuration.elasticsearch import MEDIA_INDEX_MAPPING
 
 
 @method_decorator(swagger_auto_schema(**AudioSearch.swagger_setup), "list")
@@ -41,7 +41,7 @@ class AudioViewSet(MediaViewSet):
 
     model_class = Audio
     query_serializer_class = AudioSearchRequestSerializer
-    default_index = settings.MEDIA_INDEX_MAPPING[AUDIO_TYPE]
+    default_index = MEDIA_INDEX_MAPPING[AUDIO_TYPE]
     qa_index = "search-qa-audio"
 
     serializer_class = AudioSerializer

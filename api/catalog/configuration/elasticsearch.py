@@ -1,14 +1,12 @@
-from django.conf import settings
-
 from aws_requests_auth.aws_auth import AWSRequestsAuth
 from decouple import config
 from elasticsearch import Elasticsearch, RequestsHttpConnection
-from elasticsearch_dsl import connections
 
 from catalog.api.constants.media_types import MEDIA_TYPES
+from catalog.configuration.aws import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 
 
-def _elasticsearch_connect():
+def elasticsearch_connect():
     """
     Connect to configured Elasticsearch domain.
 
@@ -20,8 +18,8 @@ def _elasticsearch_connect():
     es_aws_region = config("ELASTICSEARCH_AWS_REGION", default="us-east-1")
 
     auth = AWSRequestsAuth(
-        aws_access_key=settings.AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        aws_access_key=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
         aws_host=es_url,
         aws_region=es_aws_region,
         aws_service="es",
@@ -40,10 +38,6 @@ def _elasticsearch_connect():
     _es.info()
     return _es
 
-
-ES = _elasticsearch_connect()
-"""Elasticsearch client, also aliased to connection 'default'"""
-connections.add_connection("default", ES)
 
 MEDIA_INDEX_MAPPING = {
     media_type: config(f"{media_type.upper()}_INDEX_NAME", default=media_type)

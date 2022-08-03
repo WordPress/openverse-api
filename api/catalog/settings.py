@@ -15,11 +15,12 @@ from socket import gethostbyname, gethostname
 
 import sentry_sdk
 from decouple import config
+from elasticsearch_dsl import connections
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import ignore_logger
 
 from catalog.configuration.aws import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
-from catalog.configuration.elasticsearch import ES, MEDIA_INDEX_MAPPING
+from catalog.configuration.elasticsearch import elasticsearch_connect
 from catalog.configuration.logging import LOGGING
 
 
@@ -336,6 +337,12 @@ if config("IS_PROXIED", default=True, cast=bool):
 # Trusted origins for CSRF
 # https://docs.djangoproject.com/en/4.0/releases/4.0/#csrf-trusted-origins-changes-4-0
 CSRF_TRUSTED_ORIGINS = ["https://*.openverse.engineering"]
+
+
+ES = elasticsearch_connect()
+"""Elasticsearch client, also aliased to connection 'default'"""
+connections.add_connection("default", ES)
+
 
 SENTRY_DSN = config(
     "SENTRY_DSN",

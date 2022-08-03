@@ -1,6 +1,5 @@
 import io
 
-from django.conf import settings
 from django.http.response import FileResponse, Http404, HttpResponse
 from django.utils.decorators import method_decorator
 from rest_framework.decorators import action
@@ -35,6 +34,8 @@ from catalog.api.utils.exceptions import get_api_exception
 from catalog.api.utils.throttle import OneThousandPerMinute
 from catalog.api.utils.watermark import watermark
 from catalog.api.views.media_views import MediaViewSet
+from catalog.configuration.elasticsearch import MEDIA_INDEX_MAPPING
+from catalog.settings import WATERMARK_ENABLED
 
 
 @method_decorator(swagger_auto_schema(**ImageSearch.swagger_setup), "list")
@@ -52,7 +53,7 @@ class ImageViewSet(MediaViewSet):
 
     model_class = Image
     query_serializer_class = ImageSearchRequestSerializer
-    default_index = settings.MEDIA_INDEX_MAPPING[IMAGE_TYPE]
+    default_index = MEDIA_INDEX_MAPPING[IMAGE_TYPE]
     qa_index = "search-qa-image"
 
     serializer_class = ImageSerializer
@@ -106,7 +107,7 @@ class ImageViewSet(MediaViewSet):
 
     @action(detail=True, url_path="watermark", url_name="watermark")
     def watermark(self, request, *_, **__):
-        if not settings.WATERMARK_ENABLED:
+        if not WATERMARK_ENABLED:
             raise Http404  # watermark feature is disabled
 
         params = WatermarkRequestSerializer(data=request.query_params)
