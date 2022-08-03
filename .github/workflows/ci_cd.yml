@@ -143,8 +143,7 @@ jobs:
         run: just init
 
       - name: Smoke test ReDoc site
-        run: |
-          curl --fail 'http://localhost:8000/v1/?format=openapi'
+        run: just api-doctest
 
       - name: Run API tests
         run: just api-test
