@@ -19,9 +19,8 @@ from elasticsearch_dsl import connections
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import ignore_logger
 
-from catalog.configuration.aws import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 from catalog.configuration.elasticsearch import elasticsearch_connect
-from catalog.configuration.logging import LOGGING
+from catalog.configuration.logging import LOGGING as LOGGING_CONF
 
 
 # Build paths inside the project like this: BASE_DIR.join('dir', 'subdir'...)
@@ -69,8 +68,6 @@ SHORT_URL_WHITELIST = {
 }
 SHORT_URL_PATH_WHITELIST = ["/v1/list", "/v1/images/"]
 
-USE_S3 = config("USE_S3", default=False, cast=bool)
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -88,6 +85,10 @@ INSTALLED_APPS = [
     "corsheaders",
     "sslserver",
 ]
+
+LOGGING = LOGGING_CONF
+
+USE_S3 = config("USE_S3", default=False, cast=bool)
 
 if USE_S3:
     DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
