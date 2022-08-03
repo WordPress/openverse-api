@@ -91,6 +91,7 @@ services:
       - "50281:8001"
     depends_on:
       - db
+      - upstream_db
       - es
       - indexer_worker
     volumes:
@@ -108,6 +109,7 @@ services:
       - "8002"
     depends_on:
       - db
+      - upstream_db
       - es
     volumes:
       - ./ingestion_server:/ingestion_server
