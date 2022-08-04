@@ -200,10 +200,6 @@ api-doctest: _api-up
 api-test *args: _api-up
     just exec web ./test/run_test.sh {{ args }}
 
-# Run API tests locally
-api-testlocal *args:
-    cd api && pipenv run ./test/run_test.sh {{ args }}
-
 # Run Django administrative commands locally
 dj-local +args:
     cd api && pipenv run python manage.py {{ args }}
