@@ -107,7 +107,7 @@ MIDDLEWARE = [
 
 SWAGGER_SETTINGS = {
     "DEFAULT_INFO": "catalog.urls.swagger.open_api_info",
-    "SECURITY_DEFINITIONS": {}
+    "SECURITY_DEFINITIONS": {},
 }
 
 OAUTH2_PROVIDER = {
