@@ -49,8 +49,8 @@ def _get_settings() -> dict:
     return _get_yaml_data(json_path) | index_settings
 
 
-settings = _get_settings()
-common_properties = _get_mapping()
+SETTINGS = _get_settings()
+COMMON_PROPERTIES = _get_mapping()
 
 
 def media_type_mapping(media_type: MediaType) -> dict:
@@ -63,7 +63,7 @@ def media_type_mapping(media_type: MediaType) -> dict:
 
     mappings = {
         "dynamic": False,  # extra fields are stored in ``_source`` but not indexed
-        "properties": common_properties | _get_mapping(media_type),
+        "properties": COMMON_PROPERTIES | _get_mapping(media_type),
     }
-    result = {"settings": settings, "mappings": mappings}
+    result = {"settings": SETTINGS, "mappings": mappings}
     return result
