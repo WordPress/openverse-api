@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 from uuslug import uuslug
 
@@ -77,7 +78,7 @@ class MatureImage(AbstractMatureMedia):
     """Stores all images that have been flagged as 'mature'."""
 
     def delete(self, *args, **kwargs):
-        es = search_controller.es
+        es = settings.ES
         img = Image.objects.get(identifier=self.identifier)
         es_id = img.id
         es.update(index="image", id=es_id, body={"doc": {"mature": False}})

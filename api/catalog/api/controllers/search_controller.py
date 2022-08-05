@@ -403,45 +403,13 @@ def get_sources(index):
             }
         }
         try:
-            results = es.search(index=index, body=agg_body, request_cache=True)
+            results = settings.ES.search(index=index, body=agg_body, request_cache=True)
             buckets = results["aggregations"]["unique_sources"]["buckets"]
         except NotFoundError:
             buckets = [{"key": "none_found", "doc_count": 0}]
         sources = {result["key"]: result["doc_count"] for result in buckets}
         cache.set(key=source_cache_name, timeout=SOURCE_CACHE_TIMEOUT, value=sources)
     return sources
-
-
-def _elasticsearch_connect():
-    """
-    Connect to configured Elasticsearch domain.
-
-    :return: An Elasticsearch connection object.
-    """
-    auth = AWSRequestsAuth(
-        aws_access_key=settings.AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-        aws_host=settings.ELASTICSEARCH_URL,
-        aws_region=settings.ELASTICSEARCH_AWS_REGION,
-        aws_service="es",
-    )
-    auth.encode = lambda x: bytes(x.encode("utf-8"))
-    _es = Elasticsearch(
-        host=settings.ELASTICSEARCH_URL,
-        port=settings.ELASTICSEARCH_PORT,
-        connection_class=RequestsHttpConnection,
-        timeout=10,
-        max_retries=1,
-        retry_on_timeout=True,
-        http_auth=auth,
-        wait_for_status="yellow",
-    )
-    _es.info()
-    return _es
-
-
-es = _elasticsearch_connect()
-connections.connections.add_connection("default", es)
 
 
 def _get_result_and_page_count(

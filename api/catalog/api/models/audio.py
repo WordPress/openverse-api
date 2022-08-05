@@ -1,5 +1,6 @@
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.conf import settings
 
 from uuslug import uuslug
 
@@ -250,7 +251,7 @@ class MatureAudio(AbstractMatureMedia):
     """Stores all audios that have been flagged as 'mature'."""
 
     def delete(self, *args, **kwargs):
-        es = search_controller.es
+        es = settings.ES
         aud = Audio.objects.get(identifier=self.identifier)
         es_id = aud.id
         es.update(index="audio", id=es_id, body={"doc": {"mature": False}})
