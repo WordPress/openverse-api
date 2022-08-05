@@ -1,0 +1,17 @@
+bit_rate:
+  type: integer
+
+sample_rate:
+  type: integer
+
+genres:
+  type: text
+  fields:
+    keyword:
+      type: keyword
+
+duration:
+  type: integer
+
+length:
+  type: keyword

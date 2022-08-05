@@ -1,0 +1,29 @@
+analysis:
+  filter:
+    stem_overrides:
+      rules: # Override unwanted 'anim' stems.
+        - animals => animal
+        - animal => animal
+        - anime => anime
+        - animate => animate
+        - animated => animate
+      type: stemmer_override
+    english_stop:
+      stopwords: _english_
+      type: stop
+    english_stemmer:
+      language: english
+      type: stemmer
+    english_possessive_stemmer:
+      language: possessive_english
+      type: stemmer
+
+  analyzer:
+    custom_english:
+      filter:
+        - stem_overrides # Must appear before the primary language stemmer.
+        - english_possessive_stemmer
+        - lowercase
+        - english_stop
+        - english_stemmer
+      tokenizer: standard

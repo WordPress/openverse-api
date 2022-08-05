@@ -1,0 +1,136 @@
+id:
+  type: long
+
+identifier:
+  type: text
+  fields:
+    keyword:
+      type: keyword
+      ignore_above: 256
+
+title:
+  type: text
+  analyzer: custom_english
+  similarity: boolean
+  fields:
+    keyword:
+      type: keyword
+      ignore_above: 256
+
+foreign_landing_url:
+  type: text
+  fields:
+    keyword:
+      ignore_above: 256
+      type: keyword
+
+description:
+  type: text
+  analyzer: custom_english
+  fields:
+    keyword:
+      type: keyword
+      similarity: boolean
+
+creator:
+  type: text
+  fields:
+    keyword:
+      type: keyword
+      ignore_above: 256
+
+creator_url:
+  type: text
+  fields:
+    keyword:
+      type: keyword
+      ignore_above: 256
+
+url:
+  type: text
+  fields:
+    keyword:
+      type: keyword
+      ignore_above: 256
+
+extension:
+  type: text
+  fields:
+    keyword:
+      ignore_above: 8
+      type: keyword
+
+license:
+  type: text
+  fields:
+    keyword:
+      ignore_above: 256
+      type: keyword
+
+license_version:
+  type: text
+  fields:
+    keyword:
+      type: keyword
+      ignore_above: 256
+
+license_url:
+  type: text
+  fields:
+    keyword:
+      type: keyword
+      ignore_above: 256
+
+provider:
+  type: text
+  fields:
+    keyword:
+      type: keyword
+      ignore_above: 256
+
+source:
+  type: text
+  fields:
+    keyword:
+      ignore_above: 256
+      type: keyword
+
+filetype:
+  type: keyword
+
+created_on:
+  type: date
+
+tags:
+  properties:
+    accuracy:
+      type: float
+    name:
+      type: text
+      analyzer: custom_english
+      fields:
+        keyword:
+          type: keyword
+          ignore_above: 256
+
+mature:
+  type: boolean
+
+standardized_popularity:
+  type: rank_feature
+
+authority_boost:
+  type: rank_feature
+
+authority_penalty:
+  type: rank_feature
+  positive_score_impact: false
+
+max_boost:
+  type: rank_feature
+
+min_boost:
+  type: rank_feature
+
+category:
+  type: keyword

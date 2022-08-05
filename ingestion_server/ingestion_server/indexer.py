@@ -35,7 +35,7 @@ from ingestion_server import slack
 from ingestion_server.distributed_reindex_scheduler import schedule_distributed_index
 from ingestion_server.elasticsearch_models import media_type_to_elasticsearch_model
 from ingestion_server.es_helpers import get_stat
-from ingestion_server.es_mapping import index_settings
+from ingestion_server.es_mapping import media_type_mapping
 from ingestion_server.qa import create_search_qa_index
 from ingestion_server.queries import get_existence_queries
 
@@ -302,7 +302,7 @@ class TableIndexer:
         )
         self.es.indices.create(
             index=destination_index,
-            body=index_settings(model_name),
+            body=media_type_mapping(model_name),
         )
 
         log.info("Running distributed index using indexer workers.")
