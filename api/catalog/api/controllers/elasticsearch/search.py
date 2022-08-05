@@ -133,8 +133,8 @@ def perform_search(
             FieldMapping("size"),
             FieldMapping("length"),
             FieldMapping("source"),
-            FieldMapping("license", "license.keyword"),
-            FieldMapping("license_type", "license.keyword"),
+            FieldMapping("license"),
+            FieldMapping("license_type", "license"),
         ],
         "exclude": [
             FieldMapping("excluded_source", "source"),

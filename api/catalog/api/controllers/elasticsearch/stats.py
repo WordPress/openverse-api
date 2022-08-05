@@ -1,11 +1,12 @@
 import json
 import logging
-from typing import Literal
 
 from django.core.cache import cache
 
 from elasticsearch.exceptions import NotFoundError
 from elasticsearch_dsl import Search
+
+from catalog.api.constants.media_types import MediaType
 
 
 parent_logger = logging.getLogger(__name__)
@@ -14,7 +15,7 @@ parent_logger = logging.getLogger(__name__)
 SOURCE_CACHE_TIMEOUT = 60 * 20  # seconds
 
 
-def get_stats(index: Literal["image", "audio"]):
+def get_stats(index: MediaType):
     """
     Given an index, find all available data sources and return their counts. This data
     is cached in Redis. See ``load_sample_data.sh`` for example of clearing the cache.
@@ -29,7 +30,7 @@ def get_stats(index: Literal["image", "audio"]):
         sources = cache.get(key=source_cache_name)
         if sources is not None:
             logger.debug(f"cache hit! returning sources={json.dumps(sources)}")
-            return sources
+            # return sources
         else:
             logger.debug("cache missed")
     except ValueError:
@@ -46,7 +47,7 @@ def get_stats(index: Literal["image", "audio"]):
         s.aggs.bucket(
             "unique_sources",
             "terms",
-            field="source.keyword",
+            field="source",
             size=size,
             order={"_key": "desc"},
         )
