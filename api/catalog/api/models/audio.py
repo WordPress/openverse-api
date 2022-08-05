@@ -1,10 +1,9 @@
+from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.conf import settings
 
 from uuslug import uuslug
 
-import catalog.api.controllers.search_controller as search_controller
 from catalog.api.models import OpenLedgerModel
 from catalog.api.models.media import (
     AbstractAltFile,

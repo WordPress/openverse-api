@@ -11,12 +11,9 @@ from django.conf import settings
 from django.core.cache import cache
 from rest_framework.request import Request
 
-from aws_requests_auth.aws_auth import AWSRequestsAuth
-from elasticsearch import Elasticsearch, RequestsHttpConnection
 from elasticsearch.exceptions import NotFoundError, RequestError
-from elasticsearch_dsl.query import EMPTY_QUERY
-from elasticsearch_dsl import Q, Search, connections
-from elasticsearch_dsl.query import Query
+from elasticsearch_dsl import Q, Search
+from elasticsearch_dsl.query import EMPTY_QUERY, Query
 from elasticsearch_dsl.response import Hit, Response
 
 import catalog.api.models as models
@@ -299,7 +296,9 @@ def search(
         rank_queries = []
         for field, boost in feature_boost.items():
             rank_queries.append(Q("rank_feature", field=field, boost=boost))
-        s = search_client.query(Q("bool", must=s.query or EMPTY_QUERY, should=rank_queries))
+        s = search_client.query(
+            Q("bool", must=s.query or EMPTY_QUERY, should=rank_queries)
+        )
 
     # Use highlighting to determine which fields contribute to the selection of
     # top results.

@@ -1,9 +1,8 @@
-from django.db import models
 from django.conf import settings
+from django.db import models
 
 from uuslug import uuslug
 
-import catalog.api.controllers.search_controller as search_controller
 from catalog.api.models.media import (
     AbstractDeletedMedia,
     AbstractMatureMedia,

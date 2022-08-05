@@ -5,7 +5,6 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.html import format_html
 
-import catalog.api.controllers.search_controller as search_controller
 from catalog.api.models.base import OpenLedgerModel
 from catalog.api.models.mixins import (
     ForeignIdentifierMixin,
