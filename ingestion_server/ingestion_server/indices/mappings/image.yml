@@ -1,11 +1,5 @@
 aspect_ratio:
-  type: text
-  fields:
-    keyword:
-      type: keyword
+  type: keyword
 
 size:
-  type: text
-  fields:
-    keyword:
-      type: keyword
+  type: keyword

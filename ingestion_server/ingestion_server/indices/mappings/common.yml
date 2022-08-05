@@ -2,11 +2,7 @@ id:
   type: long
 
 identifier:
-  type: text
-  fields:
-    keyword:
-      type: keyword
-      ignore_above: 256
+  type: keyword
 
 title:
   type: text
@@ -17,13 +13,7 @@ title:
       type: keyword
       ignore_above: 256
 
-foreign_landing_url:
-  type: text
-  fields:
-    keyword:
-      ignore_above: 256
-      type: keyword
-
+# TODO: why is `similarity: boolean` nested inside keyword?
 description:
   type: text
   analyzer: custom_english
@@ -39,61 +29,17 @@ creator:
       type: keyword
       ignore_above: 256
 
-creator_url:
-  type: text
-  fields:
-    keyword:
-      type: keyword
-      ignore_above: 256
-
-url:
-  type: text
-  fields:
-    keyword:
-      type: keyword
-      ignore_above: 256
-
 extension:
-  type: text
-  fields:
-    keyword:
-      ignore_above: 8
-      type: keyword
+  type: keyword
 
 license:
-  type: text
-  fields:
-    keyword:
-      ignore_above: 256
-      type: keyword
-
-license_version:
-  type: text
-  fields:
-    keyword:
-      type: keyword
-      ignore_above: 256
-
-license_url:
-  type: text
-  fields:
-    keyword:
-      type: keyword
-      ignore_above: 256
+  type: keyword
 
 provider:
-  type: text
-  fields:
-    keyword:
-      type: keyword
-      ignore_above: 256
+  type: keyword
 
 source:
-  type: text
-  fields:
-    keyword:
-      ignore_above: 256
-      type: keyword
+  type: keyword
 
 filetype:
   type: keyword
