@@ -5,7 +5,7 @@ import logging as log
 import pprint
 from itertools import accumulate
 from math import ceil
-from typing import List, Literal, Optional, Tuple, Any
+from typing import Any, List, Literal, Optional, Tuple
 
 from django.conf import settings
 from django.core.cache import cache
