@@ -74,8 +74,10 @@ env:
     cp ingestion_server/env.template ingestion_server/.env
 
 # Ensure all services are up and running
-@_api-up: up wait-for-ing wait-for-web
-    exit 0
+@_api-up:
+    just up
+    just wait-for-ing
+    just wait-for-web
 
 # Load sample data into the Docker Compose services
 init: _api-up
