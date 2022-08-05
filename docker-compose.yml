@@ -72,8 +72,8 @@ services:
     volumes:
       - ./api:/api
     ports:
-      - "50280:8000"
-      - "50230:3000"
+      - "50280:8000" # Django
+      - "50230:3000" # Sphinx (unused by default; see `sphinx-live` recipe)
     depends_on:
       - db
       - es
