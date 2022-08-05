@@ -4,6 +4,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 import requests
 
+from catalog.api.utils.pagination import MAX_TOTAL_PAGE_COUNT
+
 
 def _patch_redis():
     def redis_mget(keys, *_, **__):
@@ -115,7 +117,7 @@ def test_page_consistency_removing_dead_links(search_without_dead_links):
     Test the results returned in consecutive pages are never repeated when
     filtering out dead links.
     """
-    total_pages = 30
+    total_pages = MAX_TOTAL_PAGE_COUNT
     page_size = 5
 
     page_results = []
