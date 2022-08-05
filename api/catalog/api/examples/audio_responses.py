@@ -69,7 +69,6 @@ audio_search_200_example = {
                 "mature": False,
                 "audio_set": None,
                 "attribution": None,
-                "filesize": None,
             },
         ],
     },

@@ -110,6 +110,7 @@ class Media(SyncableDocType):
             "license": row[schema["license"]].lower(),
             "license_version": row[schema["license_version"]],
             "license_url": Media.get_license_url(meta),
+            "filesize": row[schema["filesize"]],
             "provider": row[schema["provider"]],
             "source": row[schema["source"]],
             "created_on": row[schema["created_on"]],
@@ -248,6 +249,8 @@ class Image(Media):
         return Image(
             thumbnail=row[schema["thumbnail"]],
             category=category,
+            height=height,
+            width=width,
             aspect_ratio=aspect_ratio,
             extension=extension,
             size=size,

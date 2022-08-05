@@ -18,7 +18,7 @@ base_image = {
     "provider": "stocksnap",
     "source": "stocksnap",
     "category": "photograph",
-    "filesize": None,
+    "filesize": 896128,
     "filetype": None,
     "tags": [
         {"name": "tree"},
@@ -46,8 +46,8 @@ base_image = {
     "attribution": None,
     "fields_matched": [],
     "mature": False,
-    "height": None,
-    "width": None,
+    "height": 4016,
+    "width": 6016,
     "thumbnail": f"{origin}/v1/images/{identifier}/thumb/",
     "detail_url": f"{origin}/v1/images/{identifier}/",
     "related_url": f"{origin}/v1/images/{identifier}/related/",
@@ -55,10 +55,7 @@ base_image = {
 
 detailed_image = base_image | {
     "attribution": '"Tree Bark Photo" by Tim Sullivan is marked with CC0 1.0. To view the terms, visit https://creativecommons.org/publicdomain/zero/1.0/.',  # noqa: E501
-    "height": 4016,
-    "filesize": 896128,
     "filetype": "jpg",
-    "width": 6016,
     "mature": None,
 }
 
@@ -73,10 +70,7 @@ image_search_200_example = {
             | {
                 "fields_matched": ["title"],
                 "mature": False,
-                "height": None,
-                "width": None,
                 "attribution": None,
-                "filesize": None,
                 "filetype": None,
             }
         ],
