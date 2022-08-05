@@ -136,3 +136,11 @@ def test_page_consistency_removing_dead_links(search_without_dead_links):
     ids = list(map(lambda x: x["id"], page_results))
     # No results should be repeated so we should have no duplicate ids
     assert no_duplicates(ids)
+
+
+@pytest.mark.django_db
+def test_max_page_count():
+    response = requests.get(
+        f"{API_URL}/v1/images", params={"page": MAX_TOTAL_PAGE_COUNT + 1}, verify=False
+    )
+    assert response.status_code == 400
