@@ -341,7 +341,7 @@ SENTRY_DSN = config("SENTRY_DSN", default="")
 
 SENTRY_SAMPLE_RATE = config("SENTRY_SAMPLE_RATE", default=1.0, cast=float)
 
-if not DEBUG:
+if not DEBUG and SENTRY_DSN:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         integrations=[DjangoIntegration()],
