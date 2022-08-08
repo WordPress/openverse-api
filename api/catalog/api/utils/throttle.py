@@ -61,6 +61,10 @@ class OneThousandPerMinute(AbstractAnonRateThrottle):
     rate = "1000/min"
 
 
+class OneHundredFiftyPerMinute(AbstractAnonRateThrottle):
+    rate = "150/minute"
+
+
 class OnePerSecond(AbstractAnonRateThrottle):
     rate = "1/second"
 
@@ -88,6 +92,11 @@ class AbstractOAuth2IdRateThrottle(SimpleRateThrottle, metaclass=abc.ABCMeta):
             return None
 
         return self.cache_format % {"scope": self.scope, "ident": ident}
+
+
+class OAuth2IdThumbsRateThrottle(AbstractOAuth2IdRateThrottle):
+    applies_to_rate_limit_model = "standard"
+    scope = "oauth2_client_credentials_thumbs"
 
 
 class OAuth2IdSustainedRateThrottle(AbstractOAuth2IdRateThrottle):
