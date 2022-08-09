@@ -122,7 +122,7 @@ class MediaSearchRequestSerializer(serializers.Serializer):
         help_text="The page of results to retrieve.",
         required=False,
         default=1,
-        max_value=20,
+        max_value=settings.MAX_PAGINATION_DEPTH,
         min_value=1,
     )
 
