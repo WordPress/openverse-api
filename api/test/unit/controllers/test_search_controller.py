@@ -3,7 +3,6 @@ from unittest import mock
 import pytest
 
 from catalog.api.controllers import search_controller
-from catalog.api.utils.pagination import MAX_TOTAL_PAGE_COUNT
 
 
 @pytest.mark.parametrize(
@@ -34,8 +33,7 @@ from catalog.api.utils.pagination import MAX_TOTAL_PAGE_COUNT
         (20, 5, 5, (20, 5)),
         # Fewer hits than page size, but result list somehow differs, use that for count
         (48, 20, 50, (20, 0)),
-        # Page count gets truncated always
-        (5000, 10, 10, (5000, MAX_TOTAL_PAGE_COUNT)),
+        (5000, 10, 10, (5000, 5000 / 10)),
     ],
 )
 def test_get_result_and_page_count(total_hits, real_result_count, page_size, expected):

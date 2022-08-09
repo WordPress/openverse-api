@@ -1,5 +1,7 @@
 from collections import namedtuple
 
+from django.conf import settings
+from django.core.validators import MaxValueValidator
 from rest_framework import serializers
 
 from catalog.api.constants.licenses import LICENSE_GROUPS
@@ -7,7 +9,6 @@ from catalog.api.controllers import search_controller
 from catalog.api.models.media import AbstractMedia
 from catalog.api.serializers.base import BaseModelSerializer
 from catalog.api.serializers.fields import SchemableHyperlinkedIdentityField
-from catalog.api.utils.exceptions import get_api_exception
 from catalog.api.utils.help_text import make_comma_separated_help_text
 from catalog.api.utils.url import add_protocol
 
@@ -41,6 +42,7 @@ class MediaSearchRequestSerializer(serializers.Serializer):
         "mature",
         "qa",
         "page_size",
+        "page",
     ]
     """
     Keep the fields names in sync with the actual fields below as this list is
@@ -110,6 +112,16 @@ class MediaSearchRequestSerializer(serializers.Serializer):
         label="page_size",
         help_text="Number of results to return per page.",
         required=False,
+        default=settings.MAX_ANONYMOUS_PAGE_SIZE,
+        min_value=1,
+    )
+    page = serializers.IntegerField(
+        label="page",
+        help_text="The page of results to retrieve.",
+        required=False,
+        default=1,
+        max_value=20,
+        min_value=1,
     )
 
     @staticmethod
@@ -160,10 +172,18 @@ class MediaSearchRequestSerializer(serializers.Serializer):
     def validate_page_size(self, value):
         request = self.context.get("request")
         is_anonymous = bool(request and request.user and request.user.is_anonymous)
-        if is_anonymous and value > 20:
-            raise get_api_exception(
-                "Page size must be between 1 & 20 for unauthenticated requests.", 401
-            )
+        max_value = (
+            settings.MAX_ANONYMOUS_PAGE_SIZE
+            if is_anonymous
+            else settings.MAX_AUTHED_PAGE_SIZE
+        )
+
+        MaxValueValidator(
+            max_value,
+            message=serializers.IntegerField.default_error_messages["max_value"].format(
+                max_value=max_value
+            ),
+        )(value)
         return value
 
     @staticmethod
