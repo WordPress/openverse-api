@@ -62,7 +62,6 @@ class MediaViewSet(ReadOnlyModelViewSet):
 
         page_size = self.paginator.page_size = params.data["page_size"]
         page = self.paginator.page = params.data["page"]
-        self.paginator.request = request
 
         hashed_ip = hash(self._get_user_ip(request))
         qa = params.validated_data["qa"]
@@ -111,7 +110,6 @@ class MediaViewSet(ReadOnlyModelViewSet):
                 request=request,
                 filter_dead=True,
             )
-            self.paginator.request = request
             self.paginator.result_count = num_results
             self.paginator.page_count = 1
             # `page_size` refers to the maximum number of related images to return.

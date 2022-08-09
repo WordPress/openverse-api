@@ -11,23 +11,12 @@ class StandardPagination(PageNumberPagination):
         super().__init__(*args, **kwargs)
         self.result_count = None  # populated later
         self.page_count = None  # populated later
-        self.request = None  # populated later
         self.page = 1  # default, get's updated when necessary
 
     def get_paginated_response(self, data):
-        # TODO: Turn this into a serializer and move logic there
-        if self.request and self.request.user and self.request.user.is_anonymous:
-            max_result_count = (
-                settings.MAX_PAGINATION_DEPTH * settings.MAX_ANONYMOUS_PAGE_SIZE
-            )
-        else:
-            max_result_count = (
-                settings.MAX_PAGINATION_DEPTH * settings.MAX_AUTHED_PAGE_SIZE
-            )
-
         return Response(
             {
-                "result_count": min(max_result_count, self.result_count),
+                "result_count": self.result_count,
                 "page_count": min(settings.MAX_PAGINATION_DEPTH, self.page_count),
                 "page_size": self.page_size,
                 "page": self.page,
