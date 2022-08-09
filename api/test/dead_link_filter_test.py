@@ -151,6 +151,8 @@ def test_dead_link_filtering_all_dead_links(
     res_json = response.json()
 
     assert len(res_json["results"]) == expected_result_count
+    if expected_result_count == 0:
+        assert res_json["result_count"] == 0
 
 
 @pytest.fixture
