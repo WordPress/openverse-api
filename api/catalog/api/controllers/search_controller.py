@@ -44,6 +44,9 @@ def _paginate_with_dead_link_mask(
     Given a query, a page and page_size, return the start and end
     of the slice of results.
 
+    In almost all cases the ``DEAD_LINK_RATIO`` will effectively double
+    the page size (given the current configuration of 0.5).
+
     :param s: The elasticsearch Search object
     :param page_size: How big the page should be.
     :param page: The page number.
@@ -130,6 +133,10 @@ def _post_process_results(
     if filter_dead:
         query_hash = get_query_hash(s)
         validate_images(query_hash, start, results, to_validate)
+
+        if len(results) == 0:
+            # first page is all dead links
+            return []
 
         if len(results) < page_size:
             end += int(end / 2)
