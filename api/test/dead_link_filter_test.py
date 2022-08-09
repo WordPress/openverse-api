@@ -7,7 +7,6 @@ import requests
 from fakeredis import FakeRedis
 
 from catalog.api.controllers.search_controller import DEAD_LINK_RATIO
-
 from catalog.api.utils.pagination import MAX_TOTAL_PAGE_COUNT
 
 
