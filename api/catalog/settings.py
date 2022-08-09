@@ -129,6 +129,7 @@ OAUTH2_PROVIDER_APPLICATION_MODEL = "api.ThrottledApplication"
 
 THROTTLE_ANON_BURST = config("THROTTLE_ANON_BURST", default="5/hour")
 THROTTLE_ANON_SUSTAINED = config("THROTTLE_ANON_SUSTAINED", default="100/day")
+THROTTLE_ANON_THUMBS = config("THROTTLE_ANON_THUMBS", default="150/minute")
 THROTTLE_OAUTH2_THUMBS = config("THROTTLE_OAUTH2_THUMBS", default="500/minute")
 
 REST_FRAMEWORK = {
@@ -144,7 +145,8 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_CLASSES": (
         "catalog.api.utils.throttle.BurstRateThrottle",
         "catalog.api.utils.throttle.SustainedRateThrottle",
-        "catalog.api.utils.throttle.OAuth2IdThumbsRateThrottle",
+        "catalog.api.utils.throttle.AnonThumbnailRateThrottle",
+        "catalog.api.utils.throttle.OAuth2IdThumbnailRateThrottle",
         "catalog.api.utils.throttle.OAuth2IdSustainedRateThrottle",
         "catalog.api.utils.throttle.OAuth2IdBurstRateThrottle",
         "catalog.api.utils.throttle.EnhancedOAuth2IdSustainedRateThrottle",
@@ -154,7 +156,8 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {
         "anon_burst": THROTTLE_ANON_BURST,
         "anon_sustained": THROTTLE_ANON_SUSTAINED,
-        "oauth2_client_credentials_thumbs": THROTTLE_OAUTH2_THUMBS,
+        "anon_thumbnail": THROTTLE_ANON_THUMBS,
+        "oauth2_client_credentials_thumbnail": THROTTLE_OAUTH2_THUMBS,
         "oauth2_client_credentials_sustained": "10000/day",
         "oauth2_client_credentials_burst": "100/min",
         "enhanced_oauth2_client_credentials_sustained": "20000/day",

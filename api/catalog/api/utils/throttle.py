@@ -53,16 +53,16 @@ class SustainedRateThrottle(AbstractAnonRateThrottle):
     scope = "anon_sustained"
 
 
+class AnonThumbnailRateThrottle(AbstractAnonRateThrottle):
+    scope = "anon_thumbnail"
+
+
 class TenPerDay(AbstractAnonRateThrottle):
     rate = "10/day"
 
 
 class OneThousandPerMinute(AbstractAnonRateThrottle):
     rate = "1000/min"
-
-
-class OneHundredFiftyPerMinute(AbstractAnonRateThrottle):
-    rate = "150/minute"
 
 
 class OnePerSecond(AbstractAnonRateThrottle):
@@ -94,9 +94,9 @@ class AbstractOAuth2IdRateThrottle(SimpleRateThrottle, metaclass=abc.ABCMeta):
         return self.cache_format % {"scope": self.scope, "ident": ident}
 
 
-class OAuth2IdThumbsRateThrottle(AbstractOAuth2IdRateThrottle):
+class OAuth2IdThumbnailRateThrottle(AbstractOAuth2IdRateThrottle):
     applies_to_rate_limit_model = "standard"
-    scope = "oauth2_client_credentials_thumbs"
+    scope = "oauth2_client_credentials_thumbnail"
 
 
 class OAuth2IdSustainedRateThrottle(AbstractOAuth2IdRateThrottle):
