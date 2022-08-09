@@ -1,7 +1,7 @@
 from test.factory.models.oauth2 import AccessTokenFactory
 
 from django.conf import settings
-from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.exceptions import NotAuthenticated, ValidationError
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework.views import APIView
 
@@ -52,12 +52,12 @@ def anon_request(request_factory):
         pytest.param(
             settings.MAX_ANONYMOUS_PAGE_SIZE + 1,
             False,
-            marks=pytest.mark.raises(exception=PermissionDenied),
+            marks=pytest.mark.raises(exception=NotAuthenticated),
         ),
         pytest.param(
             settings.MAX_AUTHED_PAGE_SIZE,
             False,
-            marks=pytest.mark.raises(exception=PermissionDenied),
+            marks=pytest.mark.raises(exception=NotAuthenticated),
         ),
         pytest.param(-1, True, marks=pytest.mark.raises(exception=ValidationError)),
         pytest.param(0, True, marks=pytest.mark.raises(exception=ValidationError)),

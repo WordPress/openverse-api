@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 from rest_framework import serializers
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import NotAuthenticated
 
 from catalog.api.constants.licenses import LICENSE_GROUPS
 from catalog.api.controllers import search_controller
@@ -191,7 +191,7 @@ class MediaSearchRequestSerializer(serializers.Serializer):
             try:
                 validator(value)
             except ValidationError as e:
-                raise PermissionDenied(
+                raise NotAuthenticated(
                     detail=e.message,
                     code=e.code,
                 )
