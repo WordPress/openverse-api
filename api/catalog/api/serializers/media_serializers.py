@@ -1,8 +1,10 @@
 from collections import namedtuple
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 from rest_framework import serializers
+from rest_framework.exceptions import PermissionDenied
 
 from catalog.api.constants.licenses import LICENSE_GROUPS
 from catalog.api.controllers import search_controller
@@ -178,12 +180,24 @@ class MediaSearchRequestSerializer(serializers.Serializer):
             else settings.MAX_AUTHED_PAGE_SIZE
         )
 
-        MaxValueValidator(
+        validator = MaxValueValidator(
             max_value,
             message=serializers.IntegerField.default_error_messages["max_value"].format(
                 max_value=max_value
             ),
-        )(value)
+        )
+
+        if is_anonymous:
+            try:
+                validator(value)
+            except ValidationError as e:
+                raise PermissionDenied(
+                    detail=e.message,
+                    code=e.code,
+                )
+        else:
+            validator(value)
+
         return value
 
     @staticmethod

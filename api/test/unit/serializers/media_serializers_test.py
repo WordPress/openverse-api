@@ -1,7 +1,7 @@
 from test.factory.models.oauth2 import AccessTokenFactory
 
 from django.conf import settings
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework.views import APIView
 
@@ -43,31 +43,37 @@ def anon_request(request_factory):
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    ("page_size", "authenticated", "passes_validation"),
+    ("page_size", "authenticated"),
     (
-        (-1, False, False),
-        (0, False, False),
-        (1, False, True),
-        (settings.MAX_ANONYMOUS_PAGE_SIZE, False, True),
-        (settings.MAX_ANONYMOUS_PAGE_SIZE + 1, False, False),
-        (settings.MAX_AUTHED_PAGE_SIZE, False, False),
-        (-1, True, False),
-        (0, True, False),
-        (1, True, True),
-        (settings.MAX_ANONYMOUS_PAGE_SIZE + 1, True, True),
-        (settings.MAX_AUTHED_PAGE_SIZE, True, True),
-        (settings.MAX_AUTHED_PAGE_SIZE + 1, True, False),
+        pytest.param(-1, False, marks=pytest.mark.raises(exception=ValidationError)),
+        pytest.param(0, False, marks=pytest.mark.raises(exception=ValidationError)),
+        (1, False),
+        (settings.MAX_ANONYMOUS_PAGE_SIZE, False),
+        pytest.param(
+            settings.MAX_ANONYMOUS_PAGE_SIZE + 1,
+            False,
+            marks=pytest.mark.raises(exception=PermissionDenied),
+        ),
+        pytest.param(
+            settings.MAX_AUTHED_PAGE_SIZE,
+            False,
+            marks=pytest.mark.raises(exception=PermissionDenied),
+        ),
+        pytest.param(-1, True, marks=pytest.mark.raises(exception=ValidationError)),
+        pytest.param(0, True, marks=pytest.mark.raises(exception=ValidationError)),
+        (1, True),
+        (settings.MAX_ANONYMOUS_PAGE_SIZE + 1, True),
+        (settings.MAX_AUTHED_PAGE_SIZE, True),
+        pytest.param(
+            settings.MAX_AUTHED_PAGE_SIZE + 1,
+            True,
+            marks=pytest.mark.raises(exception=ValidationError),
+        ),
     ),
 )
-def test_page_size_validation(
-    page_size, authenticated, passes_validation, anon_request, authed_request
-):
+def test_page_size_validation(page_size, authenticated, anon_request, authed_request):
     request = authed_request if authenticated else anon_request
     serializer = MediaSearchRequestSerializer(
         context={"request": request}, data={"page_size": page_size}
     )
-    if passes_validation:
-        serializer.is_valid(raise_exception=True)
-    else:
-        with pytest.raises(ValidationError):
-            serializer.is_valid(raise_exception=True)
+    serializer.is_valid(raise_exception=True)
