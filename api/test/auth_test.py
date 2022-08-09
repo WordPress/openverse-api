@@ -103,7 +103,7 @@ def test_page_size_limit_unauthed(client):
     assert res.status_code == 200
     query_params["page_size"] = 21
     res = client.get("/v1/images/", query_params)
-    assert res.status_code == 400
+    assert res.status_code == 401
 
 
 @pytest.mark.django_db
