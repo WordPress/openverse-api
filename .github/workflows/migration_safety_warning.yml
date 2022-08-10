@@ -2,7 +2,7 @@ name: "Migration Safety Check"
 
 on:
   pull_request:
-    files:
+    paths:
       - "**/migrations/**/*"
 
 jobs:
