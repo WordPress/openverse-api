@@ -20,7 +20,7 @@ jobs:
           body-includes: This PR has migrations
 
       - uses: actions/github-script@v6
-        if: steps.existing-warning.outputs.comment-id == 0
+        if: steps.existing-warning.outputs.comment-id != 0
         with:
           github-token: ${{ secrets.ACCESS_TOKEN }}
           script: |
