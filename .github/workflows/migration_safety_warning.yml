@@ -34,7 +34,7 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            This PR has migrations. Please ensure that it is rebased before merging to ensure that conflicting migrations are not introduced.
+            This PR has migrations. Please rebase it before merging to ensure that conflicting migrations are not introduced.
 
       - uses: banyan/auto-label@1.2
         env:
