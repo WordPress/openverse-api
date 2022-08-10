@@ -1,0 +1,22 @@
+name: "Migration Safety Check"
+
+on:
+  pull_request:
+    files:
+      - "**/migrations/**/*"
+
+jobs:
+  check-and-apply-labels:
+    name: "Check and Apply Labels"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            This PR has migrations. Please ensure that it is rebased before merging to ensure that conflicting migrations are not introduced.
+
+      - uses: banyan/auto-label@1.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

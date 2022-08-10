@@ -9,15 +9,6 @@ on:
     types:
       - published
   workflow_dispatch:
-    inputs:
-      ref:
-        type: string
-        required: true
-        description: The context in which the checks should be run
-      rebase:
-        type: boolean
-        default: false
-        description: Whether the specificed ref should be rebased against main before running the checks
 
 jobs:
   lint:
