@@ -1,9 +1,10 @@
 import io
 
 from django.conf import settings
-from django.http.response import FileResponse, Http404, HttpResponse
+from django.http.response import FileResponse, HttpResponse
 from django.utils.decorators import method_decorator
 from rest_framework.decorators import action
+from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 
 import piexif
@@ -110,7 +111,7 @@ class ImageViewSet(MediaViewSet):
     @action(detail=True, url_path="watermark", url_name="watermark")
     def watermark(self, request, *_, **__):
         if not settings.WATERMARK_ENABLED:
-            raise Http404  # watermark feature is disabled
+            raise NotFound("The watermark feature is currently disabled.")
 
         params = WatermarkRequestSerializer(data=request.query_params)
         params.is_valid(raise_exception=True)
