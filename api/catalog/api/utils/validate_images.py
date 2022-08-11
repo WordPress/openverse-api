@@ -88,11 +88,11 @@ def validate_images(query_hash, start_slice, results, image_urls):
         # Cache successful links for a day, and broken links for 120 days.
         if status == 200:
             logger.debug("healthy link " f"key={key} ")
-            expiry = _get_expiry(200, twenty_four_hours_seconds)
+            expiry = _get_expiry(200, twenty_four_hours_seconds * 30)
         elif status == -1:
             logger.debug("no response from provider " f"key={key}")
             # Content provider failed to respond; try again in a short interval
-            expiry = _get_expiry(-1, thirty_minutes)
+            expiry = _get_expiry("_1", thirty_minutes)
         else:
             logger.debug("broken link " f"key={key} ")
             expiry = _get_expiry("DEFAULT", twenty_four_hours_seconds * 120)
