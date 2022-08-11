@@ -1,5 +1,5 @@
 import json
-import logging as log
+import logging
 from http.client import RemoteDisconnected
 from urllib.error import HTTPError
 from urllib.parse import urlencode
@@ -27,6 +27,7 @@ class UpstreamThumbnailException(APIException):
     status_code = status.HTTP_424_FAILED_DEPENDENCY
     default_detail = "Could not render thumbnail due to upstream provider error."
 
+parent_logger = logging.getLogger(__name__)
 
 class MediaViewSet(ReadOnlyModelViewSet):
     swagger_schema = CustomAutoSchema
@@ -171,26 +172,35 @@ class MediaViewSet(ReadOnlyModelViewSet):
             ip = request.META.get("REMOTE_ADDR")
         return ip
 
+    THUMBNAIL_PROXY_COMM_HEADERS = {
+        "User-Agent": settings.OUTBOUND_USER_AGENT_TEMPLATE.format(
+            purpose="ThumbnailGeneration"
+        )
+    }
+
     @staticmethod
     def _thumbnail_proxy_comm(
         path: str,
         params: dict,
         headers: tuple[tuple[str, str]] = (),
     ):
+        logger = parent_logger.getChild("_thumbnail_proxy_comm")
         proxy_url = settings.THUMBNAIL_PROXY_URL
         query_string = urlencode(params)
         upstream_url = f"{proxy_url}/{path}?{query_string}"
-        log.debug(f"Image proxy upstream URL: {upstream_url}")
+        logger.debug(f"Image proxy upstream URL: {upstream_url}")
 
         try:
-            req = Request(upstream_url)
+            req = Request(
+                upstream_url, headers=MediaViewSet.THUMBNAIL_PROXY_COMM_HEADERS
+            )
             for key, val in headers:
                 req.add_header(key, val)
             upstream_response = urlopen(req, timeout=10)
 
             res_status = upstream_response.status
             content_type = upstream_response.headers.get("Content-Type")
-            log.debug(
+            logger.debug(
                 "Image proxy response "
                 f"status: {res_status}, content-type: {content_type}"
             )
