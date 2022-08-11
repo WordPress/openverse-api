@@ -20,7 +20,6 @@ from test.media_integration import (
     stats,
     thumb,
     thumb_compression,
-    thumb_error,
     thumb_full_size,
     thumb_webp,
     uuid_validation,
@@ -89,10 +88,6 @@ def test_image_thumb_webp(image_fixture):
 
 def test_image_thumb_full_size(image_fixture):
     thumb_full_size(image_fixture)
-
-
-def test_image_thumb_failure(image_fixture):
-    thumb_error(image_fixture)
 
 
 def test_audio_report(image_fixture):
