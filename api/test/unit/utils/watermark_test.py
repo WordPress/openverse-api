@@ -48,5 +48,6 @@ def requests(monkeypatch) -> RequestsFixture:
 def test_sends_UA_header(requests):
     watermark("http://example.com/", _MOCK_IMAGE_INFO)
 
+    assert len(requests.requests) > 0
     for r in requests.requests:
         assert r.headers == HEADERS

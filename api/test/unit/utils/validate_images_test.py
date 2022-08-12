@@ -64,5 +64,6 @@ def test_sends_user_agent(grequests):
     for url in image_urls:
         assert url in requested_urls
 
+    assert len(grequests.requests) > 0
     for r in grequests.requests:
         assert HEADERS == r.kwargs["headers"]

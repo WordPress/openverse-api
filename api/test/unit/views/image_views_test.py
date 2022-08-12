@@ -1,19 +1,25 @@
 import json
 from dataclasses import dataclass
-from io import BytesIO
 from pathlib import Path
+from test.factory.models.image import ImageFactory
 from typing import Callable
+
+from rest_framework.test import APIClient
 
 import pytest
 from requests import Request, Response
-from requests.structures import CaseInsensitiveDict
 
-from catalog.api.utils.waveform import UA_STRING, download_audio
+from catalog.api.views.image_views import ImageViewSet
 
 
-_MOCK_AUDIO_PATH = Path(__file__).parent / ".." / ".." / "factory"
-_MOCK_AUDIO_BYTES = (_MOCK_AUDIO_PATH / "sample-audio.mp3").read_bytes()
-_MOCK_AUDIO_INFO = json.loads((_MOCK_AUDIO_PATH / "sample-audio-info.json").read_text())
+_MOCK_IMAGE_PATH = Path(__file__).parent / ".." / ".." / "factory"
+_MOCK_IMAGE_BYTES = (_MOCK_IMAGE_PATH / "sample-image.jpg").read_bytes()
+_MOCK_IMAGE_INFO = json.loads((_MOCK_IMAGE_PATH / "sample-image-info.json").read_text())
+
+
+@pytest.fixture
+def api_client():
+    return APIClient()
 
 
 @dataclass
@@ -28,8 +34,7 @@ class RequestsFixture:
         res = Response()
         res.url = req.url
         res.status_code = 200
-        res.raw = BytesIO(_MOCK_AUDIO_BYTES)
-        res.headers = CaseInsensitiveDict(_MOCK_AUDIO_INFO["headers"])
+        res._content = _MOCK_IMAGE_BYTES
         return res
 
 
@@ -38,7 +43,6 @@ def requests(monkeypatch) -> RequestsFixture:
     fixture = RequestsFixture([])
 
     def requests_get(url, **kwargs):
-        kwargs.pop("stream")
         req = Request(method="GET", url=url, **kwargs)
         fixture.requests.append(req)
         response = fixture.response_factory(req)
@@ -49,9 +53,13 @@ def requests(monkeypatch) -> RequestsFixture:
     return fixture
 
 
-def test_download_audio_sends_ua_header(requests):
-    download_audio("http://example.org", "abcd-1234")
+@pytest.mark.django_db
+def test_oembed_sends_ua_header(api_client, requests):
+    image = ImageFactory.create()
+    res = api_client.get("/v1/images/oembed/", data={"url": f"/{image.identifier}"})
+
+    assert res.status_code == 200
 
     assert len(requests.requests) > 0
     for r in requests.requests:
-        assert r.headers["User-Agent"] == UA_STRING
+        assert r.headers == ImageViewSet.OEMBED_HEADERS
