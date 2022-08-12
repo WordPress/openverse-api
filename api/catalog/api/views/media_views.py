@@ -27,7 +27,9 @@ class UpstreamThumbnailException(APIException):
     status_code = status.HTTP_424_FAILED_DEPENDENCY
     default_detail = "Could not render thumbnail due to upstream provider error."
 
+
 parent_logger = logging.getLogger(__name__)
+
 
 class MediaViewSet(ReadOnlyModelViewSet):
     swagger_schema = CustomAutoSchema
