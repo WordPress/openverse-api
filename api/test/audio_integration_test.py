@@ -27,11 +27,29 @@ from test.media_integration import (
 
 import pytest
 import requests
+from django_redis import get_redis_connection
+
+from catalog.api.utils.validate_images import CACHE_PREFIX
 
 
 @pytest.fixture
-def audio_fixture():
-    res = requests.get(f"{API_URL}/v1/audio?q=", verify=False)
+def force_first_page_audio_validity():
+    first_page = requests.get(
+        f"{API_URL}/v1/audio?filter_dead=False", verify=False
+    ).json()
+    statuses = {f"{CACHE_PREFIX}{item['url']}": 200 for item in first_page["results"]}
+    with get_redis_connection() as redis:
+        redis.mset(statuses)
+
+    yield
+
+    with get_redis_connection() as redis:
+        redis.delete(*list(statuses.keys()))
+
+
+@pytest.fixture
+def audio_fixture(force_first_page_audio_validity):
+    res = requests.get(f"{API_URL}/v1/audio", verify=False)
     assert res.status_code == 200
     parsed = json.loads(res.text)
     return parsed
