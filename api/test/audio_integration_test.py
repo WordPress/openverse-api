@@ -33,25 +33,49 @@ from catalog.api.utils.validate_images import CACHE_PREFIX
 
 
 @pytest.fixture
-def force_first_page_audio_validity():
-    first_page = requests.get(
-        f"{API_URL}/v1/audio?filter_dead=False", verify=False
-    ).json()
-    statuses = {f"{CACHE_PREFIX}{item['url']}": 200 for item in first_page["results"]}
-    with get_redis_connection() as redis:
-        redis.mset(statuses)
+def force_result_validity():
+    statuses = {}
 
-    yield
+    def force_validity(query_response):
+        nonlocal statuses
+        new_statuses = {
+            f"{CACHE_PREFIX}{item['url']}": 200 for item in query_response["results"]
+        }
+        statuses |= new_statuses
+        with get_redis_connection() as redis:
+            redis.mset(new_statuses)
+
+    yield force_validity
 
     with get_redis_connection() as redis:
         redis.delete(*list(statuses.keys()))
 
 
 @pytest.fixture
-def audio_fixture(force_first_page_audio_validity):
-    res = requests.get(f"{API_URL}/v1/audio", verify=False)
+def audio_fixture(force_result_validity):
+    res = requests.get(
+        f"{API_URL}/v1/audio/", data={"filter_dead": False}, verify=False
+    )
+    parsed = res.json()
+    force_result_validity(parsed)
     assert res.status_code == 200
-    parsed = json.loads(res.text)
+    return parsed
+
+
+@pytest.fixture
+def jamendo_audio_fixture(force_result_validity):
+    """
+    Thumbnail tests must use Jamendo results because the Wikimedia
+    sample audio results do not have thumbnails.
+    """
+    res = requests.get(
+        f"{API_URL}/v1/audio/",
+        data={"source": "jamendo", "filter_dead": False},
+        verify=False,
+    )
+    parsed = res.json()
+    force_result_validity(parsed)
+    assert res.status_code == 200
     return parsed
 
 
@@ -98,8 +122,8 @@ def test_audio_stats():
     stats("audio")
 
 
-def test_audio_thumb(audio_fixture):
-    thumb(audio_fixture)
+def test_audio_thumb(jamendo_audio_fixture):
+    thumb(jamendo_audio_fixture)
 
 
 def test_audio_detail_without_thumb():
@@ -117,16 +141,16 @@ def test_audio_search_without_thumb():
     assert parsed["results"][0]["thumbnail"] is None
 
 
-def test_audio_thumb_compression(audio_fixture):
-    thumb_compression(audio_fixture)
+def test_audio_thumb_compression(jamendo_audio_fixture):
+    thumb_compression(jamendo_audio_fixture)
 
 
-def test_audio_thumb_webp(audio_fixture):
-    thumb_webp(audio_fixture)
+def test_audio_thumb_webp(jamendo_audio_fixture):
+    thumb_webp(jamendo_audio_fixture)
 
 
-def test_audio_thumb_full_size(audio_fixture):
-    thumb_full_size(audio_fixture)
+def test_audio_thumb_full_size(jamendo_audio_fixture):
+    thumb_full_size(jamendo_audio_fixture)
 
 
 def test_audio_report(audio_fixture):
