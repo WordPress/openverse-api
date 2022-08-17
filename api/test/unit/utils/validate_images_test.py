@@ -66,4 +66,4 @@ def test_sends_user_agent(grequests):
 
     assert len(grequests.requests) > 0
     for r in grequests.requests:
-        assert HEADERS == r.kwargs["headers"]
+        assert r.kwargs["headers"] == HEADERS

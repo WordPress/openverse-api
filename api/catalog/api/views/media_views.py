@@ -1,9 +1,5 @@
-import json
 import logging
-from http.client import RemoteDisconnected
-from urllib.error import HTTPError
 from urllib.parse import urlencode
-from urllib.request import Request, urlopen
 
 from django.conf import settings
 from django.http.response import HttpResponse
@@ -13,6 +9,7 @@ from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
+import requests
 from sentry_sdk import capture_exception
 
 from catalog.api.controllers import search_controller
@@ -185,7 +182,7 @@ class MediaViewSet(ReadOnlyModelViewSet):
         path: str,
         params: dict,
         headers: tuple[tuple[str, str]] = (),
-    ):
+    ) -> tuple[requests.Response, int, str]:
         logger = parent_logger.getChild("_thumbnail_proxy_comm")
         proxy_url = settings.THUMBNAIL_PROXY_URL
         query_string = urlencode(params)
@@ -193,14 +190,14 @@ class MediaViewSet(ReadOnlyModelViewSet):
         logger.debug(f"Image proxy upstream URL: {upstream_url}")
 
         try:
-            req = Request(
-                upstream_url, headers=MediaViewSet.THUMBNAIL_PROXY_COMM_HEADERS
+            compiled_headers = MediaViewSet.THUMBNAIL_PROXY_COMM_HEADERS | {
+                k: v for k, v in headers
+            }
+            upstream_response = requests.get(
+                upstream_url, timeout=10, headers=compiled_headers
             )
-            for key, val in headers:
-                req.add_header(key, val)
-            upstream_response = urlopen(req, timeout=10)
 
-            res_status = upstream_response.status
+            res_status = upstream_response.status_code
             content_type = upstream_response.headers.get("Content-Type")
             logger.debug(
                 "Image proxy response "
@@ -208,7 +205,7 @@ class MediaViewSet(ReadOnlyModelViewSet):
             )
 
             return upstream_response, res_status, content_type
-        except (HTTPError, RemoteDisconnected, TimeoutError) as exc:
+        except requests.RequestException as exc:
             capture_exception(exc)
             raise UpstreamThumbnailException(f"Failed to render thumbnail: {exc}")
         except Exception as exc:
@@ -229,7 +226,7 @@ class MediaViewSet(ReadOnlyModelViewSet):
             info_res, *_ = MediaViewSet._thumbnail_proxy_comm(
                 "info", {"url": image_url}
             )
-            info = json.loads(info_res.read())
+            info = info_res.json()
             width = info["width"]
 
         params = {
@@ -255,6 +252,6 @@ class MediaViewSet(ReadOnlyModelViewSet):
             "resize", params, (("Accept", accept_header),)
         )
         response = HttpResponse(
-            img_res.read(), status=res_status, content_type=content_type
+            img_res.content, status=res_status, content_type=content_type
         )
         return response
