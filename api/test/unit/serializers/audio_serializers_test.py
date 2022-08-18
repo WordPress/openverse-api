@@ -7,6 +7,7 @@ from rest_framework.test import APIRequestFactory
 import pytest
 
 from catalog.api.serializers.audio_serializers import AudioSerializer
+from catalog.api.serializers.image_serializers import ImageSerializer
 
 
 @pytest.fixture
@@ -18,8 +19,7 @@ def req():
 
 
 @pytest.fixture
-@pytest.mark.django_db
-def audio_hit():
+def hit():
     hit = MagicMock(
         identifier=uuid.uuid4(),
         license="cc0",
@@ -28,11 +28,17 @@ def audio_hit():
     return hit
 
 
-@pytest.mark.django_db
-def test_audio_serializer_adds_license_url_if_missing(req, audio_hit):
+@pytest.mark.parametrize(
+    "serializer_class",
+    [
+        AudioSerializer,
+        ImageSerializer,
+    ],
+)
+def test_audio_serializer_adds_license_url_if_missing(req, hit, serializer_class):
     # Note that this behaviour is inherited from the parent `MediaSerializer` class, but
     # it cannot be tested without a concrete model to test with.
 
-    del audio_hit.license_url
-    repr = AudioSerializer(audio_hit, context={"request": req}).data
+    del hit.license_url  # without the ``del``, the property is dynamically generated
+    repr = serializer_class(hit, context={"request": req}).data
     assert repr["license_url"] == "https://creativecommons.org/publicdomain/zero/1.0/"
