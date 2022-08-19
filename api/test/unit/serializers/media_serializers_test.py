@@ -35,7 +35,7 @@ def hit():
         ImageSerializer,
     ],
 )
-def test_audio_serializer_adds_license_url_if_missing(req, hit, serializer_class):
+def test_media_serializer_adds_license_url_if_missing(req, hit, serializer_class):
     # Note that this behaviour is inherited from the parent `MediaSerializer` class, but
     # it cannot be tested without a concrete model to test with.
 
