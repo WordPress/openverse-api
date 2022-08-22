@@ -1,4 +1,3 @@
-import os
 from argparse import ArgumentParser
 from pathlib import Path
 
@@ -34,12 +33,10 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        file_path = str(
-            (Path(options["output_dir"]).absolute() / "openapi.yaml").absolute()
-        )
+        file_path = (Path(options["output_dir"]).absolute() / "openapi.yaml").absolute()
         call_command("generate_swagger", file_path, overwrite=True)
         spec_dict, spec_url = read_from_filename(file_path)
-        # Do not catch the error here so that we can still write the file
-        # out for debugging.
         self.handle_validation(spec_dict)
-        os.remove(file_path)
+        # Only remove the file when there are no errros to ease debugging.
+        # Therefore, we don't `try/except` the call to `handle_validation`
+        file_path.unlink()
