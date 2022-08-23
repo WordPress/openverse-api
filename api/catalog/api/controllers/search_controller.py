@@ -61,7 +61,7 @@ def _paginate_with_dead_link_mask(
     In almost all cases the ``DEAD_LINK_RATIO`` will effectively double
     the page size (given the current configuration of 0.5).
 
-    The "branch X" labels are for cross-referencing with the tests
+    The "branch X" labels are for cross-referencing with the tests.
 
     :param s: The elasticsearch Search object
     :param page_size: How big the page should be.
