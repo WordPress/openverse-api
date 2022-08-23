@@ -342,7 +342,7 @@ def test_paginate_with_dead_link_mask_query_mask_overlaps_query_window(
     the full size of the query. If not, then the unmasked end is used. If start_B happens,
     this means that the mask was not even sufficient to cover the previous pages + 1, just
     the previous pages _exactly_. If you combine this information, it is clear that end_B
-    cannot happen when start_B happens becuase the conditions for start_B preclude the
+    cannot happen when start_B happens because the conditions for start_B preclude the
     possibility of end_B.
     """
     create_mask_kwargs = {
