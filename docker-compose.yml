@@ -101,6 +101,7 @@ services:
       - ingestion_server/env.docker
     stdin_open: true
     tty: true
+    user: ${DOCKER_USER_ID}:${DOCKER_GROUP_ID}
 
   indexer_worker:
     build: ./ingestion_server/
@@ -118,6 +119,7 @@ services:
       - ingestion_server/env.docker
     stdin_open: true
     tty: true
+    user: ${DOCKER_USER_ID}:${DOCKER_GROUP_ID}
 
   proxy:
     image: nginx:alpine
