@@ -33,7 +33,7 @@ Ensure that you have installed `mkcert` (and the corresponding NSS tools). You c
    ```
 
 5. Point your browser to `http://localhost:50280`. You should be able to see the API documentation.
-   ![API ReDoc](/_static/api_redoc.png)
+   ![API ReDoc](https://api.openverse.engineering/v1/)
 
 6. Load the sample data. This could take a couple of minutes.
    ```bash
