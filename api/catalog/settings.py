@@ -366,4 +366,9 @@ if not DEBUG and SENTRY_DSN:
     # https://sentry.io/share/issue/9af3cdf8ef74420aa7bbb6697760a82c/
     ignore_logger("django.security.DisallowedHost")
 
+# Custom link validation expiration times
+# Overrides can be set via LINK_VALIDATION_CACHE_EXPIRY__<http integer status code>
+# and should be set as kwarg dicts for datetime.timedelta
+# E.g. LINK_VALIDATION_CACHE_EXPIRY__200='{"days": 1}' will set the expiration time
+# for links with HTTP status 200 to 1 day
 LINK_VALIDATION_CACHE_EXPIRY_CONFIGURATION = LinkValidationCacheExpiryConfiguration()

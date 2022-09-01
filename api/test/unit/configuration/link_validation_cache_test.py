@@ -47,6 +47,12 @@ def test_all_default_values(status, td):
             ((200, None),),
             marks=pytest.mark.raises(exception=ImproperlyConfigured),
         ),
+        # invalid arguments for timedelta
+        pytest.param(
+            {"500": '{"not_a_valid_keyword": 12}'},
+            ((200, None),),
+            marks=pytest.mark.raises(exception=ImproperlyConfigured),
+        ),
         # multiple configurations
         (
             {
@@ -59,7 +65,7 @@ def test_all_default_values(status, td):
                 (500, timedelta(days=20)),
                 (200, timedelta(days=1)),
                 (400, timedelta(minutes=25)),
-                # -1 still retains it's default value, does not use the ``default`` override
+                # -1 still retains default value, doesn't use the `default` override
                 (-1, timedelta(minutes=30)),
             ),
         ),

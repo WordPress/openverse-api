@@ -51,17 +51,18 @@ class LinkValidationCacheExpiryConfiguration(defaultdict):
 
             value = self._config(status)
 
-            self.update({status: value})
+            self[status] = value
 
     def _config(self, key: str | int, default: Optional[dict] = None) -> Optional[int]:
         try:
             v = config(
                 f"{self.SETTING_PREFIX}{str(key)}",
                 default=default,
+                # Value should either be a str or dict here
                 cast=lambda x: json.loads(x) if isinstance(x, str) else x,
             )
             return int(timedelta(**v).total_seconds())
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, TypeError):
             raise ImproperlyConfigured(
-                "Invalid link validation cache setting. " f"Impossible to parse {key}."
+                f"Invalid link validation cache setting. Impossible to parse {key}."
             )
