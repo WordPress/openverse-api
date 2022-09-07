@@ -280,6 +280,7 @@ class MediaSerializer(BaseModelSerializer):
         model = AbstractMedia
         fields = [
             "id",
+            "created_on",
             "title",
             "foreign_landing_url",
             "url",
@@ -306,6 +307,10 @@ class MediaSerializer(BaseModelSerializer):
     id = serializers.CharField(
         help_text="Our unique identifier for an open-licensed work.",
         source="identifier",
+    )
+
+    created_on = serializers.DateField(
+        help_text="The timestamp of when the media was added to Openverse.",
     )
 
     tags = TagSerializer(

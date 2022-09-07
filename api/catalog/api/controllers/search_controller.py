@@ -383,6 +383,10 @@ def search(
     # Route users to the same Elasticsearch worker node to reduce
     # pagination inconsistencies and increase cache hits.
     s = s.params(preference=str(ip), request_timeout=7)
+
+    # Sort by new
+    s = s.sort({"created_on": {"order": "desc"}})
+
     # Paginate
     start, end = _get_query_slice(s, page_size, page, filter_dead)
     s = s[start:end]

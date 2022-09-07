@@ -5,6 +5,7 @@ their output feels suitable for human consumption.
 
 json_fields = [
     "id",
+    "created_on",
     "title",
     "foreign_landing_url",
     "url",
