@@ -1,5 +1,3 @@
-from typing import Optional
-
 from rest_framework import serializers
 
 from elasticsearch_dsl.response import Hit
@@ -142,7 +140,7 @@ class AudioSerializer(AudioHyperlinksSerializer, MediaSerializer):
             del self.fields["peaks"]
         super().__init__(*args, **kwargs)
 
-    def get_peaks(self, obj) -> Optional[list[int]]:
+    def get_peaks(self, obj) -> list[int]:
         if isinstance(obj, Hit):
             obj = Audio.objects.get(identifier=obj.identifier)
         return obj.get_waveform()
