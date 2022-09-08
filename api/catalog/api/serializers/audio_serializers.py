@@ -1,3 +1,5 @@
+from typing import Optional
+
 from rest_framework import serializers
 
 from elasticsearch_dsl.response import Hit
@@ -54,6 +56,11 @@ class AudioSearchRequestSerializer(
         plural="lengths",
         enum_class=LENGTHS,
         required=False,
+    )
+    peaks = serializers.BooleanField(
+        help_text="Whether to include the waveform peaks or not",
+        required=False,
+        default=False,
     )
 
 
@@ -129,8 +136,12 @@ class AudioSerializer(AudioHyperlinksSerializer, MediaSerializer):
         help_text="The list of peaks used to generate the waveform for the audio."
     )
 
-    @staticmethod
-    def get_peaks(obj) -> list[int]:
+    def get_peaks(self, obj) -> Optional[list[int]]:
+        """Includes the peaks if requested via the `peaks` query param."""
+
+        if not self.context["validated_data"]["peaks"]:
+            return
+
         if isinstance(obj, Hit):
             obj = Audio.objects.get(identifier=obj.identifier)
         return obj.get_waveform()
