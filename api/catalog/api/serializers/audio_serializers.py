@@ -147,6 +147,8 @@ class AudioSerializer(AudioHyperlinksSerializer, MediaSerializer):
         return obj.get_waveform()
 
     def to_representation(self, instance):
+        """Clean up the audio instance from some empty fields."""
+
         # Get the original representation
         output = super().to_representation(instance)
         audio = instance
@@ -157,6 +159,9 @@ class AudioSerializer(AudioHyperlinksSerializer, MediaSerializer):
 
         if isinstance(audio, Audio) and not audio.thumbnail:
             output["thumbnail"] = None
+
+        if not output["peaks"]:
+            del output["peaks"]
 
         return output
 
