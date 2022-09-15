@@ -36,12 +36,31 @@ class RankFeature(Query):
     name = "rank_feature"
 
 
+def _unmasked_query_end(page_size, page):
+    """
+    Used to retrieve the upper index of results to retrieve
+    from Elasticsearch under the following conditions:
+    1. There is no query mask
+    2. The lower index is beyond the scope of the existing query mask
+    3. The lower index is within the scope of the existing query mask
+    but the upper index exceeds it
+
+    In all these cases, the query mask is not used to calculate the upper index.
+    """
+    return ceil(page_size * page / (1 - DEAD_LINK_RATIO))
+
+
 def _paginate_with_dead_link_mask(
     s: Search, page_size: int, page: int
 ) -> Tuple[int, int]:
     """
     Given a query, a page and page_size, return the start and end
     of the slice of results.
+
+    In almost all cases the ``DEAD_LINK_RATIO`` will effectively double
+    the page size (given the current configuration of 0.5).
+
+    The "branch X" labels are for cross-referencing with the tests.
 
     :param s: The elasticsearch Search object
     :param page_size: How big the page should be.
@@ -50,23 +69,49 @@ def _paginate_with_dead_link_mask(
     """
     query_hash = get_query_hash(s)
     query_mask = get_query_mask(query_hash)
-    if not query_mask:
+    if not query_mask:  # branch 1
         start = 0
-        end = ceil(page_size * page / (1 - DEAD_LINK_RATIO))
-    elif page_size * (page - 1) > sum(query_mask):
+        end = _unmasked_query_end(page_size, page)
+    elif page_size * (page - 1) > sum(query_mask):  # branch 2
         start = len(query_mask)
-        end = ceil(page_size * page / (1 - DEAD_LINK_RATIO))
-    else:
+        end = _unmasked_query_end(page_size, page)
+    else:  # branch 3
+        # query_mask is a list of 0 and 1 where 0 indicates the result position
+        # for the given query will be an invalid link. If we accumulate a query
+        # mask you end up, at each index, with the number of live results you
+        # will get back when you query that deeply.
+        # We then query for the start and end index _of the results_ in ES based
+        # on the number of results that we think will be valid based on the query mask.
+        # If we're requesting `page=2 page_size=3` and the mask is [0, 1, 0, 1, 0, 1],
+        # then we know that we have to _start_ with at least the sixth result of the
+        # overall query to skip the first page of 3 valid results. The "end" of the
+        # query will then follow the same pattern to reach the number of valid results
+        # required to fill the requested page. If the mask is not deep enough to
+        # account for the entire range, then we follow the typical assumption when
+        # a mask is not available that the end should be `page * page_size / 0.5`
+        # (i.e., double the page size)
         accu_query_mask = list(accumulate(query_mask))
         start = 0
         if page > 1:
-            try:
+            try:  # branch 3_start_A
+                # find the index at which we can skip N valid results where N = all
+                # the results that would be skipped to arrive at the start of the
+                # requested page
+                # This will effectively be the index at which we have the number of
+                # previous valid results + 1 because we don't want to include the
+                # last valid result from the previous page
                 start = accu_query_mask.index(page_size * (page - 1) + 1)
-            except ValueError:
+            except ValueError:  # branch 3_start_B
+                # Cannot fail because of the check on branch 2 which verifies that
+                # the query mask already includes at least enough masked valid
+                # results to fulfill the requested page size
                 start = accu_query_mask.index(page_size * (page - 1)) + 1
-        if page_size * page > sum(query_mask):
-            end = ceil(page_size * page / (1 - DEAD_LINK_RATIO))
-        else:
+        # else:  branch 3_start_C
+        # Always start page=1 queries at 0
+
+        if page_size * page > sum(query_mask):  # branch 3_end_A
+            end = _unmasked_query_end(page_size, page)
+        else:  # branch 3_end_B
             end = accu_query_mask.index(page_size * page) + 1
     return start, end
 
@@ -102,11 +147,13 @@ def _quote_escape(query_string):
 
 def _post_process_results(
     s, start, end, page_size, search_results, request, filter_dead
-) -> List[Hit]:
+) -> Optional[List[Hit]]:
     """
     After fetching the search results from the back end, iterate through the
     results, perform image validation, and route certain thumbnails through our
     proxy.
+
+    Keeps making new query requests until it is able to fill the page size.
 
     :param s: The Elasticsearch Search object.
     :param start: The start of the result slice.
@@ -130,7 +177,32 @@ def _post_process_results(
         query_hash = get_query_hash(s)
         validate_images(query_hash, start, results, to_validate)
 
+        if len(results) == 0:
+            # first page is all dead links
+            return None
+
         if len(results) < page_size:
+            """
+            The variables in this function get updated in an interesting way.
+            Here is an example of that for a typical query. Note that ``end``
+            increases but start stays the same. This has the effect of slowly
+            increasing the size of the query we send to Elasticsearch with the
+            goal of backfilling the results until we have enough valid (live)
+            results to fulfill the requested page size.
+
+            ```
+            page_size: 20
+            page: 1
+
+            start: 0
+            end: 40 (DEAD_LINK_RATIO applied)
+
+            end gets updated to end + end/2 = 60
+
+            end = 90
+            end = 90 + 45
+            ```
+            """
             end += int(end / 2)
             if start + end > ELASTICSEARCH_MAX_RESULT_WINDOW:
                 return results
@@ -141,6 +213,7 @@ def _post_process_results(
             return _post_process_results(
                 s, start, end, page_size, search_response, request, filter_dead
             )
+
     return results[:page_size]
 
 
@@ -323,6 +396,7 @@ def search(
             log.info(pprint.pprint(search_response.to_dict()))
     except RequestError as e:
         raise ValueError(e)
+
     results = _post_process_results(
         s, start, end, page_size, search_response, request, filter_dead
     )
@@ -330,7 +404,7 @@ def search(
     result_count, page_count = _get_result_and_page_count(
         search_response, results, page_size
     )
-    return results, page_count, result_count
+    return results or [], page_count, result_count
 
 
 def related_media(uuid, index, request, filter_dead):
@@ -366,7 +440,7 @@ def related_media(uuid, index, request, filter_dead):
 
     result_count, _ = _get_result_and_page_count(response, results, page_size)
 
-    return results, result_count
+    return results or [], result_count
 
 
 def get_sources(index):
@@ -413,7 +487,7 @@ def get_sources(index):
 
 
 def _get_result_and_page_count(
-    response_obj: Response, results: List[Hit], page_size: int
+    response_obj: Response, results: Optional[List[Hit]], page_size: int
 ) -> Tuple[int, int]:
     """
     Elasticsearch does not allow deep pagination of ranked queries.
@@ -423,6 +497,9 @@ def _get_result_and_page_count(
     :param results: The list of filtered result Hits.
     :return: Result and page count.
     """
+    if results is None:
+        return 0, 1
+
     result_count = response_obj.hits.total.value
     page_count = int(result_count / page_size)
     if page_count % page_size != 0:

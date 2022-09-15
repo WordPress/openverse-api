@@ -1,16 +1,16 @@
-import json
-import logging as log
-from http.client import RemoteDisconnected
-from urllib.error import HTTPError
+import logging
 from urllib.parse import urlencode
-from urllib.request import Request, urlopen
 
 from django.conf import settings
 from django.http.response import HttpResponse
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
+
+import requests
+from sentry_sdk import capture_exception
 
 from catalog.api.controllers import search_controller
 from catalog.api.models import ContentProvider
@@ -18,6 +18,14 @@ from catalog.api.serializers.provider_serializers import ProviderSerializer
 from catalog.api.utils.exceptions import get_api_exception
 from catalog.api.utils.pagination import StandardPagination
 from catalog.custom_auto_schema import CustomAutoSchema
+
+
+class UpstreamThumbnailException(APIException):
+    status_code = status.HTTP_424_FAILED_DEPENDENCY
+    default_detail = "Could not render thumbnail due to upstream provider error."
+
+
+parent_logger = logging.getLogger(__name__)
 
 
 class MediaViewSet(ReadOnlyModelViewSet):
@@ -52,13 +60,23 @@ class MediaViewSet(ReadOnlyModelViewSet):
     def get_queryset(self):
         return self.model_class.objects.all()
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        req_serializer = self._get_request_serializer(self.request)
+        context.update({"validated_data": req_serializer.validated_data})
+        return context
+
+    def _get_request_serializer(self, request):
+        req_serializer = self.query_serializer_class(
+            data=request.query_params, context={"request": request}
+        )
+        req_serializer.is_valid(raise_exception=True)
+        return req_serializer
+
     # Standard actions
 
     def list(self, request, *_, **__):
-        params = self.query_serializer_class(
-            data=request.query_params, context={"request": request}
-        )
-        params.is_valid(raise_exception=True)
+        params = self._get_request_serializer(request)
 
         page_size = self.paginator.page_size = params.data["page_size"]
         page = self.paginator.page = params.data["page"]
@@ -161,35 +179,46 @@ class MediaViewSet(ReadOnlyModelViewSet):
             ip = request.META.get("REMOTE_ADDR")
         return ip
 
+    THUMBNAIL_PROXY_COMM_HEADERS = {
+        "User-Agent": settings.OUTBOUND_USER_AGENT_TEMPLATE.format(
+            purpose="ThumbnailGeneration"
+        )
+    }
+
     @staticmethod
     def _thumbnail_proxy_comm(
         path: str,
         params: dict,
         headers: tuple[tuple[str, str]] = (),
-    ):
+    ) -> tuple[requests.Response, int, str]:
+        logger = parent_logger.getChild("_thumbnail_proxy_comm")
         proxy_url = settings.THUMBNAIL_PROXY_URL
         query_string = urlencode(params)
         upstream_url = f"{proxy_url}/{path}?{query_string}"
-        log.debug(f"Image proxy upstream URL: {upstream_url}")
+        logger.debug(f"Image proxy upstream URL: {upstream_url}")
 
         try:
-            req = Request(upstream_url)
-            for key, val in headers:
-                req.add_header(key, val)
-            upstream_response = urlopen(req, timeout=10)
+            compiled_headers = MediaViewSet.THUMBNAIL_PROXY_COMM_HEADERS | {
+                k: v for k, v in headers
+            }
+            upstream_response = requests.get(
+                upstream_url, timeout=10, headers=compiled_headers
+            )
 
-            res_status = upstream_response.status
+            res_status = upstream_response.status_code
             content_type = upstream_response.headers.get("Content-Type")
-            log.debug(
+            logger.debug(
                 "Image proxy response "
                 f"status: {res_status}, content-type: {content_type}"
             )
 
             return upstream_response, res_status, content_type
-        except (HTTPError, RemoteDisconnected, TimeoutError) as exc:
-            raise get_api_exception(f"Failed to render thumbnail: {exc}")
+        except requests.RequestException as exc:
+            capture_exception(exc)
+            raise UpstreamThumbnailException(f"Failed to render thumbnail: {exc}")
         except Exception as exc:
-            raise get_api_exception(
+            capture_exception(exc)
+            raise UpstreamThumbnailException(
                 f"Failed to render thumbnail due to unidentified exception: {exc}"
             )
 
@@ -205,7 +234,7 @@ class MediaViewSet(ReadOnlyModelViewSet):
             info_res, *_ = MediaViewSet._thumbnail_proxy_comm(
                 "info", {"url": image_url}
             )
-            info = json.loads(info_res.read())
+            info = info_res.json()
             width = info["width"]
 
         params = {
@@ -231,6 +260,6 @@ class MediaViewSet(ReadOnlyModelViewSet):
             "resize", params, (("Accept", accept_header),)
         )
         response = HttpResponse(
-            img_res.read(), status=res_status, content_type=content_type
+            img_res.content, status=res_status, content_type=content_type
         )
         return response

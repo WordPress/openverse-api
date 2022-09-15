@@ -10,6 +10,8 @@
 
 Ensure that you have installed `mkcert` (and the corresponding NSS tools). You can run `mkcert -install` to verify your installation.
 
+> _**Note:**_ Our Docker compose configuration requires specific environment configuration that is automatically handled by `just`. While you can run compose directly, it's advised to use the `just dc` alias for `docker-compose` as this ensures the environment will be properly configured.
+
 ## Steps
 
 1. Ensure that the [Docker daemon](https://docs.docker.com/config/daemon/) is running.
@@ -30,7 +32,7 @@ Ensure that you have installed `mkcert` (and the corresponding NSS tools). You c
    just up
    ```
 
-5. Point your browser to `http://localhost:8000`. You should be able to see the API documentation.
+5. Point your browser to `http://localhost:50280`. You should be able to see the API documentation.
    ![API ReDoc](/_static/api_redoc.png)
 
 6. Load the sample data. This could take a couple of minutes.

@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 from socket import gethostbyname, gethostname
 
@@ -20,6 +21,9 @@ from sentry_sdk.integrations.logging import ignore_logger
 
 from catalog.configuration.aws import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 from catalog.configuration.elasticsearch import ES, MEDIA_INDEX_MAPPING
+from catalog.configuration.link_validation_cache import (
+    LinkValidationCacheExpiryConfiguration,
+)
 from catalog.configuration.logging import LOGGING
 
 
@@ -59,14 +63,6 @@ if DEBUG:
         "127.0.0.1",
         "0.0.0.0",
     ]
-
-# Domains that shortened links may point to
-SHORT_URL_WHITELIST = {
-    "api-dev.openverse.engineering",
-    "api.openverse.engineering",
-    "localhost:8000",
-}
-SHORT_URL_PATH_WHITELIST = ["/v1/list", "/v1/images/"]
 
 USE_S3 = config("USE_S3", default=False, cast=bool)
 
@@ -113,7 +109,10 @@ MIDDLEWARE = [
     "oauth2_provider.middleware.OAuth2TokenMiddleware",
 ]
 
-SWAGGER_SETTINGS = {"SECURITY_DEFINITIONS": {}}
+SWAGGER_SETTINGS = {
+    "DEFAULT_INFO": "catalog.urls.swagger.open_api_info",
+    "SECURITY_DEFINITIONS": {},
+}
 
 OAUTH2_PROVIDER = {
     "SCOPES": {
@@ -129,6 +128,8 @@ OAUTH2_PROVIDER_APPLICATION_MODEL = "api.ThrottledApplication"
 
 THROTTLE_ANON_BURST = config("THROTTLE_ANON_BURST", default="5/hour")
 THROTTLE_ANON_SUSTAINED = config("THROTTLE_ANON_SUSTAINED", default="100/day")
+THROTTLE_ANON_THUMBS = config("THROTTLE_ANON_THUMBS", default="150/minute")
+THROTTLE_OAUTH2_THUMBS = config("THROTTLE_OAUTH2_THUMBS", default="500/minute")
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
@@ -143,6 +144,8 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_CLASSES": (
         "catalog.api.utils.throttle.BurstRateThrottle",
         "catalog.api.utils.throttle.SustainedRateThrottle",
+        "catalog.api.utils.throttle.AnonThumbnailRateThrottle",
+        "catalog.api.utils.throttle.OAuth2IdThumbnailRateThrottle",
         "catalog.api.utils.throttle.OAuth2IdSustainedRateThrottle",
         "catalog.api.utils.throttle.OAuth2IdBurstRateThrottle",
         "catalog.api.utils.throttle.EnhancedOAuth2IdSustainedRateThrottle",
@@ -152,6 +155,8 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {
         "anon_burst": THROTTLE_ANON_BURST,
         "anon_sustained": THROTTLE_ANON_SUSTAINED,
+        "anon_thumbnail": THROTTLE_ANON_THUMBS,
+        "oauth2_client_credentials_thumbnail": THROTTLE_OAUTH2_THUMBS,
         "oauth2_client_credentials_sustained": "10000/day",
         "oauth2_client_credentials_burst": "100/min",
         "enhanced_oauth2_client_credentials_sustained": "20000/day",
@@ -298,6 +303,11 @@ CORS_ORIGIN_ALLOW_ALL = True
 # The version of the API. We follow the semantic version specification.
 API_VERSION = config("SEMANTIC_VERSION", default="Version not specified")
 
+OUTBOUND_USER_AGENT_TEMPLATE = config(
+    "OUTBOUND_USER_AGENT_TEMPLATE",
+    default=f"Openverse{{purpose}}/{API_VERSION} (https://wordpress.org/openverse)",
+)
+
 # The contact email of the Openverse team
 CONTACT_EMAIL = config("CONTACT_EMAIL", default="openverse@wordpress.org")
 
@@ -355,6 +365,13 @@ if not DEBUG and SENTRY_DSN:
     # from pushing un-actionable alerts to Sentry like
     # https://sentry.io/share/issue/9af3cdf8ef74420aa7bbb6697760a82c/
     ignore_logger("django.security.DisallowedHost")
+
+# Custom link validation expiration times
+# Overrides can be set via LINK_VALIDATION_CACHE_EXPIRY__<http integer status code>
+# and should be set as kwarg dicts for datetime.timedelta
+# E.g. LINK_VALIDATION_CACHE_EXPIRY__200='{"days": 1}' will set the expiration time
+# for links with HTTP status 200 to 1 day
+LINK_VALIDATION_CACHE_EXPIRY_CONFIGURATION = LinkValidationCacheExpiryConfiguration()
 
 MAX_ANONYMOUS_PAGE_SIZE = 20
 MAX_AUTHED_PAGE_SIZE = 500

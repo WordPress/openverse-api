@@ -32,17 +32,24 @@ DOCKER_FILE := "-f " + (
     else { "docker-compose.yml" }
 )
 
+export DOCKER_USER_ID := `id -u`
+export DOCKER_GROUP_ID := `id -g`
+
+# Run `docker-compose` configured with the correct files and environment
+dc *args:
+    docker-compose {{ DOCKER_FILE }} {{ args }}
+
 # Build all (or specified) services
 build *args:
-    docker-compose {{ DOCKER_FILE }} build {{ args }}
+    just dc build {{ args }}
 
 # Bring all Docker services up
 up flags="":
-    docker-compose {{ DOCKER_FILE }} up -d {{ flags }}
+    just dc up -d {{ flags }}
 
 # Take all Docker services down
 down flags="":
-    docker-compose {{ DOCKER_FILE }} down {{ flags }}
+    just dc down {{ flags }}
 
 # Recreate all volumes and containers from scratch
 recreate:
@@ -52,7 +59,7 @@ recreate:
 
 # Show logs of all, or named, Docker services
 logs services="" args=(if IS_CI != "" { "" } else { "-f" }):
-    docker-compose {{ DOCKER_FILE }} logs {{ args }} {{ services }}
+    just dc logs {{ args }} {{ services }}
 
 # Attach to the specificed `service`. Enables interacting with the TTY of the running service.
 attach service:
@@ -73,8 +80,14 @@ env:
     cp api/env.template api/.env
     cp ingestion_server/env.template ingestion_server/.env
 
+# Ensure all services are up and running
+@_api-up:
+    just up
+    just wait-for-ing
+    just wait-for-web
+
 # Load sample data into the Docker Compose services
-init: up wait-for-es wait-for-ing wait-for-web
+init: _api-up
     ./load_sample_data.sh
 
 
@@ -109,17 +122,16 @@ cert:
 
 # Check the health of Elasticsearch
 @es-health es_host:
-    -curl -s -o /dev/null -w '%{http_code}' 'http://{{ es_host }}/_cluster/health?pretty'
+    -curl -s -o /dev/null -w '%{http_code}' 'http://{{ es_host }}/_cluster/health'
 
 # Wait for Elasticsearch to be healthy
-@wait-for-es es_host="localhost:9200":
+@wait-for-es es_host="localhost:50292":
     just _loop \
     '"$(just es-health {{ es_host }})" != "200"' \
     "Waiting for Elasticsearch to be healthy..."
 
-# Check if the media is indexed in Elasticsearch
 @check-index index="image":
-    -curl -sb -H "Accept:application/json" "http://localhost:9200/_cat/indices/{{ index }}" | grep -o "{{ index }}" | wc -l | xargs
+    -curl -sb -H "Accept:application/json" "http://localhost:50292/_cat/indices/{{ index }}" | grep -o "{{ index }}" | wc -l | xargs
 
 # Wait for the media to be indexed in Elasticsearch
 @wait-for-index index="image":
@@ -137,11 +149,12 @@ _ing-install:
     cd ingestion_server && pipenv install --dev
 
 # Perform the given action on the given model by invoking the ingestion-server API
-_ing-api data port="8001":
+_ing-api data port="50281":
     curl \
       -X POST \
       -H 'Content-Type: application/json' \
       -d '{{ data }}' \
+      -w "\n" \
       'http://localhost:{{ port }}/task'
 
 # Check the health of the ingestion-server
@@ -149,7 +162,7 @@ _ing-api data port="8001":
     -curl -s -o /dev/null -w '%{http_code}' 'http://{{ ing_host }}/'
 
 # Wait for the ingestion-server to be healthy
-@wait-for-ing ing_host="localhost:8001":
+@wait-for-ing ing_host="localhost:50281":
     just _loop \
     '"$(just ing-health {{ ing_host }})" != "200"' \
     "Waiting for the ingestion-server to be healthy..."
@@ -181,7 +194,7 @@ _api-install:
 
 # Check the health of the API
 @web-health:
-    -curl -s -o /dev/null -w '%{http_code}' 'http://localhost:8000/healthcheck'
+    -curl -s -o /dev/null -w '%{http_code}' 'http://localhost:50280/healthcheck/'
 
 # Wait for the API to be healthy
 @wait-for-web:
@@ -189,16 +202,13 @@ _api-install:
     '"$(just web-health)" != "200"' \
     "Waiting for the API to be healthy..."
 
-@_api-up: up wait-for-es wait-for-ing wait-for-web
-    exit 0
+# Run smoke test for the API docs
+api-doctest: _api-up
+    curl --fail 'http://localhost:50280/v1/?format=openapi'
 
 # Run API tests inside Docker
-@api-test *args: _api-up
+api-test *args: _api-up
     just exec web ./test/run_test.sh {{ args }}
-
-# Run API tests locally
-api-testlocal *args:
-    cd api && pipenv run ./test/run_test.sh {{ args }}
 
 # Run Django administrative commands locally
 dj-local +args:
@@ -210,7 +220,7 @@ dj-local +args:
 
 # Make a test cURL request to the API
 stats media="images":
-    curl "http://localhost:8000/v1/{{ media }}/stats/"
+    curl "http://localhost:50280/v1/{{ media }}/stats/"
 
 # Get Django shell with IPython
 ipython:
@@ -222,13 +232,13 @@ ipython:
 ##########
 
 # Compile Sphinx documentation into HTML output
-sphinx-make: up wait-for-es wait-for-ing wait-for-web
+sphinx-make: _api-up
     just exec web sphinx-build -M html docs/ build/
 
 # Serve Sphinx documentation via a live-reload server
-sphinx-live port="3000": up wait-for-es wait-for-ing wait-for-web
-    just exec web sphinx-autobuild --host 0.0.0.0 --port {{ port }} docs/ build/html/
+sphinx-live: _api-up
+    just exec web sphinx-autobuild --host 0.0.0.0 --port 3000 docs/ build/html/
 
 # Serve the Sphinx documentation from the HTML output directory
-sphinx-serve dir="api" port="3001":
+sphinx-serve dir="api" port="50231":
     cd {{ dir }}/build/html && pipenv run python -m http.server {{ port }}

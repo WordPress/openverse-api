@@ -1,9 +1,11 @@
 import io
+import struct
 
 from django.conf import settings
-from django.http.response import FileResponse, Http404, HttpResponse
+from django.http.response import FileResponse, HttpResponse
 from django.utils.decorators import method_decorator
 from rest_framework.decorators import action
+from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 
 import piexif
@@ -32,7 +34,10 @@ from catalog.api.serializers.image_serializers import (
 )
 from catalog.api.serializers.media_serializers import MediaThumbnailRequestSerializer
 from catalog.api.utils.exceptions import get_api_exception
-from catalog.api.utils.throttle import OneThousandPerMinute
+from catalog.api.utils.throttle import (
+    AnonThumbnailRateThrottle,
+    OAuth2IdThumbnailRateThrottle,
+)
 from catalog.api.utils.watermark import watermark
 from catalog.api.views.media_views import MediaViewSet
 
@@ -57,6 +62,10 @@ class ImageViewSet(MediaViewSet):
 
     serializer_class = ImageSerializer
 
+    OEMBED_HEADERS = {
+        "User-Agent": settings.OUTBOUND_USER_AGENT_TEMPLATE.format(purpose="OEmbed"),
+    }
+
     # Extra actions
 
     @action(
@@ -78,7 +87,7 @@ class ImageViewSet(MediaViewSet):
         except Image.DoesNotExist:
             return get_api_exception("Could not find image.", 404)
         if not (image.height and image.width):
-            image_file = requests.get(image.url)
+            image_file = requests.get(image.url, headers=self.OEMBED_HEADERS)
             width, height = PILImage.open(io.BytesIO(image_file.content)).size
             context |= {
                 "width": width,
@@ -93,7 +102,7 @@ class ImageViewSet(MediaViewSet):
         url_path="thumb",
         url_name="thumb",
         serializer_class=MediaThumbnailRequestSerializer,
-        throttle_classes=[OneThousandPerMinute],
+        throttle_classes=[AnonThumbnailRateThrottle, OAuth2IdThumbnailRateThrottle],
     )
     def thumbnail(self, request, *_, **__):
         image = self.get_object()
@@ -107,7 +116,7 @@ class ImageViewSet(MediaViewSet):
     @action(detail=True, url_path="watermark", url_name="watermark")
     def watermark(self, request, *_, **__):
         if not settings.WATERMARK_ENABLED:
-            raise Http404  # watermark feature is disabled
+            raise NotFound("The watermark feature is currently disabled.")
 
         params = WatermarkRequestSerializer(data=request.query_params)
         params.is_valid(raise_exception=True)
@@ -123,7 +132,14 @@ class ImageViewSet(MediaViewSet):
         watermarked, exif = watermark(image_url, image_info, params.data["watermark"])
         # Re-insert EXIF metadata.
         if exif:
-            exif_bytes = piexif.dump(exif)
+            # piexif dump raises InvalidImageDataError which is a child class
+            # of ValueError, and a struct error when the value is not
+            # between -2147483648 and 2147483647
+            # https://github.com/WordPress/openverse-api/issues/849
+            try:
+                exif_bytes = piexif.dump(exif)
+            except (struct.error, ValueError):
+                exif_bytes = None
         else:
             exif_bytes = None
         img_bytes = io.BytesIO()
