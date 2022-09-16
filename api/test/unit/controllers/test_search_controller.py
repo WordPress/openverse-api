@@ -40,7 +40,6 @@ from catalog.api.utils.dead_link_mask import get_query_hash, save_query_mask
         (20, 5, 5, (20, 5)),
         # Fewer hits than page size, but result list somehow differs, use that for count
         (48, 20, 50, (20, 0)),
-        (5000, 10, 10, (5000, 5000 / 10)),
     ],
 )
 def test_get_result_and_page_count(total_hits, real_result_count, page_size, expected):
