@@ -90,7 +90,7 @@ def test_page_size_validation(page_size, authenticated, anon_request, authed_req
     serializer = MediaSearchRequestSerializer(
         context={"request": request}, data={"page_size": page_size}
     )
-    serializer.is_valid(raise_exception=True)
+    assert serializer.is_valid(raise_exception=True)
 
 
 @pytest.mark.parametrize(
