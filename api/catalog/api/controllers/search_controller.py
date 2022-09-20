@@ -250,6 +250,7 @@ def _apply_filter(
         method = getattr(s, behaviour)
         return method("bool", should=query)
 
+    return s
 
 def _exclude_filtered(s: Search):
     """
