@@ -252,6 +252,7 @@ def _apply_filter(
 
     return s
 
+
 def _exclude_filtered(s: Search):
     """
     Hide data sources from the catalog dynamically.
