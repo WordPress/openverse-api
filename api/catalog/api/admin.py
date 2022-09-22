@@ -4,18 +4,22 @@ from catalog.api.models import (
     PENDING,
     AudioReport,
     ContentProvider,
-    DeletedImage,
     ImageReport,
-    MatureImage,
     SourceLogo,
 )
+from catalog.api.models.media import AbstractDeletedMedia, AbstractMatureMedia
 
 
 class MediaReportAdmin(admin.ModelAdmin):
+    list_display = ("reason", "status", "description", "created_at")
+    media_specific_list_display = ()
     list_filter = ("status", "reason")
     list_display_links = ("status",)
     search_fields = ("description", "identifier")
     actions = None
+
+    def get_list_display(self, request):
+        return self.list_display + self.media_specific_list_display
 
     def get_readonly_fields(self, request, obj=None):
         if obj is None:
@@ -34,24 +38,34 @@ class MediaReportAdmin(admin.ModelAdmin):
             return status_readonly
 
 
-@admin.register(AudioReport)
-class AudioReportAdmin(MediaReportAdmin):
-    list_display = ("reason", "status", "audio_url", "description", "created_at")
-
-
 @admin.register(ImageReport)
 class ImageReportAdmin(MediaReportAdmin):
-    list_display = ("reason", "status", "image_url", "description", "created_at")
+    media_specific_list_display = ("image_url",)
 
 
-@admin.register(MatureImage)
-class MatureImageAdmin(admin.ModelAdmin):
-    search_fields = ("identifier",)
+@admin.register(AudioReport)
+class AudioReportAdmin(MediaReportAdmin):
+    media_specific_list_display = ("audio_url",)
 
 
-@admin.register(DeletedImage)
-class DeletedImage(admin.ModelAdmin):
-    search_fields = ("identifier",)
+class MatureMediaAdmin(admin.ModelAdmin):
+    search_fields = [
+        "identifier",
+    ]
+
+
+for klass in AbstractMatureMedia.__subclasses__():
+    admin.site.register(klass, MatureMediaAdmin)
+
+
+class DeletedMediaAdmin(admin.ModelAdmin):
+    search_fields = [
+        "identifier",
+    ]
+
+
+for klass in AbstractDeletedMedia.__subclasses__():
+    admin.site.register(klass, DeletedMediaAdmin)
 
 
 class InlineImage(admin.TabularInline):
