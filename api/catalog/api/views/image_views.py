@@ -81,6 +81,8 @@ class ImageViewSet(MediaViewSet):
         context = self.get_serializer_context()
 
         url = params.validated_data["url"]
+        if url.endswith("/"):
+            url = url[:-1]
         identifier = url.rsplit("/", 1)[1]
         try:
             image = self.get_queryset().get(identifier=identifier)
