@@ -85,7 +85,7 @@ class ImageViewSet(MediaViewSet):
         try:
             image = self.get_queryset().get(identifier=identifier)
         except Image.DoesNotExist:
-            return get_api_exception("Could not find image.", 404)
+            raise get_api_exception("Could not find image.", 404)
         if not (image.height and image.width):
             image_file = requests.get(image.url, headers=self.OEMBED_HEADERS)
             width, height = PILImage.open(io.BytesIO(image_file.content)).size
