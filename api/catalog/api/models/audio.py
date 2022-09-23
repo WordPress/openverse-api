@@ -4,6 +4,7 @@ from django.db import models
 
 from uuslug import uuslug
 
+from catalog.api.constants.media_types import AUDIO_TYPE
 from catalog.api.models import OpenLedgerModel
 from catalog.api.models.media import (
     AbstractAltFile,
@@ -222,39 +223,37 @@ class Audio(AudioFileMixin, AbstractMedia):
         db_table = "audio"
 
 
+class DeletedAudio(AbstractDeletedMedia):
+    """
+    Stores identifiers of audio tracks that have been deleted from the source. Do not
+    create instances of this model manually. Create an ``AudioReport`` instance instead.
+    """
+
+    media_class = Audio
+    es_index = settings.MEDIA_INDEX_MAPPING[AUDIO_TYPE]
+
+
+class MatureAudio(AbstractMatureMedia):
+    """
+    Stores all audio tracks that have been flagged as 'mature'. Do not create instances
+    of this model manually. Create an ``AudioReport`` instance instead.
+    """
+
+    media_class = Audio
+    es_index = settings.MEDIA_INDEX_MAPPING[AUDIO_TYPE]
+
+
 class AudioReport(AbstractMediaReport):
+    media_class = Audio
+    mature_class = MatureAudio
+    deleted_class = DeletedAudio
+
     class Meta:
         db_table = "nsfw_reports_audio"
 
     @property
     def audio_url(self):
         return super(AudioReport, self).url("audio")
-
-    def save(self, *args, **kwargs):
-        kwargs.update(
-            {
-                "index_name": "audio",
-                "media_class": Audio,
-                "mature_class": MatureAudio,
-                "deleted_class": DeletedAudio,
-            }
-        )
-        super(AudioReport, self).save(*args, **kwargs)
-
-
-class DeletedAudio(AbstractDeletedMedia):
-    pass
-
-
-class MatureAudio(AbstractMatureMedia):
-    """Stores all audios that have been flagged as 'mature'."""
-
-    def delete(self, *args, **kwargs):
-        es = settings.ES
-        aud = Audio.objects.get(identifier=self.identifier)
-        es_id = aud.id
-        es.update(index="audio", id=es_id, body={"doc": {"mature": False}})
-        super(MatureAudio, self).delete(*args, **kwargs)
 
 
 class AudioList(AbstractMediaList):
