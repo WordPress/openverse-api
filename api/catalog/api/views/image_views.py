@@ -113,6 +113,8 @@ class ImageViewSet(MediaViewSet):
             raise get_api_exception("Could not find image.", 404)
 
         # Hotfix to use scaled down version of the image from SMK
+        # TODO Remove when this issue is addressed:
+        # TODO https://github.com/WordPress/openverse-catalog/issues/698
         if "iip.smk.dk" in image_url:
             width = settings.THUMBNAIL_WIDTH_PX
             image_url = re.sub(r"!\d+,", f"!{width},", image_url)
