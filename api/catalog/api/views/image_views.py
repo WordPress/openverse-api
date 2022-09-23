@@ -1,4 +1,5 @@
 import io
+import re
 import struct
 
 from django.conf import settings
@@ -110,6 +111,11 @@ class ImageViewSet(MediaViewSet):
         image_url = image.url
         if not image_url:
             raise get_api_exception("Could not find image.", 404)
+
+        # Hotfix to use scaled down version of the image from SMK
+        if "iip.smk.dk" in image_url:
+            width = settings.THUMBNAIL_WIDTH_PX
+            image_url = re.sub(r"!\d+,", f"!{width},", image_url)
 
         return super().thumbnail(image_url, request)
 
