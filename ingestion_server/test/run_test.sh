@@ -9,9 +9,9 @@ endcol="\e[0m"
 # $	./test/run_test.sh test/unit_test.py
 # ```
 if [ $# -ge 1 ]; then
-	TEST_ARG="$@"
+	TEST_ARG=( "$@" )
 else
-	TEST_ARG="test/"
+	TEST_ARG=( "test/" )
 fi
 
 PYTHONWARNINGS="ignore:Unverified HTTPS request" \
@@ -20,8 +20,8 @@ pytest -sx -vv --disable-pytest-warnings $TEST_ARG
 
 succeeded=$?
 if [[ $succeeded -eq 0 ]]; then
-	printf "${green}:-) All tests passed${endcol}\n"
+	printf "%s:-) All tests passed${endcol}\n" "${green}"
 else
-	printf "${red}:'( Some tests did not pass${endcol}\n"
+	printf "\n\n%s:'( Some tests did not pass${endcol}\n" "${red}"
 fi
 exit $succeeded
