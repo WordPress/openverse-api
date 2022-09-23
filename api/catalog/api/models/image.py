@@ -49,6 +49,10 @@ class Image(ImageFileMixin, AbstractMedia):
     class Meta(AbstractMedia.Meta):
         db_table = "image"
 
+    @property
+    def mature(self) -> bool:
+        return MatureImage.objects.filter(identifier=self.identifier).exists()
+
 
 class DeletedImage(AbstractDeletedMedia):
     """

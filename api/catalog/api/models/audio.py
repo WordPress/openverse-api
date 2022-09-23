@@ -177,6 +177,10 @@ class Audio(AudioFileMixin, AbstractMedia):
     )
 
     @property
+    def mature(self) -> bool:
+        return MatureAudio.objects.filter(identifier=self.identifier).exists()
+
+    @property
     def alternative_files(self):
         if hasattr(self.alt_files, "__iter__"):
             return [AltAudioFile(alt_file) for alt_file in self.alt_files]
