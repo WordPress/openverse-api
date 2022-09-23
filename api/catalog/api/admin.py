@@ -48,24 +48,21 @@ class AudioReportAdmin(MediaReportAdmin):
     media_specific_list_display = ("audio_url",)
 
 
-class MatureMediaAdmin(admin.ModelAdmin):
+class MediaSubreportAdmin(admin.ModelAdmin):
     search_fields = [
         "identifier",
     ]
 
-
-for klass in AbstractMatureMedia.__subclasses__():
-    admin.site.register(klass, MatureMediaAdmin)
-
-
-class DeletedMediaAdmin(admin.ModelAdmin):
-    search_fields = [
-        "identifier",
-    ]
+    def has_add_permission(self, *args, **kwargs):
+        """Create ``_Report`` instances instead."""
+        return False
 
 
-for klass in AbstractDeletedMedia.__subclasses__():
-    admin.site.register(klass, DeletedMediaAdmin)
+for klass in [
+    *AbstractMatureMedia.__subclasses__(),
+    *AbstractDeletedMedia.__subclasses__(),
+]:
+    admin.site.register(klass, MediaSubreportAdmin)
 
 
 class InlineImage(admin.TabularInline):
