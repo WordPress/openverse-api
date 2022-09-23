@@ -11,12 +11,12 @@ endcol="\e[0m"
 if [ $# -ge 1 ]; then
 	TEST_ARG=( "$@" )
 else
-	TEST_ARG="test/"
+	TEST_ARG=( "test/" )
 fi
 
 PYTHONWARNINGS="ignore:Unverified HTTPS request" \
 PYTHONPATH=. \
-pytest -s --disable-pytest-warnings $TEST_ARG
+pytest -s --disable-pytest-warnings "${TEST_ARG[@]}"
 
 succeeded=$?
 if [[ $succeeded -eq 0 ]]; then
