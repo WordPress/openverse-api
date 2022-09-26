@@ -180,7 +180,7 @@ _ing-api data port="50281":
     just _ing-api '{"model": "{{ model }}", "action": "PROMOTE", "index_suffix": "{{ suffix }}", "alias": "{{ alias }}"}'
 
 # Delete an index in Elasticsearch
-@delete suffix model="image" alias="image":
+@delete model="image" suffix="init" alias="image":
     just _ing-api '{"model": "{{ model }}", "action": "DELETE_INDEX", "index_suffix": "{{ suffix }}"}'
 
 # Run ingestion-server tests locally
