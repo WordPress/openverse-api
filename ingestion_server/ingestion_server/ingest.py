@@ -319,12 +319,8 @@ def refresh_api_table(
         log.info(f"Running copy-data query: \n{copy_data.as_string(downstream_cur)}")
         downstream_cur.execute(copy_data)
 
-    next_step = (
-        "_Next: {starting data cleaning}_"
-        if table == "image"
-        else "Finished refreshing table"
-    )
-    slack.verbose(f"`{table}`: Data copy complete | {next_step}")
+    next_step = "image data cleaning" if table == "image" else "Elasticsearch reindex"
+    slack.verbose(f"`{table}`: Data copy complete | _Next: {next_step}_")
 
     if table == "image":
         # Step 5: Clean the data
@@ -332,7 +328,7 @@ def refresh_api_table(
         clean_image_data(table)
         log.info("Cleaning completed!")
         slack.verbose(
-            f"`{table}`: Data cleaning complete | " f"Finished refreshing table"
+            f"`{table}`: Data cleaning complete | _Next: Elasticsearch reindex_"
         )
 
     downstream_db.close()
@@ -379,8 +375,7 @@ def promote_api_table(
         log.info("Done remapping constraints! Going live with new table...")
         _update_progress(progress, 99.0)
         slack.verbose(
-            f"`{table}`: Indices & constraints applied, finished refreshing table | "
-            f"_Next: Elasticsearch reindex_"
+            f"`{table}`: Indices & constraints applied | " f"_Next: table promotion_"
         )
 
         # Step 8: Promote the temporary table and delete the original

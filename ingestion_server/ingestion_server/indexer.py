@@ -395,18 +395,24 @@ class TableIndexer:
                     }
                 )
                 message = (
-                    f"Migrated alias {alias} "
-                    f"from index {curr_index} to index {dest_index}."
+                    f"`{model_name}`: Migrated alias {alias} "
+                    f"from index `{curr_index}` to index `{dest_index}`."
                 )
                 log.info(message)
                 slack.info(message)
             else:
                 # Alias is already mapped.
-                log.info(f"Alias {alias} already points to index {dest_index}.")
+                log.info(
+                    f"`{model_name}`: Alias {alias} already points to "
+                    f"index `{dest_index}`."
+                )
         else:
             # Alias does not exist, create it.
             self.es.indices.put_alias(index=dest_index, name=alias)
-            message = f"Created alias {alias} pointing to index {dest_index}."
+            message = (
+                f"`{model_name}`: Created alias `{alias}` pointing to "
+                f"index `{dest_index}`."
+            )
             log.info(message)
             slack.info(message)
 
