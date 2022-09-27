@@ -271,7 +271,10 @@ def refresh_api_table(
     """
 
     # Step 1: Get the list of overlapping columns
-    slack.status(table, "Starting data refresh | _Next: copying data from upstream_")
+    slack.status(
+        table,
+        "Starting ingestion server data refresh | _Next: copying data from upstream_",
+    )
     downstream_db = database_connect()
     upstream_db = psycopg2.connect(
         dbname=UPSTREAM_DB_NAME,
