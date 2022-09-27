@@ -395,8 +395,8 @@ class TableIndexer:
                     }
                 )
                 message = (
-                    f"Migrated alias `{alias}` from index "
-                    f"`{curr_index}` to index `{dest_index}`."
+                    f"Migrated alias `{alias}` from index `{curr_index}` to "
+                    f"index `{dest_index}` | _Next: delete old index_"
                 )
                 log.info(message)
                 slack.status(model_name, message)
@@ -466,7 +466,7 @@ class TableIndexer:
                     return
 
             self.es.indices.delete(index=target)
-            message = f"Index `{target}` was deleted."
+            message = f"Index `{target}` was deleted - data refresh complete! :tada:"
             log.info(message)
             slack.status(model_name, message)
         else:
