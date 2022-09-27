@@ -50,11 +50,11 @@
         },
         "botocore": {
             "hashes": [
-                "sha256:0f8b937c41e7ea92c5374e83d54c006d99d9f9fa203175fbfb1ded74c28e9759",
-                "sha256:412145ab8b9ec2ee3c9ecf43e06f9fe0fc03cc645add8314327e69e58be78cab"
+                "sha256:ad789bfc36ade270671c6846e314193c1968cc3523828aec1e12d012c900652f",
+                "sha256:b6b54560b110666e6f0248c0d39e0588589410186c35f4cee44be847d83fec07"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==1.27.80"
+            "version": "==1.27.81"
         },
         "certifi": {
             "hashes": [
@@ -1316,11 +1316,11 @@
         },
         "furo": {
             "hashes": [
-                "sha256:061b68e323345e27fcba024cf33a1e77f3dfd8d9987410be822749a706e2add6",
-                "sha256:9aa983b7488a4601d13113884bfb7254502c8729942e073a0acb87a5512af223"
+                "sha256:4a7ef1c8a3b615171592da4d2ad8a53cc4aacfbe111958890f5f9ff7279066ab",
+                "sha256:9129dead1f75e9fb4fa407612f1d5a0d0320767e6156c925aafe36f362f9b11a"
             ],
             "index": "pypi",
-            "version": "==2022.6.21"
+            "version": "==2022.9.15"
         },
         "gevent": {
             "hashes": [
@@ -1653,11 +1653,11 @@
         },
         "mdit-py-plugins": {
             "hashes": [
-                "sha256:b1279701cee2dbf50e188d3da5f51fee8d78d038cdf99be57c6b9d1aa93b4073",
-                "sha256:ecc24f51eeec6ab7eecc2f9724e8272c2fb191c2e93cf98109120c2cace69750"
+                "sha256:3fc13298497d6e04fe96efdd41281bfe7622152f9caa1815ea99b5c893de9441",
+                "sha256:606a7f29cf56dbdfaf914acb21709b8f8ee29d857e8f29dcc33d8cb84c57bfa1"
             ],
-            "markers": "python_version ~= '3.6'",
-            "version": "==0.3.0"
+            "markers": "python_version >= '3.7'",
+            "version": "==0.3.1"
         },
         "mdurl": {
             "hashes": [
@@ -1745,7 +1745,7 @@
                 "sha256:2c64907728c3ef78e23711c8840a423f0b241588c9ed929855e4b2d1bb0cf5f2",
                 "sha256:9bae709212a19222892cabcc60cafd903cbf4b220223f48583afa3c0e3cc6fc4"
             ],
-            "markers": "python_version >= '3.7' and python_full_version < '4.0.0'",
+            "markers": "python_version >= '3.7' and python_version < '4'",
             "version": "==0.2.3"
         },
         "openapi-spec-validator": {
