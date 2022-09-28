@@ -14,12 +14,21 @@ from catalog.api.models import (
     MatureAudio,
     MatureImage,
 )
-from catalog.api.models.media import DEINDEXED, DMCA, MATURE, MATURE_FILTERED, PENDING
+from catalog.api.models.media import (
+    DEINDEXED,
+    DMCA,
+    MATURE,
+    MATURE_FILTERED,
+    OTHER,
+    PENDING,
+)
 
 
 pytestmark = pytest.mark.django_db
 
 MediaType = Union[Literal["audio"], Literal["image"]]
+
+reason_params = pytest.mark.parametrize("reason", [DMCA, MATURE, OTHER])
 
 
 @pytest.fixture
@@ -40,8 +49,7 @@ def media_obj():
 @pytest.mark.parametrize(
     "media_type, report_class", [("image", ImageReport), ("audio", AudioReport)]
 )
-@pytest.mark.parametrize("reason", [DMCA, MATURE])
-@pytest.mark.django_db
+@reason_params
 def test_cannot_report_invalid_identifier(media_type, report_class, reason):
     with pytest.raises(ValueError):
         report_class.objects.create(
@@ -57,7 +65,7 @@ def test_cannot_report_invalid_identifier(media_type, report_class, reason):
         ("audio", AudioReport, MatureAudio, DeletedAudio),
     ],
 )
-@pytest.mark.parametrize("reason", [DMCA, MATURE])
+@reason_params
 def test_pending_reports_have_no_subreport_models(
     media_type: MediaType, report_class, mature_class, deleted_class, reason, media_obj
 ):
