@@ -52,6 +52,9 @@ class MediaSubreportAdmin(admin.ModelAdmin):
     search_fields = [
         "identifier",
     ]
+    readonly_fields = [
+        "identifier",
+    ]
 
     def has_add_permission(self, *args, **kwargs):
         """Create ``_Report`` instances instead."""
