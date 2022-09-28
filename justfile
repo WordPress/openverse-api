@@ -44,12 +44,16 @@ build *args:
     just dc build {{ args }}
 
 # Bring all Docker services up
-up flags="":
+up flags="": && ps
     just dc up -d {{ flags }}
 
 # Take all Docker services down
 down flags="":
     just dc down {{ flags }}
+
+# List all running services and their URLs and ports
+@ps:
+    python3 scripts/ps.py
 
 # Recreate all volumes and containers from scratch
 recreate:
