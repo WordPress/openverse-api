@@ -25,7 +25,10 @@ MediaType = Union[Literal["audio"], Literal["image"]]
 @pytest.fixture
 def media_obj():
     def _get_media_obj(type: MediaType):
-        klass = Audio if type == "audio" else Image
+        klass = {
+            "audio": Audio,
+            "image": Image,
+        }.get(type)
         identifier = uuid.uuid4()
         obj = klass(identifier=identifier)
         obj.save()
