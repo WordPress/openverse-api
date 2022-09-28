@@ -236,6 +236,9 @@ class DeletedAudio(AbstractDeletedMedia):
     media_class = Audio
     es_index = settings.MEDIA_INDEX_MAPPING[AUDIO_TYPE]
 
+    class Meta:
+        verbose_name_plural = "Deleted audio"
+
 
 class MatureAudio(AbstractMatureMedia):
     """
@@ -245,6 +248,9 @@ class MatureAudio(AbstractMatureMedia):
 
     media_class = Audio
     es_index = settings.MEDIA_INDEX_MAPPING[AUDIO_TYPE]
+
+    class Meta:
+        verbose_name_plural = "Mature audio"
 
 
 class AudioReport(AbstractMediaReport):
