@@ -2,6 +2,8 @@ import uuid
 from typing import Literal, Union
 from unittest.mock import MagicMock, patch
 
+from django.core.exceptions import ValidationError
+
 import pytest
 
 from catalog.api.models import (
@@ -51,7 +53,7 @@ def media_obj():
 )
 @reason_params
 def test_cannot_report_invalid_identifier(media_type, report_class, reason):
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         report_class.objects.create(
             identifier=uuid.uuid4(),
             reason=reason,

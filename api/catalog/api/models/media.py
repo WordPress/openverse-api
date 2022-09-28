@@ -2,6 +2,7 @@ import mimetypes
 
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.html import format_html
 
@@ -171,6 +172,17 @@ class AbstractMediaReport(models.Model):
     class Meta:
         abstract = True
 
+    def clean(self):
+        """
+        This function raises errors that can be handled by Django's admin interface.
+        """
+
+        if not self.media_class.objects.filter(identifier=self.identifier).exists():
+            raise ValidationError(
+                f"No '{self.media_class.__name__}' instance"
+                f"with identifier {self.identifier}."
+            )
+
     def url(self, media_type):
         url = f"{AbstractMediaReport.BASE_URL}{media_type}{self.identifier}"
         return format_html(f"<a href={url}>{url}</a>")
@@ -184,10 +196,7 @@ class AbstractMediaReport(models.Model):
         corresponding mature or deleted classes.
         """
 
-        if not self.media_class.objects.filter(identifier=self.identifier).exists():
-            raise ValueError(
-                f"No {self.media_class} instance with identifier {self.identifier}."
-            )
+        self.clean()
 
         if self.status == MATURE_FILTERED:
             # Create an instance of the mature class for this media. This will
@@ -239,8 +248,9 @@ class AbstractDeletedMedia(OpenLedgerModel):
             return obj
         except self.media_class.DoesNotExist:
             if raise_errors:
-                raise ValueError(
-                    f"No {self.media_class} instance with identifier {self.identifier}."
+                raise ValidationError(
+                    f"No '{self.media_class.__name__}' instance"
+                    f"with identifier {self.identifier}."
                 )
 
     def save(self, *args, **kwargs):
@@ -283,8 +293,9 @@ class AbstractMatureMedia(models.Model):
             es.indices.refresh(index=self.es_index)
         except self.media_class.DoesNotExist:
             if raise_errors:
-                raise ValueError(
-                    f"No {self.media_class} instance with identifier {self.identifier}."
+                raise ValidationError(
+                    f"No '{self.media_class.__name__}' instance"
+                    f"with identifier {self.identifier}."
                 )
 
     def save(self, *args, **kwargs):
