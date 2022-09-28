@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from catalog.api.admin.site import openverse_admin
 from catalog.api.models import (
     PENDING,
     AudioReport,
@@ -8,6 +9,10 @@ from catalog.api.models import (
     SourceLogo,
 )
 from catalog.api.models.media import AbstractDeletedMedia, AbstractMatureMedia
+
+
+admin.site = openverse_admin
+admin.sites.site = openverse_admin
 
 
 class MediaReportAdmin(admin.ModelAdmin):
