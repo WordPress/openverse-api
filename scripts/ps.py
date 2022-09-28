@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 import json
 import subprocess
 from dataclasses import dataclass
+from typing import List, Tuple
 
 
 @dataclass
 class Service:
     name: str
-    bindings: list[tuple[str, int, int]]
+    bindings: List[Tuple[str, int, int]]
 
     def print(self):
         """
@@ -43,7 +46,7 @@ def get_ps() -> str:
     return proc.stdout
 
 
-def parse_ps() -> list[Service]:
+def parse_ps() -> List[Service]:
     """
     Convert the JSON output given by Docker Compose into a list of services and their
     port mappings.
@@ -51,7 +54,7 @@ def parse_ps() -> list[Service]:
     :return: a list of running services with their port
     """
 
-    services: list[Service] = []
+    services: List[Service] = []
 
     data = json.loads(get_ps())
     for service in data:
