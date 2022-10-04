@@ -40,4 +40,4 @@ docker run \
 
 green="\e[32m"
 endcol="\e[0m"
-printf "%s:-) Exported new mock data${endcol}\n" "${green}"
+printf "%b:-) Exported new mock data${endcol}\n" "${green}"

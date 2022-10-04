@@ -20,8 +20,8 @@ pytest -sx -vv --disable-pytest-warnings "${TEST_ARG[@]}"
 
 succeeded=$?
 if [[ $succeeded -eq 0 ]]; then
-	printf "%s:-) All tests passed${endcol}\n" "${green}"
+	printf "%b:-) All tests passed${endcol}\n" "${green}"
 else
-	printf "\n\n%s:'( Some tests did not pass${endcol}\n" "${red}"
+	printf "\n\n%b:'( Some tests did not pass${endcol}\n" "${red}"
 fi
 exit $succeeded
