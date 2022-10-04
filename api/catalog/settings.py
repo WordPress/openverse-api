@@ -377,4 +377,4 @@ MAX_ANONYMOUS_PAGE_SIZE = 20
 MAX_AUTHED_PAGE_SIZE = 500
 MAX_PAGINATION_DEPTH = 20
 
-BASE_URL = "https://wordpress.org/openverse/"
+BASE_URL = config("BASE_URL", default="https://wordpress.org/openverse/")
