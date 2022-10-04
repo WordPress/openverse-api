@@ -142,7 +142,7 @@ class AbstractMediaReport(models.Model):
     deleted_class: type[models.Model] = None
     """the class storing deleted media e.g. ``DeletedImage`` or ``DeletedAudio``"""
 
-    BASE_URL = "https://search.creativecommons.org/"
+    BASE_URL = "https://wordpress.org/openverse/"
 
     REPORT_CHOICES = [(MATURE, MATURE), (DMCA, DMCA), (OTHER, OTHER)]
 
