@@ -10,6 +10,13 @@ on:
       - published
   workflow_dispatch:
 
+# Cancels all previous workflow runs for pull requests that have not completed.
+concurrency:
+    # The concurrency group contains the workflow name and the branch name for pull requests
+    # or the commit hash for any other events.
+    group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+    cancel-in-progress: true
+    
 jobs:
   lint:
     name: Lint
@@ -65,7 +72,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.image }}
-          path: /tmp/${{ matrix.image }}.tar
+          path: 
 
   test-ing:
     name: Run tests for ingestion-server
