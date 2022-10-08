@@ -10,13 +10,13 @@ on:
       - published
   workflow_dispatch:
 
-# Cancels all previous workflow runs for pull requests that have not completed.
 concurrency:
-    # The concurrency group contains the workflow name and the branch name for pull requests
-    # or the commit hash for any other events.
-    group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
-    cancel-in-progress: true
-    
+  group: ${{ github.workflow }}-${{ github.event_name == 'release' && 'release' || github.ref }}
+  # Don't continue building images for a PR if the PR is updated quickly
+  # For other workflows, allow them to complete and just block on them. This
+  # ensures deployments in particular to happen in series rather than parallel.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   lint:
     name: Lint
@@ -72,7 +72,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.image }}
-          path: 
+          path: /tmp/${{ matrix.image }}.tar
 
   test-ing:
     name: Run tests for ingestion-server
