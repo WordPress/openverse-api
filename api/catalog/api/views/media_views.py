@@ -144,8 +144,7 @@ class MediaViewSet(ReadOnlyModelViewSet):
         media = self.get_object()
         identifier = media.identifier
         serializer = self.get_serializer(data=request.data)
-        if not serializer.is_valid():
-            raise serializer.is_valid(raise_exception=True)
+        serializer.is_valid(raise_exception=True)
         report = serializer.save(identifier=identifier)
 
         serializer = self.get_serializer(report)
