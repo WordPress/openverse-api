@@ -4,8 +4,8 @@ import struct
 
 from django.conf import settings
 from django.http.response import FileResponse, HttpResponse
-from django.utils.decorators import method_decorator
 from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
