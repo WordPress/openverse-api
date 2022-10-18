@@ -5,14 +5,16 @@ from test.factory.models.audio import AudioFactory
 from test.factory.models.image import ImageFactory
 from typing import Callable
 from unittest import mock
+from unittest.mock import patch
 
+from django.core.cache import cache
 from rest_framework.test import APIClient
 
 import pytest
 import requests as requests_lib
-from requests import PreparedRequest, Request, Response
+from requests import PreparedRequest, ReadTimeout, Request, Response
 
-from catalog.api.views.media_views import MediaViewSet
+from catalog.api.views.media_views import MediaViewSet, UpstreamThumbnailException
 
 
 _MOCK_IMAGE_PATH = Path(__file__).parent / ".." / ".." / "factory"
@@ -241,3 +243,19 @@ def test_thumb_full_size(api_client, media_type, media_factory, requests):
         assert (
             entry in requests.sent_requests[1].request.url
         ), f"{entry} not found in prepared request url: {requests.sent_requests[0].request.url}"
+
+
+@pytest.mark.parametrize("count", [1, 3])
+def test_thumb_timeout(count: int):
+    cache.clear()  # to prevent effect of other runs
+
+    with patch("requests.get", side_effect=ReadTimeout()):
+        for idx in range(count):
+            try:
+                MediaViewSet._thumbnail_proxy_comm(
+                    "test", params={"url": f"https://example.com/image/{idx}"}
+                )
+            except UpstreamThumbnailException:
+                # Intentionally raised exception, do nothing.
+                pass
+    assert count == cache.get("thumbnail_timeout__example.com")
