@@ -7,11 +7,11 @@ from typing import Callable
 from unittest import mock
 from unittest.mock import patch
 
-from django.core.cache import cache
 from rest_framework.test import APIClient
 
 import pytest
 import requests as requests_lib
+from fakeredis import FakeRedis
 from requests import PreparedRequest, ReadTimeout, Request, Response
 
 from catalog.api.views.media_views import MediaViewSet, UpstreamThumbnailException
@@ -245,10 +245,18 @@ def test_thumb_full_size(api_client, media_type, media_factory, requests):
         ), f"{entry} not found in prepared request url: {requests.sent_requests[0].request.url}"
 
 
-@pytest.mark.parametrize("count", [1, 3])
-def test_thumb_timeout(count: int):
-    cache.clear()  # to prevent effect of other runs
+@pytest.fixture
+def redis(monkeypatch) -> FakeRedis:
+    fake_redis = FakeRedis()
+    monkeypatch.setattr("catalog.api.views.media_views.cache", fake_redis)
 
+    yield fake_redis
+
+    fake_redis.client().close()
+
+
+@pytest.mark.parametrize("count", [1, 3])
+def test_thumb_timeout(redis, count: int):
     with patch("requests.get", side_effect=ReadTimeout()):
         for idx in range(count):
             try:
@@ -258,4 +266,7 @@ def test_thumb_timeout(count: int):
             except UpstreamThumbnailException:
                 # Intentionally raised exception, do nothing.
                 pass
-    assert count == cache.get("thumbnail_timeout__example.com")
+
+    # Conversion to ``int`` required because of bug:
+    # https://github.com/cunla/fakeredis-py/issues/58
+    assert count == int(redis.get("thumbnail_timeout:example.com"))

@@ -215,7 +215,7 @@ class MediaViewSet(ReadOnlyModelViewSet):
         except requests.ReadTimeout as exc:
             # Count the incident so that we can identify providers with most timeouts.
             domain = urlparse(params["url"]).netloc
-            key = f"{settings.THUMBNAIL_TIMEOUT_PREFIX}__{domain}"
+            key = f"{settings.THUMBNAIL_TIMEOUT_PREFIX}{domain}"
             try:
                 cache.incr(key)
             except ValueError:  # Key does not exist.
