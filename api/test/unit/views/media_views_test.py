@@ -259,13 +259,10 @@ def redis(monkeypatch) -> FakeRedis:
 def test_thumb_timeout(redis, count: int):
     with patch("requests.get", side_effect=ReadTimeout()):
         for idx in range(count):
-            try:
+            with pytest.raises(UpstreamThumbnailException):
                 MediaViewSet._thumbnail_proxy_comm(
                     "test", params={"url": f"https://example.com/image/{idx}"}
                 )
-            except UpstreamThumbnailException:
-                # Intentionally raised exception, do nothing.
-                pass
 
     # Conversion to ``int`` required because of bug:
     # https://github.com/cunla/fakeredis-py/issues/58
