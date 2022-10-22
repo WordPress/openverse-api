@@ -83,8 +83,12 @@ RUN apt-get update \
       && rm -rf /var/lib/apt/lists/* \
     && mkdir -p /var/log/openverse_api/openverse_api.log
 
+# Create a non-root user
+RUN useradd --create-home opener
+USER opener
+
 # Copy code into the final image
-COPY . /api/
+COPY --chown=opener . /api/
 
 # Exposes
 # - 8000: Dev server for API Django app
