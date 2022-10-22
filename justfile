@@ -261,6 +261,10 @@ nginx upstream_url='api.openverse.engineering': collectstatic
       -e DJANGO_NGINX_GIT_REVISION="$(git rev-parse HEAD)" \
       openverse-api-nginx:latest
 
+# Launch a pgcli shell on the web container
+db-shell: _api-up
+    docker-compose {{ DOCKER_FILE }} exec web pgcli openledger deploy
+
 
 ##########
 # Sphinx #
