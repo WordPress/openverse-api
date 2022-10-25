@@ -63,6 +63,7 @@ services:
         hard: 65536
     # Sets memory limit for ES, as it tends to be a memory hoarder.
     # Remove this key to remove the limit.
+    # https://docs.docker.com/compose/compose-file/compose-file-v3/#deploy
     deploy:
       resources:
         limits:
