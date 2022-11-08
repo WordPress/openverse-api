@@ -90,14 +90,14 @@ jobs:
         with:
           path: /tmp
 
-      - name: Load all images
+      - name: Load API and ingestion server images
         run: |
           docker load --input /tmp/api/api.tar
           docker load --input /tmp/ingestion_server/ingestion_server.tar
 
       - name: Start API, ingest and index test data
         # Is this necessary for collectstatic?
-        run: just init
+        run: just up
 
       - name: collectstatic
         run: just collectstatic
@@ -110,7 +110,8 @@ jobs:
       - name: Build image `nginx`
         uses: docker/build-push-action@v2
         with:
-          context: nginx
+          context: api
+          target: nginx
           push: false
           tags: openverse-api-nginx
           cache-from: type=gha,scope=nginx
@@ -330,6 +331,7 @@ jobs:
     needs:
       - test-ing
       - test-api
+      - build-nginx
     permissions:
       packages: write
       contents: read
@@ -338,6 +340,7 @@ jobs:
         image:
           - api
           - ingestion_server
+          - api-nginx
     steps:
       - name: Log in to GitHub Docker Registry
         uses: docker/login-action@v1
