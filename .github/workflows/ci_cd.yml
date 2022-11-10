@@ -95,10 +95,6 @@ jobs:
           docker load --input /tmp/api/api.tar
           docker load --input /tmp/ingestion_server/ingestion_server.tar
 
-      - name: Start API, ingest and index test data
-        # Is this necessary for collectstatic?
-        run: just up
-
       - name: collectstatic
         run: just collectstatic
 
