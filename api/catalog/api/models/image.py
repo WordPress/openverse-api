@@ -84,7 +84,7 @@ class ImageReport(AbstractMediaReport):
 
     @property
     def image_url(self):
-        return super(ImageReport, self).url("photos")
+        return super().url("images")
 
 
 class ImageList(AbstractMediaList):

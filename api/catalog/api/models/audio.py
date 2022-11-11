@@ -263,7 +263,7 @@ class AudioReport(AbstractMediaReport):
 
     @property
     def audio_url(self):
-        return super(AudioReport, self).url("audio")
+        return super().url("audio")
 
 
 class AudioList(AbstractMediaList):
