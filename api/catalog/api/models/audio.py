@@ -22,7 +22,7 @@ class AltAudioFile(AbstractAltFile):
     def __init__(self, attrs):
         self.bit_rate = attrs.get("bit_rate")
         self.sample_rate = attrs.get("sample_rate")
-        super(AltAudioFile, self).__init__(attrs)
+        super().__init__(attrs)
 
     @property
     def sample_rate_in_khz(self):
@@ -278,4 +278,4 @@ class AudioList(AbstractMediaList):
 
     def save(self, *args, **kwargs):
         self.slug = uuslug(self.title, instance=self)
-        super(AudioList, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)

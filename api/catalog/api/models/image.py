@@ -99,4 +99,4 @@ class ImageList(AbstractMediaList):
 
     def save(self, *args, **kwargs):
         self.slug = uuslug(self.title, instance=self)
-        super(ImageList, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
