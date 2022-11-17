@@ -16,9 +16,9 @@ If you find a bug, please open an issue in this repository describing the bug. Y
 
 After that, don't forget to tag the issue with the "Bug" label.
 
-### Questions or Thoughts?
+### Proposing changes or new features
 
-Feel free to [join us on Slack](https://make.wordpress.org/chat/) and discuss the project with the engineers and community members on #openverse.
+Feel free to open an issue to discuss any new features or if you want to propose any changes.
 
 ### Pull requests
 
