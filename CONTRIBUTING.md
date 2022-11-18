@@ -18,7 +18,7 @@ After that, don't forget to tag the issue with the "Bug" label.
 
 ### Proposing changes or new features
 
-Feel free to open an issue to discuss any new features or if you want to propose any changes.
+Feel free to [open an issue](https://github.com/WordPress/openverse-api/issues/new/choose) to discuss any new features or to propose any changes.
 
 ### Pull requests
 
