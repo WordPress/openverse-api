@@ -142,5 +142,3 @@ ingestion_server/ingestion_server/lock
 .vscode
 
 openapi.yaml
-Pipfile.lock
-Pipfile
