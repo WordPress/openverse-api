@@ -9,7 +9,7 @@ By participating in this project, you are expected to uphold our [Code of Conduc
 ## Project Documentation
 
 Please consult the [README](./README.md) file at the root of this repository.
-Also see [Project documentation guidelines](./DOCUMENTATION_GUIDELINES.md) if you are interested in improving our documentation.
+Also see the [project documentation guidelines](./DOCUMENTATION_GUIDELINES.md) if you are interested in improving our documentation.
 ### Bugs
 
 If you find a bug, please open an issue in this repository describing the bug. You can file a bug [here](https://github.com/WordPress/openverse-api/issues/new?template=bug_report.md). You will see a bug report template with the required information you should provide.
