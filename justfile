@@ -32,9 +32,6 @@ DOCKER_FILE := "-f " + (
     else { "docker-compose.yml" }
 )
 
-export DOCKER_USER_ID := `id -u`
-export DOCKER_GROUP_ID := `id -g`
-
 # Run `docker-compose` configured with the correct files and environment
 dc *args:
     docker-compose {{ DOCKER_FILE }} {{ args }}
