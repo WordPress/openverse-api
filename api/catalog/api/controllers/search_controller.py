@@ -357,7 +357,7 @@ def search(
         quotes_stripped = query.replace('"', "")
         exact_match_boost = Q(
             "simple_query_string",
-            fields=["title.exact"],
+            fields=["title"],
             query=f"{quotes_stripped}",
             boost=10000,
         )
