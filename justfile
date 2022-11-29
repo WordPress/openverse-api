@@ -241,9 +241,12 @@ ipython:
 nginx upstream_url='api.openverse.engineering': collectstatic
     # upstream_url can also be set to 172.17.0.1:50280 for local testing
     cd api && docker build --target nginx . -t openverse-api-nginx:latest
-    echo "--> NGINX server will be run at http://localhost:9090, upstream at {{ upstream_url }}"
-    echo "--> Try a static URL like http://localhost:9090/static/admin/css/base.css to test"
-    docker run --rm -p 9090:8080 -e DJANGO_UPSTREAM_URL='{{ upstream_url }}' -it openverse-api-nginx:latest
+    @echo "--> NGINX server will be run at http://localhost:9090, upstream at {{ upstream_url }}"
+    @echo "--> Try a static URL like http://localhost:9090/static/admin/css/base.css to test"
+    docker run --rm -p 9090:8080 -it \
+      -e DJANGO_NGINX_UPSTREAM_URL="{{ upstream_url }}" \
+      -e DJANGO_NGINX_GIT_REVISION="$(git rev-parse HEAD)" \
+      openverse-api-nginx:latest
 
 
 ##########
