@@ -1,3 +1,10 @@
+# The following variables are substituted into the environment using envsubst.
+# This occurs automatically as part of the nginx image startup.
+# See: https://github.com/nginxinc/docker-nginx/blob/456bf337ceb922a207651aa7c6077a316c3e368c/entrypoint/20-envsubst-on-templates.sh#L17
+# - DJANGO_NGINX_UPSTREAM_URL
+# - DJANGO_NGINX_GIT_REVISION
+# - DJANGO_NGINX_ENVIRONMENT
+
 error_log /var/log/nginx/error.log;
 
 log_format json_combined escape=json
@@ -31,8 +38,7 @@ gzip_types application/json text/plain application/javascript;
 gzip_disable "MSIE [1-6]\.";
 
 upstream django {
-    # DJANGO_UPSTREAM_URL must be substituted using a tool like envsubst
-    server          $DJANGO_UPSTREAM_URL;
+    server          $DJANGO_NGINX_UPSTREAM_URL;
 }
 
 server {
@@ -80,6 +86,6 @@ server {
 
     location /version {
         default_type "application/json";
-        alias /var/api/version.json;
+        return 200 '{"release": "$DJANGO_NGINX_GIT_REVISION", "environment": "$DJANGO_NGINX_ENVIRONMENT"}';
     }
 }
