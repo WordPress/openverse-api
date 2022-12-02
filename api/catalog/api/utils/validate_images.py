@@ -6,6 +6,7 @@ from django.conf import settings
 
 import aiohttp
 import django_redis
+from asgiref.sync import async_to_sync
 from decouple import config
 
 from catalog.api.utils.dead_link_mask import get_query_mask, save_query_mask
@@ -39,6 +40,7 @@ async def _head(url, session):
 
 
 # https://stackoverflow.com/q/55259755
+@async_to_sync
 async def _make_head_requests(urls):
     tasks = []
     async with aiohttp.ClientSession(headers=HEADERS) as session:
@@ -79,7 +81,7 @@ def validate_images(query_hash, start_slice, results, image_urls):
             to_verify[url] = idx
     logger.debug(f"len(to_verify)={len(to_verify)}")
 
-    verified = asyncio.run(_make_head_requests(to_verify.keys()))
+    verified = _make_head_requests(to_verify.keys())
 
     # Cache newly verified image statuses.
     to_cache = {}
