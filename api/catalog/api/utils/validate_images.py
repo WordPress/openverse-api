@@ -1,10 +1,11 @@
+import asyncio
 import logging
 import time
 
 from django.conf import settings
 
+import aiohttp
 import django_redis
-import grequests
 from decouple import config
 
 from catalog.api.utils.dead_link_mask import get_query_mask, save_query_mask
@@ -26,6 +27,27 @@ def _get_cached_statuses(redis, image_urls):
 
 def _get_expiry(status, default):
     return config(f"LINK_VALIDATION_CACHE_EXPIRY__{status}", default=default, cast=int)
+
+
+async def _head(url, session):
+    try:
+        req = await session.head(url, timeout=10)
+        return url, req.status
+    except aiohttp.ClientError as exception:
+        _validation_failure(exception)
+        return url, -1
+
+
+# https://stackoverflow.com/q/55259755
+async def _make_head_requests(urls):
+    tasks = []
+    async with aiohttp.ClientSession(headers=HEADERS) as session:
+        for url in urls:
+            task = asyncio.ensure_future(_head(url, session))
+            tasks.append(task)
+        responses = asyncio.gather(*tasks)
+        await responses
+    return responses.result()
 
 
 def validate_images(query_hash, start_slice, results, image_urls):
@@ -57,24 +79,13 @@ def validate_images(query_hash, start_slice, results, image_urls):
             to_verify[url] = idx
     logger.debug(f"len(to_verify)={len(to_verify)}")
 
-    reqs = (
-        grequests.head(
-            url, headers=HEADERS, allow_redirects=False, timeout=2, verify=False
-        )
-        for url in to_verify.keys()
-    )
-    verified = grequests.map(reqs, exception_handler=_validation_failure)
+    verified = asyncio.run(_make_head_requests(to_verify.keys()))
+
     # Cache newly verified image statuses.
     to_cache = {}
-    # relies on the consistenct of the order returned by `dict::keys()` which
-    # is safe as of Python 3 dot something
-    for idx, url in enumerate(to_verify.keys()):
+    for result in verified:
+        url, status = result
         cache_key = CACHE_PREFIX + url
-        if verified[idx]:
-            status = verified[idx].status_code
-        # Response didn't arrive in time. Try again later.
-        else:
-            status = -1
         to_cache[cache_key] = status
 
     pipe = redis.pipeline()
@@ -99,7 +110,7 @@ def validate_images(query_hash, start_slice, results, image_urls):
     for idx, url in enumerate(to_verify):
         cache_idx = to_verify[url]
         if verified[idx] is not None:
-            cached_statuses[cache_idx] = verified[idx].status_code
+            cached_statuses[cache_idx] = verified[idx][1]
         else:
             cached_statuses[cache_idx] = -1
 
@@ -145,6 +156,6 @@ def validate_images(query_hash, start_slice, results, image_urls):
     )
 
 
-def _validation_failure(request, exception):
+def _validation_failure(exception):
     logger = parent_logger.getChild("_validation_failure")
     logger.warning(f"Failed to validate image! Reason: {exception}")
