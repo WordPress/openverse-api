@@ -30,10 +30,10 @@ def _get_expiry(status, default):
     return config(f"LINK_VALIDATION_CACHE_EXPIRY__{status}", default=default, cast=int)
 
 
-async def _head(url, session):
+async def _head(url: str, session: aiohttp.ClientSession):
     try:
-        req = await session.head(url, timeout=10)
-        return url, req.status
+        async with session.head(url) as response:
+            return url, response.status
     except aiohttp.ClientError as exception:
         _validation_failure(exception)
         return url, -1
@@ -41,7 +41,7 @@ async def _head(url, session):
 
 # https://stackoverflow.com/q/55259755
 @async_to_sync
-async def _make_head_requests(urls):
+async def _make_head_requests(urls: list[str]):
     tasks = []
     async with aiohttp.ClientSession(headers=HEADERS) as session:
         for url in urls:
