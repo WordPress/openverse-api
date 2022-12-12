@@ -66,6 +66,10 @@ class ImageSearchRequestSerializer(
 
 
 class ImageReportRequestSerializer(MediaReportRequestSerializer):
+    identifier = serializers.SlugRelatedField(
+        slug_field="identifier", queryset=Image.objects.all(), source="media_obj"
+    )
+
     class Meta(MediaReportRequestSerializer.Meta):
         model = ImageReport
 

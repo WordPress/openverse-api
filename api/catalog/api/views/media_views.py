@@ -152,9 +152,9 @@ class MediaViewSet(ReadOnlyModelViewSet):
     def report(self, request, *_, **__):
         media = self.get_object()
         identifier = media.identifier
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer(data=request.data | {"identifier": identifier})
         serializer.is_valid(raise_exception=True)
-        report = serializer.save(identifier=identifier)
+        report = serializer.save()
 
         serializer = self.get_serializer(report)
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
