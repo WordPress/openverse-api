@@ -52,7 +52,7 @@ class MediaReportAdmin(admin.ModelAdmin):
             "reason",
             "description",
             "media_obj_id",
-            "created_at",
+            "created_on",
         ]
         if obj.status == PENDING:
             return always_readonly
