@@ -142,6 +142,14 @@ class Audio(AudioFileMixin, AbstractMedia):
     category: eg. music, sound_effect, podcast, news & audiobook
     """
 
+    audioset = models.ForeignObject(
+        to="AudioSet",
+        on_delete=models.DO_NOTHING,
+        from_fields=["audio_set_foreign_identifier", "provider"],
+        to_fields=["foreign_identifier", "provider"],
+        null=True,
+    )
+
     # Replaces the foreign key to AudioSet
     audio_set_foreign_identifier = models.CharField(
         max_length=1000,
@@ -193,13 +201,7 @@ class Audio(AudioFileMixin, AbstractMedia):
 
     @property
     def audio_set(self):
-        try:
-            return AudioSet.objects.get(
-                provider=self.provider,
-                foreign_identifier=self.audio_set_foreign_identifier,
-            )
-        except AudioSet.DoesNotExist:
-            return None
+        return getattr(self, "audioset")
 
     def get_waveform(self) -> list[float]:
         """
