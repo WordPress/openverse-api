@@ -510,11 +510,10 @@ def _get_result_and_page_count(
         return 0, 1
 
     result_count = response_obj.hits.total.value
-    page_count = int(result_count / page_size)
-    if result_count > page_size and page_count % page_size != 0:
-        page_count += 1
+    page_count = ceil(result_count / page_size)
+
     if len(results) < page_size:
-        if page_count == 0:
+        if page_count == 1:
             result_count = len(results)
 
         # If we have fewer results than the requested page size and are

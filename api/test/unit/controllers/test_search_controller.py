@@ -37,7 +37,7 @@ from catalog.api.utils.dead_link_mask import get_query_hash, save_query_mask
         # when the "natural" page count can't be cleanly divisible by the page size,
         # We increment it plus one. Why would that be the case? 20 results, with 5
         # results per-page, would seem to result in 4 pages total not 5 🤷‍♀️
-        (20, 5, 5, 0, (20, 5)),
+        (20, 5, 5, 0, (20, 4)),
         # Fewer hits than page size, but result list somehow differs, use that for count
         (48, 20, 50, 0, (20, 0)),
         # Despite us applying a pagination limit, that is applied further up in the API, not at this low a level
