@@ -102,12 +102,13 @@ def report(media_type, fixture):
     test_id = fixture["results"][0]["id"]
     response = requests.post(
         f"{API_URL}/v1/{media_type}/{test_id}/report/",
-        {
+        json={
             "reason": "mature",
             "description": "This item contains sensitive content",
         },
         verify=False,
     )
+    print(response.json())
     assert response.status_code == 201
     data = json.loads(response.text)
     assert data["identifier"] == test_id
