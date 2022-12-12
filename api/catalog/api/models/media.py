@@ -220,6 +220,8 @@ class AbstractMediaReport(OpenLedgerModel):
 
         self.clean()
 
+        super().save(*args, **kwargs)
+
         if self.status == MATURE_FILTERED:
             # Create an instance of the mature class for this media. This will
             # automatically set the ``mature`` field in the ES document.
@@ -237,8 +239,6 @@ class AbstractMediaReport(OpenLedgerModel):
         if self.status != DEINDEXED:
             same_reports = same_reports.filter(reason=self.reason)
         same_reports.update(status=self.status)
-
-        super().save(*args, **kwargs)
 
 
 class AbstractAbstractMediaRelation(models.Model):
@@ -291,8 +291,8 @@ class AbstractDeletedMedia(AbstractAbstractMediaRelation, OpenLedgerModel):
 
     def save(self, *args, **kwargs):
         obj = self._update_es(True)
-        obj.delete()  # remove the actual model instance
         super().save(*args, **kwargs)
+        obj.delete()  # remove the actual model instance
 
 
 class AbstractMatureMedia(AbstractAbstractMediaRelation, OpenLedgerModel):
