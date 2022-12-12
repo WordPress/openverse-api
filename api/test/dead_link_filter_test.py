@@ -27,6 +27,11 @@ def redis(monkeypatch) -> FakeRedis:
     fake_redis.client().close()
 
 
+@pytest.fixture(autouse=True)
+def turn_off_db_read(monkeypatch):
+    monkeypatch.setattr("catalog.api.views.image_views.ImageSerializer.needs_db", False)
+
+
 @pytest.fixture
 def unique_query_hash(redis, monkeypatch):
     def get_unique_hash(*args, **kwargs):
