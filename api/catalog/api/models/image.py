@@ -5,6 +5,7 @@ from uuslug import uuslug
 
 from catalog.api.constants.media_types import IMAGE_TYPE
 from catalog.api.models.media import (
+    AbstractAbstractMediaRelation,
     AbstractDeletedMedia,
     AbstractMatureMedia,
     AbstractMedia,
@@ -51,10 +52,31 @@ class Image(ImageFileMixin, AbstractMedia):
 
     @property
     def mature(self) -> bool:
-        return MatureImage.objects.filter(identifier=self.identifier).exists()
+        return hasattr(self, "matureimage")
 
 
-class DeletedImage(AbstractDeletedMedia):
+class AbstractImageRelation(AbstractAbstractMediaRelation):
+    """
+    This class should be inherited by models aiming to have a one-to-one mapping with
+    `Audio` instances. Note that the mapping is not enforced at the DB level so that
+    mature reports can continue to exist even if the related `Audio` object has been
+    deleted.
+    """
+
+    media_obj = models.OneToOneField(
+        primary_key=True,
+        to="Image",
+        to_field="identifier",
+        db_constraint=False,
+        on_delete=models.DO_NOTHING,
+        help_text="The foreign key from this model to the 'Image' model.",
+    )
+
+    class Meta:
+        abstract = True
+
+
+class DeletedImage(AbstractImageRelation, AbstractDeletedMedia):
     """
     Stores identifiers of images that have been deleted from the source. Do not create
     instances of this model manually. Create an ``ImageReport`` instance instead.
@@ -64,7 +86,7 @@ class DeletedImage(AbstractDeletedMedia):
     es_index = settings.MEDIA_INDEX_MAPPING[IMAGE_TYPE]
 
 
-class MatureImage(AbstractMatureMedia):
+class MatureImage(AbstractImageRelation, AbstractMatureMedia):
     """
     Stores all images that have been flagged as 'mature'. Do not create instances of
     this model manually. Create an ``ImageReport`` instance instead.
@@ -78,6 +100,14 @@ class ImageReport(AbstractMediaReport):
     media_class = Image
     mature_class = MatureImage
     deleted_class = DeletedImage
+
+    media_obj = models.ForeignKey(
+        to="Image",
+        to_field="identifier",
+        db_constraint=False,
+        on_delete=models.DO_NOTHING,
+        help_text="The foreign key to the 'Image' being reported.",
+    )
 
     class Meta:
         db_table = "nsfw_reports"
