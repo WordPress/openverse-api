@@ -511,7 +511,7 @@ def _get_result_and_page_count(
 
     result_count = response_obj.hits.total.value
     page_count = int(result_count / page_size)
-    if page_count % page_size != 0:
+    if result_count > page_size and page_count % page_size != 0:
         page_count += 1
     if len(results) < page_size:
         if page_count == 0:

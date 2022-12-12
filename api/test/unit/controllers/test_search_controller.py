@@ -47,8 +47,9 @@ from catalog.api.utils.dead_link_mask import get_query_hash, save_query_mask
         (2000, 5, 20, 5, (2000, 5)),
         # First page, we got all the results and there are no further possible pages with the current page count
         (10, 10, 20, 0, (10, 0)),
-        # I don't know why this following one happens but it is definitely a bug
-        (10, 10, 10, 0, (10, 2)),
+        # This is here to test a case that used to erroneously produce (10, 2) by adding 1
+        # to the page count when it wasn't necessary to do so.
+        (10, 10, 10, 0, (10, 1)),
         # This is technically impossible because we truncate results to the page size before entering this method
         # I think the handling of this case is a likely source for the bug in the previous case
         (10, 10, 9, 0, (10, 2)),
