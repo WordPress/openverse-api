@@ -46,6 +46,13 @@ class AudioViewSet(MediaViewSet):
 
     serializer_class = AudioSerializer
 
+    def get_queryset(self):
+        return super().get_queryset().select_related("matureaudio")
+
+    def get_db_results(self, results):
+        identifiers = [hit.identifier for hit in results]
+        return self.get_queryset().filter(identifier__in=identifiers)
+
     # Extra actions
 
     @action(

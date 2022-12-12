@@ -96,6 +96,8 @@ class ImageSerializer(ImageHyperlinksSerializer, MediaSerializer):
         used to generate Swagger documentation.
         """
 
+    needs_db = True  # for the 'height' and 'width' fields
+
 
 class ImageSearchSerializer(MediaSearchSerializer):
     """

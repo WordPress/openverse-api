@@ -73,6 +73,10 @@ class MediaViewSet(ReadOnlyModelViewSet):
         req_serializer.is_valid(raise_exception=True)
         return req_serializer
 
+    def get_db_results(self, results):
+        identifiers = [hit.identifier for hit in results]
+        return self.model_class.objects.filter(identifier__in=identifiers)
+
     # Standard actions
 
     def list(self, request, *_, **__):
@@ -100,6 +104,10 @@ class MediaViewSet(ReadOnlyModelViewSet):
             self.paginator.result_count = num_results
         except ValueError as e:
             raise APIException(getattr(e, "message", str(e)))
+
+        serializer_class = self.get_serializer()
+        if params.needs_db or serializer_class.needs_db:
+            results = self.get_db_results(results)
 
         serializer = self.get_serializer(results, many=True)
         return self.get_paginated_response(serializer.data)
