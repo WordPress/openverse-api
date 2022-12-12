@@ -32,7 +32,7 @@ def _get_expiry(status, default):
 
 async def _head(url: str, session: aiohttp.ClientSession):
     try:
-        async with session.head(url) as response:
+        async with session.head(url, timeout=2, allow_redirects=False) as response:
             return url, response.status
     except aiohttp.ClientError as exception:
         _validation_failure(exception)
