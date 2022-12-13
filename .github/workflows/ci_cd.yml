@@ -90,7 +90,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download all images
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           path: /tmp
 
@@ -161,7 +161,7 @@ jobs:
           just _ing-install
 
       - name: Download image `ingestion_server`
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: ingestion_server
           path: /tmp
@@ -198,7 +198,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download all images
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           path: /tmp
 
@@ -241,7 +241,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download all images
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           path: /tmp
 
@@ -267,7 +267,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download all images
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           path: /tmp
 
@@ -301,7 +301,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download all images
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           path: /tmp
 
@@ -328,7 +328,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download all images
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           path: /tmp
 
@@ -366,7 +366,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download image `${{ matrix.image }}`
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: ${{ matrix.image }}
           path: /tmp
@@ -400,7 +400,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download all images
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           path: /tmp
 
@@ -471,9 +471,11 @@ jobs:
 
       - name: Setup just
         uses: extractions/setup-just@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download all images
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           path: /tmp
 
