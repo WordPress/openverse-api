@@ -278,6 +278,8 @@ jobs:
 
       - name: Run check
         run: just dj validateopenapischema
+        env:
+          DC_USER: root
 
       - name: Upload schema on failure
         if: failure()
@@ -441,7 +443,6 @@ jobs:
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.owner.login == 'WordPress' && github.actor != 'dependabot[bot]'
     needs:
       - build-images
-
     steps:
       - uses: peter-evans/find-comment@v2
         id: preview-comment
@@ -489,6 +490,8 @@ jobs:
           just sphinx-make
           sudo chown "$USER:$USER" -R ./api
           mv ./api/build/html /tmp/preview
+        env:
+          DC_USER: root
 
       # Otherwise we end up with any extra stuff not git-ignored in the gh-pages branch
       - name: Recreate working directory to avoid superfluous files

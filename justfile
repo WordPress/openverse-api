@@ -2,6 +2,7 @@ set dotenv-load := false
 
 IS_PROD := env_var_or_default("PROD", "")
 IS_CI := env_var_or_default("CI", "")
+DC_USER := env_var_or_default("DC_USER", "opener")
 
 # Show all available recipes
 default:
@@ -66,7 +67,7 @@ EXEC_DEFAULTS := if IS_CI == "" { "" } else { "-T" }
 
 # Execute statement in service containers using Docker Compose
 exec +args:
-    docker-compose exec {{ EXEC_DEFAULTS }} {{ args }}
+    docker-compose exec -u {{ DC_USER }} {{ EXEC_DEFAULTS }} {{ args }}
 
 ########
 # Init #
@@ -245,7 +246,7 @@ ipython:
     # The `STATIC_ROOT` setting is relative to the directory in which the Django
     # container runs (i.e., the `api` directory at the root of the repository).
     # The resulting output will be at `api/static` and is git ignored for convenience.
-    @STATIC_ROOT="./static" just dj collectstatic --noinput
+    @STATIC_ROOT="./static" DC_USER=root just dj collectstatic --noinput
 
 @collectstatic-as-admin: _api-up
     just exec -u root web python manage.py collectstatic --noinput
