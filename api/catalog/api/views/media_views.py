@@ -77,7 +77,9 @@ class MediaViewSet(ReadOnlyModelViewSet):
         hit_map = {hit.identifier: hit for hit in results}
         results = self.get_queryset().filter(identifier__in=hit_map.keys())
         for obj in results:
-            obj.fields_matched = hit_map[str(obj.identifier)].fields_matched
+            obj.fields_matched = getattr(
+                hit_map[str(obj.identifier)], "fields_matched", None
+            )
         return results
 
     # Standard actions
