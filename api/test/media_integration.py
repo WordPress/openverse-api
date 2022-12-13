@@ -108,7 +108,6 @@ def report(media_type, fixture):
         },
         verify=False,
     )
-    print(response.json())
     assert response.status_code == 201
     data = json.loads(response.text)
     assert data["identifier"] == test_id
