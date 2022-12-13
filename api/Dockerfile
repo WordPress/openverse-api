@@ -45,12 +45,8 @@ FROM nginx:1.23.2-alpine as nginx
 
 WORKDIR /app
 
-# Create a non-root user
-RUN useradd --create-home opener
-USER opener
-
-COPY --chown=opener nginx.conf.template /etc/nginx/templates/openverse-api.conf.template
-COPY --chown=opener /static /app/static
+COPY nginx.conf.template /etc/nginx/templates/openverse-api.conf.template
+COPY /static /app/static
 
 # Only environment variables with this prefix will be available in the template
 ENV NGINX_ENVSUBST_FILTER="DJANGO_NGINX_"
