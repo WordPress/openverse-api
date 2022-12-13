@@ -15,9 +15,7 @@ def search(fixture):
 
 
 def search_by_category(media_path, category, fixture):
-    response = requests.get(
-        f"{API_URL}/v1/{media_path}?category={category}&filter_dead=False"
-    )
+    response = requests.get(f"{API_URL}/v1/{media_path}?category={category}")
     assert response.status_code == 200
     data = json.loads(response.text)
     assert data["result_count"] < fixture["result_count"]
@@ -28,7 +26,7 @@ def search_by_category(media_path, category, fixture):
 
 def search_all_excluded(media_path, excluded_source):
     response = requests.get(
-        f"{API_URL}/v1/{media_path}?q=test&excluded_source={','.join(excluded_source)}&filter_dead=False"
+        f"{API_URL}/v1/{media_path}?q=test&excluded_source={','.join(excluded_source)}"
     )
     data = json.loads(response.text)
     assert data["result_count"] == 0
@@ -36,22 +34,20 @@ def search_all_excluded(media_path, excluded_source):
 
 def search_source_and_excluded(media_path):
     response = requests.get(
-        f"{API_URL}/v1/{media_path}?q=test&source=x&excluded_source=y&filter_dead=False"
+        f"{API_URL}/v1/{media_path}?q=test&source=x&excluded_source=y"
     )
     assert response.status_code == 400
 
 
 def search_quotes(media_path, q="test"):
     """Returns a response when quote matching is messed up."""
-    response = requests.get(
-        f'{API_URL}/v1/{media_path}?q="{q}&filter_dead=False', verify=False
-    )
+    response = requests.get(f'{API_URL}/v1/{media_path}?q="{q}', verify=False)
     assert response.status_code == 200
 
 
 def search_quotes_exact(media_path, q):
     """Only returns exact matches for the given query"""
-    url_format = f"{API_URL}/v1/{media_path}?q={{q}}&filter_dead=False"
+    url_format = f"{API_URL}/v1/{media_path}?q={{q}}"
     unquoted_response = requests.get(url_format.format(q=q), verify=False)
     assert unquoted_response.status_code == 200
     unquoted_result_count = unquoted_response.json()["result_count"]
@@ -71,9 +67,7 @@ def search_quotes_exact(media_path, q):
 
 def search_special_chars(media_path, q="test"):
     """Returns a response when query includes special characters."""
-    response = requests.get(
-        f"{API_URL}/v1/{media_path}?q={q}!&filter_dead=False", verify=False
-    )
+    response = requests.get(f"{API_URL}/v1/{media_path}?q={q}!", verify=False)
     assert response.status_code == 200
 
 
@@ -91,9 +85,7 @@ def search_consistency(
     """
 
     searches = {
-        requests.get(
-            f"{API_URL}/v1/{media_path}?page={page}&filter_dead=False", verify=False
-        )
+        requests.get(f"{API_URL}/v1/{media_path}?page={page}", verify=False)
         for page in range(1, n_pages)
     }
 
@@ -142,9 +134,7 @@ def report(media_type, fixture):
 
 
 def license_filter_case_insensitivity(media_type):
-    response = requests.get(
-        f"{API_URL}/v1/{media_type}?license=bY&filter_dead=False", verify=False
-    )
+    response = requests.get(f"{API_URL}/v1/{media_type}?license=bY", verify=False)
     parsed = json.loads(response.text)
     assert parsed["result_count"] > 0
 
