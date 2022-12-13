@@ -247,6 +247,9 @@ ipython:
     # The resulting output will be at `api/static` and is git ignored for convenience.
     @STATIC_ROOT="./static" just dj collectstatic --noinput
 
+@collectstatic-as-admin: _api-up
+    just exec -u root web python manage.py collectstatic --noinput
+
 # Run the nginx image locally
 nginx upstream_url='api.openverse.engineering': collectstatic
     # upstream_url can also be set to 172.17.0.1:50280 for local testing
