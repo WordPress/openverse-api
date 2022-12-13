@@ -74,8 +74,11 @@ class MediaViewSet(ReadOnlyModelViewSet):
         return req_serializer
 
     def get_db_results(self, results):
-        identifiers = [hit.identifier for hit in results]
-        return self.model_class.objects.filter(identifier__in=identifiers)
+        hit_map = {hit.identifier: hit for hit in results}
+        results = self.get_queryset().filter(identifier__in=hit_map.keys())
+        for obj in results:
+            obj.fields_matched = hit_map[str(obj.identifier)].fields_matched
+        return results
 
     # Standard actions
 

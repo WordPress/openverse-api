@@ -70,10 +70,6 @@ class ImageViewSet(MediaViewSet):
     def get_queryset(self):
         return super().get_queryset().select_related("matureimage")
 
-    def get_db_results(self, results):
-        identifiers = [hit.identifier for hit in results]
-        return self.get_queryset().filter(identifier__in=identifiers)
-
     # Extra actions
 
     @action(
