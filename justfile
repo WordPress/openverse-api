@@ -246,7 +246,7 @@ ipython:
     # The `STATIC_ROOT` setting is relative to the directory in which the Django
     # container runs (i.e., the `api` directory at the root of the repository).
     # The resulting output will be at `api/static` and is git ignored for convenience.
-    @STATIC_ROOT="./static" DC_USER=root just dj collectstatic --noinput
+    @STATIC_ROOT="./static" just dj collectstatic --noinput
 
 @collectstatic-as-admin: _api-up
     just exec -u root web python manage.py collectstatic --noinput

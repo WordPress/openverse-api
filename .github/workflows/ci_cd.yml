@@ -100,9 +100,10 @@ jobs:
           docker load --input /tmp/ingestion_server/ingestion_server.tar
 
       - name: collectstatic
-        run: just collectstatic-as-admin
+        run: just collectstatic
         env:
           STATIC_ROOT: ./static
+          DC_USER: root
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v2
