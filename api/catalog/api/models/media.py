@@ -135,7 +135,7 @@ class AbstractMedia(
         return f"{self.__class__.__name__}: {self.identifier}"
 
 
-class AbstractMediaReport(OpenLedgerModel):
+class AbstractMediaReport(models.Model):
     """
     Generic model from which to inherit all reported media classes. 'Reported'
     here refers to content reports such as mature, copyright-violating or
@@ -161,6 +161,22 @@ class AbstractMediaReport(OpenLedgerModel):
         (NO_ACTION, NO_ACTION),
     ]
 
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    media_obj = models.ForeignKey(
+        to="AbstractMedia",
+        to_field="identifier",
+        on_delete=models.DO_NOTHING,
+        db_constraint=False,
+        related_name="abstract_media_report",
+        help_text="The reference to the media being reported.",
+    )
+    """
+    There can be many reports associated with a single media item, hence foreign key.
+    Sub-classes must override this field to point to a concrete sub-class of
+    ``AbstractMedia``.
+    """
+
     reason = models.CharField(
         max_length=20,
         choices=REPORT_CHOICES,
@@ -173,19 +189,6 @@ class AbstractMediaReport(OpenLedgerModel):
         help_text="The explanation on why media is being reported.",
     )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PENDING)
-
-    media_obj = models.ForeignKey(
-        to="AbstractMedia",
-        to_field="identifier",
-        db_constraint=False,
-        on_delete=models.DO_NOTHING,
-        help_text="The foreign key to the 'AbstractMedia' being reported.",
-    )
-    """
-    There can be many reports associated with a single media item, hence foreign key.
-    Subclasses must override this field with a foreign key to a concrete subclass of
-    ``AbstractMedia``.
-    """
 
     class Meta:
         abstract = True
@@ -241,25 +244,7 @@ class AbstractMediaReport(OpenLedgerModel):
         same_reports.update(status=self.status)
 
 
-class AbstractAbstractMediaRelation(models.Model):
-    media_obj = models.OneToOneField(
-        primary_key=True,
-        to="AbstractMedia",
-        to_field="identifier",
-        db_constraint=False,
-        on_delete=models.DO_NOTHING,
-        help_text="The one-to-one relation to the 'AbstractMedia' model.",
-    )
-    """
-    Subclasses must override this field with a one-to-one relation to a concrete
-    subclass of ``AbstractMedia``.
-    """
-
-    class Meta:
-        abstract = True
-
-
-class AbstractDeletedMedia(AbstractAbstractMediaRelation, OpenLedgerModel):
+class AbstractDeletedMedia(OpenLedgerModel):
     """
     Generic model from which to inherit all deleted media classes. 'Deleted'
     here refers to media which has been deleted at the source or intentionally
@@ -271,6 +256,20 @@ class AbstractDeletedMedia(AbstractAbstractMediaRelation, OpenLedgerModel):
     """the model class associated with this media type e.g. ``Image`` or ``Audio``"""
     es_index: str = None
     """the name of the ES index from ``settings.MEDIA_INDEX_MAPPING``"""
+
+    media_obj = models.OneToOneField(
+        to="AbstractMedia",
+        to_field="identifier",
+        on_delete=models.DO_NOTHING,
+        primary_key=True,
+        db_constraint=False,
+        related_name="deleted_abstract_media",
+        help_text="The reference to the deleted media.",
+    )
+    """
+    Sub-classes must override this field to point to a concrete sub-class of
+    ``AbstractMedia``.
+    """
 
     class Meta:
         abstract = True
@@ -295,7 +294,7 @@ class AbstractDeletedMedia(AbstractAbstractMediaRelation, OpenLedgerModel):
         obj.delete()  # remove the actual model instance
 
 
-class AbstractMatureMedia(AbstractAbstractMediaRelation, OpenLedgerModel):
+class AbstractMatureMedia(models.Model):
     """
     Generic model from which to inherit all mature media classes. Subclasses must
     populate ``media_class`` and ``es_index`` fields.
@@ -307,6 +306,20 @@ class AbstractMatureMedia(AbstractAbstractMediaRelation, OpenLedgerModel):
     """the name of the ES index from ``settings.MEDIA_INDEX_MAPPING``"""
 
     created_on = models.DateTimeField(auto_now_add=True)
+
+    media_obj = models.OneToOneField(
+        to="AbstractMedia",
+        to_field="identifier",
+        on_delete=models.DO_NOTHING,
+        primary_key=True,
+        db_constraint=False,
+        related_name="mature_abstract_media",
+        help_text="The reference to the mature media.",
+    )
+    """
+    Sub-classes must override this field to point to a concrete sub-class of
+    ``AbstractMedia``.
+    """
 
     class Meta:
         abstract = True

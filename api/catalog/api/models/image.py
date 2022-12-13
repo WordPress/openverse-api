@@ -5,7 +5,6 @@ from uuslug import uuslug
 
 from catalog.api.constants.media_types import IMAGE_TYPE
 from catalog.api.models.media import (
-    AbstractAbstractMediaRelation,
     AbstractDeletedMedia,
     AbstractMatureMedia,
     AbstractMedia,
@@ -52,31 +51,10 @@ class Image(ImageFileMixin, AbstractMedia):
 
     @property
     def mature(self) -> bool:
-        return hasattr(self, "matureimage")
+        return hasattr(self, "mature_image")
 
 
-class AbstractImageRelation(AbstractAbstractMediaRelation):
-    """
-    This class should be inherited by models aiming to have a one-to-one mapping with
-    `Audio` instances. Note that the mapping is not enforced at the DB level so that
-    mature reports can continue to exist even if the related `Audio` object has been
-    deleted.
-    """
-
-    media_obj = models.OneToOneField(
-        primary_key=True,
-        to="Image",
-        to_field="identifier",
-        db_constraint=False,
-        on_delete=models.DO_NOTHING,
-        help_text="The foreign key from this model to the 'Image' model.",
-    )
-
-    class Meta:
-        abstract = True
-
-
-class DeletedImage(AbstractImageRelation, AbstractDeletedMedia):
+class DeletedImage(AbstractDeletedMedia):
     """
     Stores identifiers of images that have been deleted from the source. Do not create
     instances of this model manually. Create an ``ImageReport`` instance instead.
@@ -85,8 +63,18 @@ class DeletedImage(AbstractImageRelation, AbstractDeletedMedia):
     media_class = Image
     es_index = settings.MEDIA_INDEX_MAPPING[IMAGE_TYPE]
 
+    media_obj = models.OneToOneField(
+        to="Image",
+        to_field="identifier",
+        on_delete=models.DO_NOTHING,
+        primary_key=True,
+        db_constraint=False,
+        related_name="deleted_image",
+        help_text="The reference to the deleted image.",
+    )
 
-class MatureImage(AbstractImageRelation, AbstractMatureMedia):
+
+class MatureImage(AbstractMatureMedia):
     """
     Stores all images that have been flagged as 'mature'. Do not create instances of
     this model manually. Create an ``ImageReport`` instance instead.
@@ -94,6 +82,16 @@ class MatureImage(AbstractImageRelation, AbstractMatureMedia):
 
     media_class = Image
     es_index = settings.MEDIA_INDEX_MAPPING[IMAGE_TYPE]
+
+    media_obj = models.OneToOneField(
+        to="Image",
+        to_field="identifier",
+        on_delete=models.DO_NOTHING,
+        primary_key=True,
+        db_constraint=False,
+        related_name="mature_image",
+        help_text="The reference to the mature image.",
+    )
 
 
 class ImageReport(AbstractMediaReport):
@@ -104,9 +102,10 @@ class ImageReport(AbstractMediaReport):
     media_obj = models.ForeignKey(
         to="Image",
         to_field="identifier",
-        db_constraint=False,
         on_delete=models.DO_NOTHING,
-        help_text="The foreign key to the 'Image' being reported.",
+        db_constraint=False,
+        related_name="image_report",
+        help_text="The reference to the image being reported.",
     )
 
     class Meta:

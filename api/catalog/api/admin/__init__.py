@@ -27,14 +27,11 @@ class AudioAdmin(admin.ModelAdmin):
 
 
 class MediaReportAdmin(admin.ModelAdmin):
-    list_display = ("reason", "status", "description", "created_on")
+    list_display = ("reason", "status", "description", "created_at")
     media_specific_list_display = ()
     list_filter = ("status", "reason")
     list_display_links = ("status",)
-    search_fields = (
-        "description",
-        "media_obj_id",
-    )
+    search_fields = ("description", "media_obj_id")
     autocomplete_fields = ("media_obj",)
     actions = None
 
@@ -52,7 +49,7 @@ class MediaReportAdmin(admin.ModelAdmin):
             "reason",
             "description",
             "media_obj_id",
-            "created_on",
+            "created_at",
         ]
         if obj.status == PENDING:
             return always_readonly
@@ -73,15 +70,9 @@ class AudioReportAdmin(MediaReportAdmin):
 
 
 class MediaSubreportAdmin(admin.ModelAdmin):
-    exclude = [
-        "media_obj",
-    ]
-    search_fields = [
-        "media_obj_id",
-    ]
-    readonly_fields = [
-        "media_obj_id",
-    ]
+    exclude = ("media_obj",)
+    search_fields = ("media_obj_id",)
+    readonly_fields = ("media_obj_id",)
 
     def has_add_permission(self, *args, **kwargs):
         """Create ``_Report`` instances instead."""

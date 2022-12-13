@@ -7,7 +7,6 @@ from uuslug import uuslug
 from catalog.api.constants.media_types import AUDIO_TYPE
 from catalog.api.models import OpenLedgerModel
 from catalog.api.models.media import (
-    AbstractAbstractMediaRelation,
     AbstractAltFile,
     AbstractDeletedMedia,
     AbstractMatureMedia,
@@ -187,7 +186,7 @@ class Audio(AudioFileMixin, AbstractMedia):
 
     @property
     def mature(self) -> bool:
-        return hasattr(self, "matureaudio")
+        return hasattr(self, "mature_audio")
 
     @property
     def alternative_files(self):
@@ -230,28 +229,7 @@ class Audio(AudioFileMixin, AbstractMedia):
         db_table = "audio"
 
 
-class AbstractAudioRelation(AbstractAbstractMediaRelation):
-    """
-    This class should be inherited by models aiming to have a one-to-one mapping with
-    `Audio` instances. Note that the mapping is not enforced at the DB level so that
-    mature reports can continue to exist even if the related `Audio` object has been
-    deleted.
-    """
-
-    media_obj = models.OneToOneField(
-        primary_key=True,
-        to="Audio",
-        to_field="identifier",
-        db_constraint=False,
-        on_delete=models.DO_NOTHING,
-        help_text="The foreign key of this model to the 'Audio' model.",
-    )
-
-    class Meta:
-        abstract = True
-
-
-class DeletedAudio(AbstractAudioRelation, AbstractDeletedMedia):
+class DeletedAudio(AbstractDeletedMedia):
     """
     Stores identifiers of audio tracks that have been deleted from the source. Do not
     create instances of this model manually. Create an ``AudioReport`` instance instead.
@@ -260,11 +238,21 @@ class DeletedAudio(AbstractAudioRelation, AbstractDeletedMedia):
     media_class = Audio
     es_index = settings.MEDIA_INDEX_MAPPING[AUDIO_TYPE]
 
+    media_obj = models.OneToOneField(
+        to="Audio",
+        to_field="identifier",
+        on_delete=models.DO_NOTHING,
+        primary_key=True,
+        db_constraint=False,
+        related_name="deleted_audio",
+        help_text="The reference to the deleted audio.",
+    )
+
     class Meta:
         verbose_name_plural = "Deleted audio"
 
 
-class MatureAudio(AbstractAudioRelation, AbstractMatureMedia):
+class MatureAudio(AbstractMatureMedia):
     """
     Stores all audio tracks that have been flagged as 'mature'. Do not create instances
     of this model manually. Create an ``AudioReport`` instance instead.
@@ -272,6 +260,16 @@ class MatureAudio(AbstractAudioRelation, AbstractMatureMedia):
 
     media_class = Audio
     es_index = settings.MEDIA_INDEX_MAPPING[AUDIO_TYPE]
+
+    media_obj = models.OneToOneField(
+        to="Audio",
+        to_field="identifier",
+        on_delete=models.DO_NOTHING,
+        primary_key=True,
+        db_constraint=False,
+        related_name="mature_audio",
+        help_text="The reference to the mature audio.",
+    )
 
     class Meta:
         verbose_name_plural = "Mature audio"
@@ -285,9 +283,10 @@ class AudioReport(AbstractMediaReport):
     media_obj = models.ForeignKey(
         to="Audio",
         to_field="identifier",
-        db_constraint=False,
         on_delete=models.DO_NOTHING,
-        help_text="The foreign key to the 'Audio' being reported.",
+        db_constraint=False,
+        related_name="audio_report",
+        help_text="The reference to the audio being reported.",
     )
 
     class Meta:

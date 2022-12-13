@@ -29,36 +29,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RenameField(
-            model_name='imagereport',
-            old_name='created_at',
-            new_name='created_on',
-        ),
-        migrations.RenameField(
-            model_name='audioreport',
-            old_name='created_at',
-            new_name='created_on',
-        ),
-        migrations.AddField(
-            model_name='imagereport',
-            name='updated_on',
-            field=models.DateTimeField(auto_now=True),
-        ),
-        migrations.AddField(
-            model_name='audioreport',
-            name='updated_on',
-            field=models.DateTimeField(auto_now=True),
-        ),
-        migrations.AddField(
-            model_name='matureimage',
-            name='updated_on',
-            field=models.DateTimeField(auto_now=True),
-        ),
-        migrations.AddField(
-            model_name='matureaudio',
-            name='updated_on',
-            field=models.DateTimeField(auto_now=True),
-        ),
         migrations.AlterField(
             model_name='deletedimage',
             name='identifier',
@@ -86,37 +56,37 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='imagereport',
             name='media_obj',
-            field=models.ForeignKey(db_constraint=False, null=True, help_text="The foreign key to the 'Image' being reported.", on_delete=django.db.models.deletion.DO_NOTHING, to='api.image', to_field='identifier'),
+            field=models.ForeignKey(db_constraint=False, null=True, related_name="image_report", help_text="The reference to the image being reported.", on_delete=django.db.models.deletion.DO_NOTHING, to='api.image', to_field='identifier'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='deletedimage',
             name='media_obj',
-            field=models.OneToOneField(db_constraint=False, null=True, help_text="The foreign key from this model to the 'Image' model.", on_delete=django.db.models.deletion.DO_NOTHING, serialize=False, to='api.image', to_field='identifier'),
+            field=models.OneToOneField(db_constraint=False, null=True, related_name="deleted_image", help_text="The reference to the deleted image.", on_delete=django.db.models.deletion.DO_NOTHING, serialize=False, to='api.image', to_field='identifier'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='matureimage',
             name='media_obj',
-            field=models.OneToOneField(db_constraint=False, null=True, help_text="The foreign key from this model to the 'Image' model.", on_delete=django.db.models.deletion.DO_NOTHING, serialize=False, to='api.image', to_field='identifier'),
+            field=models.OneToOneField(db_constraint=False, null=True, related_name="mature_image", help_text="The reference to the mature image.", on_delete=django.db.models.deletion.DO_NOTHING, serialize=False, to='api.image', to_field='identifier'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='audioreport',
             name='media_obj',
-            field=models.ForeignKey(db_constraint=False, null=True, help_text="The foreign key to the 'Audio' being reported.", on_delete=django.db.models.deletion.DO_NOTHING, to='api.audio', to_field='identifier'),
+            field=models.ForeignKey(db_constraint=False, null=True, related_name="audio_report", help_text="The reference to the audio being reported.", on_delete=django.db.models.deletion.DO_NOTHING, to='api.audio', to_field='identifier'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='deletedaudio',
             name='media_obj',
-            field=models.OneToOneField(db_constraint=False, null=True, help_text="The foreign key of this model to the 'Audio' model.", on_delete=django.db.models.deletion.DO_NOTHING, serialize=False, to='api.audio', to_field='identifier'),
+            field=models.OneToOneField(db_constraint=False, null=True, related_name="deleted_audio", help_text="The reference to the deleted audio.", on_delete=django.db.models.deletion.DO_NOTHING, serialize=False, to='api.audio', to_field='identifier'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='matureaudio',
             name='media_obj',
-            field=models.OneToOneField(db_constraint=False, null=True, help_text="The foreign key of this model to the 'Audio' model.", on_delete=django.db.models.deletion.DO_NOTHING, serialize=False, to='api.audio', to_field='identifier'),
+            field=models.OneToOneField(db_constraint=False, null=True, related_name="mature_audio", help_text="The reference to the mature audio.", on_delete=django.db.models.deletion.DO_NOTHING, serialize=False, to='api.audio', to_field='identifier'),
             preserve_default=False,
         ),
         migrations.RunSQL(
@@ -126,34 +96,34 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='imagereport',
             name='media_obj',
-            field=models.ForeignKey(db_constraint=False, help_text="The foreign key to the 'Image' being reported.", on_delete=django.db.models.deletion.DO_NOTHING, to='api.image', to_field='identifier'),
+            field=models.ForeignKey(db_constraint=False, related_name="image_report", help_text="The reference to the image being reported.", on_delete=django.db.models.deletion.DO_NOTHING, to='api.image', to_field='identifier'),
             preserve_default=False,
         ),
         migrations.AlterField(
             model_name='deletedimage',
             name='media_obj',
-            field=models.OneToOneField(db_constraint=False, help_text="The foreign key from this model to the 'Image' model.", on_delete=django.db.models.deletion.DO_NOTHING, primary_key=True, serialize=False, to='api.image', to_field='identifier'),
+            field=models.OneToOneField(db_constraint=False, related_name="deleted_image", help_text="The reference to the deleted image.", on_delete=django.db.models.deletion.DO_NOTHING, primary_key=True, serialize=False, to='api.image', to_field='identifier'),
         ),
         migrations.AlterField(
             model_name='matureimage',
             name='media_obj',
-            field=models.OneToOneField(db_constraint=False, help_text="The foreign key from this model to the 'Image' model.", on_delete=django.db.models.deletion.DO_NOTHING, primary_key=True, serialize=False, to='api.image', to_field='identifier'),
+            field=models.OneToOneField(db_constraint=False, related_name="mature_image", help_text="The reference to the mature image.", on_delete=django.db.models.deletion.DO_NOTHING, primary_key=True, serialize=False, to='api.image', to_field='identifier'),
         ),
         migrations.AlterField(
             model_name='audioreport',
             name='media_obj',
-            field=models.ForeignKey(db_constraint=False, help_text="The foreign key to the 'Audio' being reported.", on_delete=django.db.models.deletion.DO_NOTHING, to='api.audio', to_field='identifier'),
+            field=models.ForeignKey(db_constraint=False, related_name="audio_report", help_text="The reference to the audio being reported.", on_delete=django.db.models.deletion.DO_NOTHING, to='api.audio', to_field='identifier'),
             preserve_default=False,
         ),
         migrations.AlterField(
             model_name='deletedaudio',
             name='media_obj',
-            field=models.OneToOneField(db_constraint=False, help_text="The foreign key of this model to the 'Audio' model.", on_delete=django.db.models.deletion.DO_NOTHING, primary_key=True, serialize=False, to='api.audio', to_field='identifier'),
+            field=models.OneToOneField(db_constraint=False, related_name="deleted_audio", help_text="The reference to the deleted audio.", on_delete=django.db.models.deletion.DO_NOTHING, primary_key=True, serialize=False, to='api.audio', to_field='identifier'),
         ),
         migrations.AlterField(
             model_name='matureaudio',
             name='media_obj',
-            field=models.OneToOneField(db_constraint=False, help_text="The foreign key of this model to the 'Audio' model.", on_delete=django.db.models.deletion.DO_NOTHING, primary_key=True, serialize=False, to='api.audio', to_field='identifier'),
+            field=models.OneToOneField(db_constraint=False, related_name="mature_audio", help_text="The reference to the mature audio.", on_delete=django.db.models.deletion.DO_NOTHING, primary_key=True, serialize=False, to='api.audio', to_field='identifier'),
         ),
         migrations.RemoveField(
             model_name='imagereport',
@@ -178,5 +148,10 @@ class Migration(migrations.Migration):
         migrations.RemoveField(
             model_name='matureaudio',
             name='identifier',
+        ),
+        migrations.AddField(
+            model_name='audio',
+            name='audioset',
+            field=models.ForeignObject(from_fields=('audio_set_foreign_identifier', 'provider'), null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='api.audioset', to_fields=('foreign_identifier', 'provider')),
         ),
     ]
