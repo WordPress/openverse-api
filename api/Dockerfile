@@ -79,7 +79,7 @@ COPY --from=awf /usr/local/bin/audiowaveform /usr/local/bin
 #   - libpq-dev: required by `psycopg2`
 # - Create directory for dumping API logs
 RUN apt-get update \
-      && apt-get install -y curl libpq-dev libexempi8 \
+      && apt-get install -y curl libpq-dev libexempi8 postgresql-client \
       && rm -rf /var/lib/apt/lists/* \
     && mkdir -p /var/log/openverse_api/openverse_api.log
 

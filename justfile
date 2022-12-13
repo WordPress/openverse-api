@@ -262,9 +262,13 @@ nginx upstream_url='api.openverse.engineering': collectstatic
       -e DJANGO_NGINX_GIT_REVISION="$(git rev-parse HEAD)" \
       openverse-api-nginx:latest
 
-# Launch a pgcli shell on the web container
-db-shell db_host="db":
-    docker-compose {{ DOCKER_FILE }} exec web pgcli -h {{ db_host }} openledger deploy
+# Launch a psql shell in the web container
+@dbshell:
+    just exec web python manage.py dbshell
+
+# Launch a pgcli shell in the web container (require typing credentials)
+@pgcli db_host="db":
+    just exec web pgcli -h {{ db_host }} openledger deploy
 
 
 ##########
