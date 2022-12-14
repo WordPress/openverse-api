@@ -38,7 +38,7 @@ def test_sends_user_agent(wrapped_client_session: mock.AsyncMock):
 
     validate_images(query_hash, start_slice, results, image_urls)
 
-    assert head_mock.calls > 0
+    assert head_mock.calls == len(result)
     requested_urls = [req.rawurl for req in head_mock.matches]
     for url in image_urls:
         assert url in requested_urls
