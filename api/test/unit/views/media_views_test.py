@@ -7,7 +7,7 @@ from test.factory.models.image import ImageFactory
 from unittest import mock
 from unittest.mock import patch
 
-from rest_framework.test import APIClient, APIRequestFactory
+from rest_framework.test import APIClient
 
 import pytest
 import pytest_django.asserts
@@ -15,8 +15,6 @@ import requests as requests_lib
 from fakeredis import FakeRedis
 from requests import PreparedRequest, ReadTimeout, Request, Response
 
-from catalog.api.views.audio_views import AudioViewSet
-from catalog.api.views.image_views import ImageViewSet
 from catalog.api.views.media_views import MediaViewSet, UpstreamThumbnailException
 
 
@@ -72,21 +70,18 @@ def requests(monkeypatch) -> RequestsFixture:
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "media_type, media_factory, viewset",
-    [
-        ("images", ImageFactory, ImageViewSet),
-        ("audio", AudioFactory, AudioViewSet),
-    ],
+    ("media_type", "media_factory"),
+    (
+        ("images", ImageFactory),
+        ("audio", AudioFactory),
+    ),
 )
-def test_retrieve_query_count(api_client, media_type, media_factory, viewset, requests):
+def test_retrieve_query_count(api_client, media_type, media_factory, requests):
     media = media_factory.create()
-    factory = APIRequestFactory()
-    request = factory.get(f"/v1/{media_type}/{media.identifier}/")
 
     # This number goes up without `select_related` in the viewset queryset.
     with pytest_django.asserts.assertNumQueries(1):
-        view = viewset.as_view({"get": "retrieve"})
-        res = view(request, identifier=media.identifier)
+        res = api_client.get(f"/v1/{media_type}/{media.identifier}/")
 
     assert res.status_code == 200
 
