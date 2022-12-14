@@ -5,7 +5,7 @@ from pathlib import Path
 from test.factory.models.audio import AudioFactory
 from test.factory.models.image import ImageFactory
 from unittest import mock
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from rest_framework.test import APIClient
 
@@ -70,13 +70,39 @@ def requests(monkeypatch) -> RequestsFixture:
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
+    "media_type, media_factory",
+    [
+        ("images", ImageFactory),
+        ("audio", AudioFactory),
+    ],
+)
+def test_list_query_count(api_client, media_type, media_factory):
+    media = media_factory.create()
+
+    results = ([MagicMock(identifier=str(media.identifier))], 1, 1)
+    with patch(
+        "catalog.api.views.media_views.search_controller",
+        search=MagicMock(return_value=results),
+    ), patch(
+        "catalog.api.serializers.media_serializers.search_controller",
+        get_sources=MagicMock(return_value={}),
+    ), pytest_django.asserts.assertNumQueries(
+        1
+    ):
+        res = api_client.get(f"/v1/{media_type}/")
+
+    assert res.status_code == 200
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
     ("media_type", "media_factory"),
     (
         ("images", ImageFactory),
         ("audio", AudioFactory),
     ),
 )
-def test_retrieve_query_count(api_client, media_type, media_factory, requests):
+def test_retrieve_query_count(api_client, media_type, media_factory):
     media = media_factory.create()
 
     # This number goes up without `select_related` in the viewset queryset.
