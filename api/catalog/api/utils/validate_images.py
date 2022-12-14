@@ -8,6 +8,7 @@ import aiohttp
 import django_redis
 from asgiref.sync import async_to_sync
 from decouple import config
+from elasticsearch_dsl.response import Hit
 
 from catalog.api.utils.dead_link_mask import get_query_mask, save_query_mask
 
@@ -35,7 +36,7 @@ async def _head(url: str, session: aiohttp.ClientSession) -> tuple[str, int]:
         async with session.head(url, timeout=2, allow_redirects=False) as response:
             return url, response.status
     except aiohttp.ClientError as exception:
-        _validation_failure(exception)
+        _log_validation_failure(exception)
         return url, -1
 
 
@@ -44,15 +45,15 @@ async def _head(url: str, session: aiohttp.ClientSession) -> tuple[str, int]:
 async def _make_head_requests(urls: list[str]) -> list[tuple[str, int]]:
     tasks = []
     async with aiohttp.ClientSession(headers=HEADERS) as session:
-        for url in urls:
-            task = asyncio.ensure_future(_head(url, session))
-            tasks.append(task)
+        tasks = [asyncio.ensure_future(_head(url, session)) for url in urls]
         responses = asyncio.gather(*tasks)
         await responses
     return responses.result()
 
 
-def validate_images(query_hash, start_slice, results, image_urls):
+def validate_images(
+    query_hash: str, start_slice: int, results: list[Hit], image_urls: list[str]
+) -> None:
     """
     Make sure images exist before we display them. Treat redirects as broken
     links since 99% of the time the redirect leads to a generic "not found"
@@ -151,6 +152,6 @@ def validate_images(query_hash, start_slice, results, image_urls):
     )
 
 
-def _validation_failure(exception):
-    logger = parent_logger.getChild("_validation_failure")
+def _log_validation_failure(exception):
+    logger = parent_logger.getChild("_log_validation_failure")
     logger.warning(f"Failed to validate image! Reason: {exception}")
