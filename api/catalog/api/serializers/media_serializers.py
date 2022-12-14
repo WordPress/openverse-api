@@ -279,7 +279,7 @@ class TagSerializer(serializers.Serializer):
     accuracy = serializers.FloatField(
         default=None,
         help_text="The accuracy of a machine-generated tag. Human-generated "
-        "tags do not have an accuracy field.",
+        "tags have a null accuracy field.",
     )
 
 
