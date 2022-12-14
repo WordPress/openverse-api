@@ -30,7 +30,7 @@ def _get_expiry(status, default):
     return config(f"LINK_VALIDATION_CACHE_EXPIRY__{status}", default=default, cast=int)
 
 
-async def _head(url: str, session: aiohttp.ClientSession):
+async def _head(url: str, session: aiohttp.ClientSession) -> tuple[str, int]:
     try:
         async with session.head(url, timeout=2, allow_redirects=False) as response:
             return url, response.status
@@ -41,7 +41,7 @@ async def _head(url: str, session: aiohttp.ClientSession):
 
 # https://stackoverflow.com/q/55259755
 @async_to_sync
-async def _make_head_requests(urls: list[str]):
+async def _make_head_requests(urls: list[str]) -> list[tuple[str, int]]:
     tasks = []
     async with aiohttp.ClientSession(headers=HEADERS) as session:
         for url in urls:
@@ -84,11 +84,7 @@ def validate_images(query_hash, start_slice, results, image_urls):
     verified = _make_head_requests(to_verify.keys())
 
     # Cache newly verified image statuses.
-    to_cache = {}
-    for result in verified:
-        url, status = result
-        cache_key = CACHE_PREFIX + url
-        to_cache[cache_key] = status
+    to_cache = {CACHE_PREFIX + url: status for url, status in verified}
 
     pipe = redis.pipeline()
     if len(to_cache) > 0:
@@ -111,10 +107,7 @@ def validate_images(query_hash, start_slice, results, image_urls):
     # Merge newly verified results with cached statuses
     for idx, url in enumerate(to_verify):
         cache_idx = to_verify[url]
-        if verified[idx] is not None:
-            cached_statuses[cache_idx] = verified[idx][1]
-        else:
-            cached_statuses[cache_idx] = -1
+        cached_statuses[cache_idx] = verified[idx][1]
 
     # Create a new dead link mask
     new_mask = [1] * len(results)
