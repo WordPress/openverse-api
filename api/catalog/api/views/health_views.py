@@ -26,7 +26,7 @@ class HealthCheck(APIView):
         """
         Checks Elasticsearch cluster health. Raises an exception if ES is not healthy.
         """
-        es_health = settings.ES.cluster.health(timeout=5)
+        es_health = settings.ES.cluster.health(timeout="5s")
 
         if es_health["timed_out"]:
             raise ElasticsearchHealthcheckException("es_timed_out")
