@@ -77,12 +77,18 @@ def requests(monkeypatch) -> RequestsFixture:
     ],
 )
 def test_list_query_count(api_client, media_type, media_factory):
-    media = media_factory.create()
-
-    results = ([MagicMock(identifier=str(media.identifier))], 1, 1)
+    num_results = 20
+    controller_ret = (
+        [
+            MagicMock(identifier=str(media_factory.create().identifier))
+            for _ in range(num_results)
+        ],  # results
+        1,  # num_pages
+        num_results,
+    )
     with patch(
         "catalog.api.views.media_views.search_controller",
-        search=MagicMock(return_value=results),
+        search=MagicMock(return_value=controller_ret),
     ), patch(
         "catalog.api.serializers.media_serializers.search_controller",
         get_sources=MagicMock(return_value={}),
