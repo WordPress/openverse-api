@@ -84,6 +84,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: extractions/setup-just@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download all images
         uses: actions/download-artifact@v2
@@ -132,6 +134,8 @@ jobs:
 
       - name: Setup just
         uses: extractions/setup-just@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Python
         uses: actions/setup-python@v2
@@ -186,6 +190,8 @@ jobs:
 
       - name: Setup just
         uses: extractions/setup-just@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download all images
         uses: actions/download-artifact@v2
@@ -227,6 +233,8 @@ jobs:
 
       - name: Setup just
         uses: extractions/setup-just@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download all images
         uses: actions/download-artifact@v2
@@ -249,6 +257,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: extractions/setup-just@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download all images
         uses: actions/download-artifact@v2
@@ -281,6 +291,8 @@ jobs:
 
       - name: Setup just
         uses: extractions/setup-just@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download all images
         uses: actions/download-artifact@v2
@@ -306,6 +318,8 @@ jobs:
 
       - name: Setup just
         uses: extractions/setup-just@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download all images
         uses: actions/download-artifact@v2
@@ -376,6 +390,8 @@ jobs:
 
       - name: Setup just
         uses: extractions/setup-just@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download all images
         uses: actions/download-artifact@v2
@@ -449,6 +465,8 @@ jobs:
 
       - name: Setup just
         uses: extractions/setup-just@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download all images
         uses: actions/download-artifact@v2
