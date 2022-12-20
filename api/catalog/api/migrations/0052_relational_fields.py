@@ -46,4 +46,34 @@ class Migration(migrations.Migration):
             name='identifier',
             field=models.OneToOneField(db_column="identifier", db_constraint=False, help_text='The reference to the mature image.', on_delete=django.db.models.deletion.DO_NOTHING, primary_key=True, related_name='mature_image', serialize=False, to='api.image', to_field='identifier'),
         ),
+        migrations.RenameField(
+            model_name="audioreport",
+            old_name="identifier",
+            new_name="media_obj",
+        ),
+        migrations.RenameField(
+            model_name="deletedaudio",
+            old_name="identifier",
+            new_name="media_obj",
+        ),
+        migrations.RenameField(
+            model_name="deletedimage",
+            old_name="identifier",
+            new_name="media_obj",
+        ),
+        migrations.RenameField(
+            model_name="imagereport",
+            old_name="identifier",
+            new_name="media_obj",
+        ),
+        migrations.RenameField(
+            model_name="matureaudio",
+            old_name="identifier",
+            new_name="media_obj",
+        ),
+        migrations.RenameField(
+            model_name="matureimage",
+            old_name="identifier",
+            new_name="media_obj",
+        ),
     ]

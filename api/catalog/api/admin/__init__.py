@@ -31,8 +31,8 @@ class MediaReportAdmin(admin.ModelAdmin):
     media_specific_list_display = ()
     list_filter = ("status", "reason")
     list_display_links = ("status",)
-    search_fields = ("description", "identifier__identifier")
-    autocomplete_fields = ("identifier",)
+    search_fields = ("description", "media_obj__identifier")
+    autocomplete_fields = ("media_obj",)
     actions = None
 
     def get_list_display(self, request):
@@ -41,7 +41,7 @@ class MediaReportAdmin(admin.ModelAdmin):
     def get_exclude(self, request, obj=None):
         # ``identifier`` cannot be edited on an existing report.
         if request.path.endswith("/change/"):
-            return ["identifier"]
+            return ["media_obj"]
 
     def get_readonly_fields(self, request, obj=None):
         if obj is None:
@@ -49,7 +49,7 @@ class MediaReportAdmin(admin.ModelAdmin):
         readonly_fields = [
             "reason",
             "description",
-            "identifier_id",
+            "media_obj_id",
             "created_at",
         ]
         # ``status`` cannot be changed on a finalised report.
@@ -69,9 +69,9 @@ class AudioReportAdmin(MediaReportAdmin):
 
 
 class MediaSubreportAdmin(admin.ModelAdmin):
-    exclude = ("identifier",)
-    search_fields = ("identifier_id",)
-    readonly_fields = ("identifier_id",)
+    exclude = ("media_obj",)
+    search_fields = ("media_obj__identifier",)
+    readonly_fields = ("media_obj_id",)
 
     def has_add_permission(self, *args, **kwargs):
         """Create ``_Report`` instances instead."""

@@ -163,9 +163,7 @@ class AbstractMediaReport(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # Named ``identifier`` to prevent data-migration and use existing data.
-    # Property ``media_obj``
-    identifier = models.ForeignKey(
+    media_obj = models.ForeignKey(
         to="AbstractMedia",
         to_field="identifier",
         on_delete=models.DO_NOTHING,
@@ -196,17 +194,13 @@ class AbstractMediaReport(models.Model):
     class Meta:
         abstract = True
 
-    @property
-    def media_obj(self) -> AbstractMedia:
-        return self.identifier
-
     def clean(self):
         """
         This function raises errors that can be handled by Django's admin interface.
         """
 
         if not self.media_class.objects.filter(
-            identifier=self.identifier.identifier
+            identifier=self.media_obj.identifier
         ).exists():
             raise ValidationError(
                 f"No '{self.media_class.__name__}' instance"
@@ -235,15 +229,15 @@ class AbstractMediaReport(models.Model):
         if self.status == MATURE_FILTERED:
             # Create an instance of the mature class for this media. This will
             # automatically set the ``mature`` field in the ES document.
-            self.mature_class.objects.create(identifier=self.media_obj)
+            self.mature_class.objects.create(media_obj=self.media_obj)
         elif self.status == DEINDEXED:
             # Create an instance of the deleted class for this media, so that we don't
             # reindex it later. This will automatically delete the ES document and the
             # DB instance.
-            self.deleted_class.objects.create(identifier=self.media_obj)
+            self.deleted_class.objects.create(media_obj=self.media_obj)
 
         same_reports = self.__class__.objects.filter(
-            identifier=self.media_obj.identifier,
+            media_obj=self.media_obj,
             status=PENDING,
         )
         if self.status != DEINDEXED:
@@ -264,8 +258,7 @@ class AbstractDeletedMedia(OpenLedgerModel):
     es_index: str = None
     """the name of the ES index from ``settings.MEDIA_INDEX_MAPPING``"""
 
-    # Named ``identifier`` to prevent data-migration and use existing data.
-    identifier = models.OneToOneField(
+    media_obj = models.OneToOneField(
         to="AbstractMedia",
         to_field="identifier",
         on_delete=models.DO_NOTHING,
@@ -282,10 +275,6 @@ class AbstractDeletedMedia(OpenLedgerModel):
 
     class Meta:
         abstract = True
-
-    @property
-    def media_obj(self) -> AbstractMedia:
-        return self.identifier
 
     def _update_es(self, raise_errors: bool) -> models.Model:
         es = settings.ES
@@ -320,8 +309,7 @@ class AbstractMatureMedia(models.Model):
 
     created_on = models.DateTimeField(auto_now_add=True)
 
-    # Named ``identifier`` to prevent data-migration and use existing data.
-    identifier = models.OneToOneField(
+    media_obj = models.OneToOneField(
         to="AbstractMedia",
         to_field="identifier",
         on_delete=models.DO_NOTHING,
@@ -339,10 +327,6 @@ class AbstractMatureMedia(models.Model):
     class Meta:
         abstract = True
 
-    @property
-    def media_obj(self) -> AbstractMedia:
-        return self.identifier
-
     def _update_es(self, is_mature: bool, raise_errors: bool):
         """
         Update the Elasticsearch document associated with the given model.
@@ -353,9 +337,10 @@ class AbstractMatureMedia(models.Model):
 
         es = settings.ES
         try:
-            obj = self.media_class.objects.get(identifier=self.media_obj.identifier)
             es.update(
-                index=self.es_index, id=obj.id, body={"doc": {"mature": is_mature}}
+                index=self.es_index,
+                id=self.media_obj.id,
+                body={"doc": {"mature": is_mature}},
             )
             es.indices.refresh(index=self.es_index)
         except self.media_class.DoesNotExist:
