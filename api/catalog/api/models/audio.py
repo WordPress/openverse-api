@@ -290,7 +290,6 @@ class AudioReport(AbstractMediaReport):
         db_constraint=False,
         related_name="audio_report",
         help_text="The reference to the audio being reported.",
-        null=True,
     )
 
     class Meta:

@@ -109,7 +109,6 @@ class ImageReport(AbstractMediaReport):
         db_constraint=False,
         related_name="image_report",
         help_text="The reference to the image being reported.",
-        null=True,
     )
 
     class Meta:

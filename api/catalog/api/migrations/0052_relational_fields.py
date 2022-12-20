@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='audioreport',
             name='identifier',
-            field=models.ForeignKey(db_constraint=False, help_text='The reference to the audio being reported.', null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='audio_report', to='api.audio', to_field='identifier'),
+            field=models.ForeignKey(db_constraint=False, help_text='The reference to the audio being reported.', on_delete=django.db.models.deletion.DO_NOTHING, related_name='audio_report', to='api.audio', to_field='identifier'),
         ),
         migrations.AlterField(
             model_name='deletedaudio',
@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='imagereport',
             name='identifier',
-            field=models.ForeignKey(db_constraint=False, help_text='The reference to the image being reported.', null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='image_report', to='api.image', to_field='identifier'),
+            field=models.ForeignKey(db_constraint=False, help_text='The reference to the image being reported.', on_delete=django.db.models.deletion.DO_NOTHING, related_name='image_report', to='api.image', to_field='identifier'),
         ),
         migrations.AlterField(
             model_name='matureaudio',

@@ -172,7 +172,6 @@ class AbstractMediaReport(models.Model):
         db_constraint=False,
         related_name="abstract_media_report",
         help_text="The reference to the media being reported.",
-        null=True,
     )
     """
     There can be many reports associated with a single media item, hence foreign key.
