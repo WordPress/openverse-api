@@ -206,12 +206,16 @@ CACHES = {
     },
 }
 
+# If key is not present then the authentication header won't be sent
+# and query forwarding will not work as expected. Lack of query forwarding
+# is not an issue for local development so this compromise is okay.
+PHOTON_AUTH_KEY = config("PHOTON_AUTH_KEY", default=None)
+
 # Produce CC-hosted thumbnails dynamically through a proxy.
-THUMBNAIL_PROXY_URL = config("THUMBNAIL_PROXY_URL", default="http://localhost:8222")
+PHOTON_ENDPOINT = config("PHOTON_ENDPOINT", default="https://i0.wp.com/")
 
 THUMBNAIL_WIDTH_PX = config("THUMBNAIL_WIDTH_PX", cast=int, default=600)
-THUMBNAIL_JPG_QUALITY = config("THUMBNAIL_JPG_QUALITY", cast=int, default=80)
-THUMBNAIL_PNG_COMPRESSION = config("THUMBNAIL_PNG_COMPRESSION", cast=int, default=6)
+THUMBNAIL_QUALITY = config("THUMBNAIL_JPG_QUALITY", cast=int, default=80)
 
 THUMBNAIL_TIMEOUT_PREFIX = config(
     "THUMBNAIL_TIMEOUT_PREFIX", default="thumbnail_timeout:"
