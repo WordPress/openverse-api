@@ -2,6 +2,7 @@ set dotenv-load := false
 
 IS_PROD := env_var_or_default("PROD", "")
 IS_CI := env_var_or_default("CI", "")
+DC_USER := env_var_or_default("DC_USER", "opener")
 
 # Show all available recipes
 default:
@@ -31,9 +32,6 @@ DOCKER_FILE := "-f " + (
     if IS_PROD == "true" { "ingestion_server/docker-compose.yml" }
     else { "docker-compose.yml" }
 )
-
-export DOCKER_USER_ID := `id -u`
-export DOCKER_GROUP_ID := `id -g`
 
 # Run `docker-compose` configured with the correct files and environment
 dc *args:
@@ -69,7 +67,7 @@ EXEC_DEFAULTS := if IS_CI == "" { "" } else { "-T" }
 
 # Execute statement in service containers using Docker Compose
 exec +args:
-    docker-compose exec {{ EXEC_DEFAULTS }} {{ args }}
+    docker-compose exec -u {{ DC_USER }} {{ EXEC_DEFAULTS }} {{ args }}
 
 ########
 # Init #
@@ -102,11 +100,24 @@ init: _api-up
 
 # Setup pre-commit as a Git hook
 precommit:
-    cd api && pipenv run pre-commit install
+    #!/usr/bin/env bash
+    set -eo pipefail
+    if [ -z "$SKIP_PRE_COMMIT" ] && [ ! -f ./pre-commit.pyz ]; then
+      echo "Downloading pre-commit";
+      curl \
+        https://api.github.com/repos/pre-commit/pre-commit/releases/latest \
+      | grep -o 'https://.*\.pyz' -m 1 \
+      | xargs \
+      | xargs curl -fsJo pre-commit.pyz -L;
+      echo "Installing pre-commit";
+      python3 pre-commit.pyz install -t pre-push -t pre-commit;
+    else
+      echo "Skipping pre-commit installation";
+    fi
 
 # Run pre-commit to lint and reformat all files
 lint:
-    cd api && pipenv run pre-commit run --all-files
+    python3 pre-commit.pyz run --all-files
 
 # Make locally trusted certificates
 cert:
@@ -247,6 +258,14 @@ nginx upstream_url='api.openverse.engineering': collectstatic
       -e DJANGO_NGINX_UPSTREAM_URL="{{ upstream_url }}" \
       -e DJANGO_NGINX_GIT_REVISION="$(git rev-parse HEAD)" \
       openverse-api-nginx:latest
+
+# Launch a psql shell in the web container
+@dbshell:
+    just exec web python manage.py dbshell
+
+# Launch a pgcli shell in the web container (require typing credentials)
+@pgcli db_host="db":
+    just exec web pgcli -h {{ db_host }} openledger deploy
 
 
 ##########

@@ -91,7 +91,7 @@ class MediaSearchRequestSerializer(serializers.Serializer):
         label="filter_dead",
         help_text="Control whether 404 links are filtered out.",
         required=False,
-        default=True,
+        default=settings.FILTER_DEAD_LINKS_BY_DEFAULT,
     )
     extension = serializers.CharField(
         label="extension",
@@ -281,9 +281,9 @@ class TagSerializer(serializers.Serializer):
         help_text="The name of a detailed tag.",
     )
     accuracy = serializers.FloatField(
-        required=False,
+        default=None,
         help_text="The accuracy of a machine-generated tag. Human-generated "
-        "tags do not have an accuracy field.",
+        "tags have a null accuracy field.",
     )
 
 
