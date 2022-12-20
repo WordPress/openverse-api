@@ -82,6 +82,7 @@ services:
       - cache
     env_file:
       - api/env.docker
+      - api/.env
     environment:
       STATIC_ROOT: ${STATIC_ROOT:-}
       MEDIA_ROOT: ${MEDIA_ROOT:-}
