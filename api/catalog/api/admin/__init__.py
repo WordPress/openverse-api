@@ -31,32 +31,31 @@ class MediaReportAdmin(admin.ModelAdmin):
     media_specific_list_display = ()
     list_filter = ("status", "reason")
     list_display_links = ("status",)
-    search_fields = ("description", "media_obj_id")
-    autocomplete_fields = ("media_obj",)
+    search_fields = ("description", "identifier__identifier")
+    autocomplete_fields = ("identifier",)
     actions = None
 
     def get_list_display(self, request):
         return self.list_display + self.media_specific_list_display
 
     def get_exclude(self, request, obj=None):
+        # ``identifier`` cannot be edited on an existing report.
         if request.path.endswith("/change/"):
-            return ["media_obj"]
+            return ["identifier"]
 
     def get_readonly_fields(self, request, obj=None):
         if obj is None:
             return []
-        always_readonly = [
+        readonly_fields = [
             "reason",
             "description",
-            "media_obj_id",
+            "identifier_id",
             "created_at",
         ]
-        if obj.status == PENDING:
-            return always_readonly
-        else:
-            status_readonly = ["status"]
-            status_readonly.extend(always_readonly)
-            return status_readonly
+        # ``status`` cannot be changed on a finalised report.
+        if obj.status != PENDING:
+            readonly_fields.append("status")
+        return readonly_fields
 
 
 @admin.register(ImageReport)
@@ -70,9 +69,9 @@ class AudioReportAdmin(MediaReportAdmin):
 
 
 class MediaSubreportAdmin(admin.ModelAdmin):
-    exclude = ("media_obj",)
-    search_fields = ("media_obj_id",)
-    readonly_fields = ("media_obj_id",)
+    exclude = ("identifier",)
+    search_fields = ("identifier_id",)
+    readonly_fields = ("identifier_id",)
 
     def has_add_permission(self, *args, **kwargs):
         """Create ``_Report`` instances instead."""

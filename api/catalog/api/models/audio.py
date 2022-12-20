@@ -238,7 +238,8 @@ class DeletedAudio(AbstractDeletedMedia):
     media_class = Audio
     es_index = settings.MEDIA_INDEX_MAPPING[AUDIO_TYPE]
 
-    media_obj = models.OneToOneField(
+    # Named ``identifier`` to prevent data-migration and use existing data.
+    identifier = models.OneToOneField(
         to="Audio",
         to_field="identifier",
         on_delete=models.DO_NOTHING,
@@ -261,7 +262,8 @@ class MatureAudio(AbstractMatureMedia):
     media_class = Audio
     es_index = settings.MEDIA_INDEX_MAPPING[AUDIO_TYPE]
 
-    media_obj = models.OneToOneField(
+    # Named ``identifier`` to prevent data-migration and use existing data.
+    identifier = models.OneToOneField(
         to="Audio",
         to_field="identifier",
         on_delete=models.DO_NOTHING,
@@ -280,13 +282,15 @@ class AudioReport(AbstractMediaReport):
     mature_class = MatureAudio
     deleted_class = DeletedAudio
 
-    media_obj = models.ForeignKey(
+    # Named ``identifier`` to prevent data-migration and use existing data.
+    identifier = models.ForeignKey(
         to="Audio",
         to_field="identifier",
         on_delete=models.DO_NOTHING,
         db_constraint=False,
         related_name="audio_report",
         help_text="The reference to the audio being reported.",
+        null=True,
     )
 
     class Meta:

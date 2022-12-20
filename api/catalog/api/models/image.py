@@ -63,7 +63,8 @@ class DeletedImage(AbstractDeletedMedia):
     media_class = Image
     es_index = settings.MEDIA_INDEX_MAPPING[IMAGE_TYPE]
 
-    media_obj = models.OneToOneField(
+    # Named ``identifier`` to prevent data-migration and use existing data.
+    identifier = models.OneToOneField(
         to="Image",
         to_field="identifier",
         on_delete=models.DO_NOTHING,
@@ -83,7 +84,8 @@ class MatureImage(AbstractMatureMedia):
     media_class = Image
     es_index = settings.MEDIA_INDEX_MAPPING[IMAGE_TYPE]
 
-    media_obj = models.OneToOneField(
+    # Named ``identifier`` to prevent data-migration and use existing data.
+    identifier = models.OneToOneField(
         to="Image",
         to_field="identifier",
         on_delete=models.DO_NOTHING,
@@ -99,13 +101,15 @@ class ImageReport(AbstractMediaReport):
     mature_class = MatureImage
     deleted_class = DeletedImage
 
-    media_obj = models.ForeignKey(
+    # Named ``identifier`` to prevent data-migration and use existing data.
+    identifier = models.ForeignKey(
         to="Image",
         to_field="identifier",
         on_delete=models.DO_NOTHING,
         db_constraint=False,
         related_name="image_report",
         help_text="The reference to the image being reported.",
+        null=True,
     )
 
     class Meta:

@@ -70,7 +70,6 @@ class AudioReportRequestSerializer(MediaReportRequestSerializer):
     identifier = serializers.SlugRelatedField(
         slug_field="identifier",
         queryset=Audio.objects.all(),
-        source="media_obj",
     )
 
     class Meta(MediaReportRequestSerializer.Meta):
