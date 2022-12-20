@@ -170,6 +170,7 @@ class AbstractMediaReport(models.Model):
         to_field="identifier",
         on_delete=models.DO_NOTHING,
         db_constraint=False,
+        db_column="identifier",
         related_name="abstract_media_report",
         help_text="The reference to the media being reported.",
     )
@@ -270,6 +271,7 @@ class AbstractDeletedMedia(OpenLedgerModel):
         on_delete=models.DO_NOTHING,
         primary_key=True,
         db_constraint=False,
+        db_column="identifier",
         related_name="deleted_abstract_media",
         help_text="The reference to the deleted media.",
     )
@@ -325,6 +327,7 @@ class AbstractMatureMedia(models.Model):
         on_delete=models.DO_NOTHING,
         primary_key=True,
         db_constraint=False,
+        db_column="identifier",
         related_name="mature_abstract_media",
         help_text="The reference to the mature media.",
     )

@@ -245,6 +245,7 @@ class DeletedAudio(AbstractDeletedMedia):
         on_delete=models.DO_NOTHING,
         primary_key=True,
         db_constraint=False,
+        db_column="identifier",
         related_name="deleted_audio",
         help_text="The reference to the deleted audio.",
     )
@@ -269,6 +270,7 @@ class MatureAudio(AbstractMatureMedia):
         on_delete=models.DO_NOTHING,
         primary_key=True,
         db_constraint=False,
+        db_column="identifier",
         related_name="mature_audio",
         help_text="The reference to the mature audio.",
     )
@@ -288,6 +290,7 @@ class AudioReport(AbstractMediaReport):
         to_field="identifier",
         on_delete=models.DO_NOTHING,
         db_constraint=False,
+        db_column="identifier",
         related_name="audio_report",
         help_text="The reference to the audio being reported.",
     )

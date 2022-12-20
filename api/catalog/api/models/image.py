@@ -70,6 +70,7 @@ class DeletedImage(AbstractDeletedMedia):
         on_delete=models.DO_NOTHING,
         primary_key=True,
         db_constraint=False,
+        db_column="identifier",
         related_name="deleted_image",
         help_text="The reference to the deleted image.",
     )
@@ -91,6 +92,7 @@ class MatureImage(AbstractMatureMedia):
         on_delete=models.DO_NOTHING,
         primary_key=True,
         db_constraint=False,
+        db_column="identifier",
         related_name="mature_image",
         help_text="The reference to the mature image.",
     )
@@ -107,6 +109,7 @@ class ImageReport(AbstractMediaReport):
         to_field="identifier",
         on_delete=models.DO_NOTHING,
         db_constraint=False,
+        db_column="identifier",
         related_name="image_report",
         help_text="The reference to the image being reported.",
     )
