@@ -1,5 +1,5 @@
 import logging
-from urllib.parse import quote, urlparse
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -50,14 +50,16 @@ def get(
     parsed_image_url = urlparse(image_url)
 
     if parsed_image_url.query:
-        params["q"] = quote(parsed_image_url.query)
+        # No need to URL encode this string because requests will already
+        # pass the `params` object to `urlencode` before it appends it to the
+        # request URL.
+        params["q"] = parsed_image_url.query
 
     # Photon excludes the protocol so we need to reconstruct the url + port + path
     # to send as the "path" of the Photon request
     domain = parsed_image_url.netloc
-    port = f":{parsed_image_url.port}" if parsed_image_url.port else ""
     path = parsed_image_url.path
-    upstream_url = f"{settings.PHOTON_ENDPOINT}{domain}{port}{path}"
+    upstream_url = f"{settings.PHOTON_ENDPOINT}{domain}{path}"
 
     try:
         upstream_response = requests.get(
