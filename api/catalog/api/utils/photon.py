@@ -75,7 +75,7 @@ def get(
 
         return HttpResponse(
             upstream_response.content,
-            status=status,
+            status=res_status,
             content_type=content_type,
         )
     except requests.ReadTimeout as exc:
