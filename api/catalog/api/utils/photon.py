@@ -8,7 +8,7 @@ from rest_framework.exceptions import APIException
 
 import django_redis
 import requests
-from sentry_sdk import capture_exception
+import sentry_sdk
 
 
 parent_logger = logging.getLogger(__name__)
@@ -25,9 +25,6 @@ HEADERS = {
         purpose="ThumbnailGeneration"
     )
 }
-
-if settings.PHOTON_AUTH_KEY:
-    HEADERS["X-Photon-Authentication"] = settings.PHOTON_AUTH_KEY
 
 
 def get(
@@ -62,11 +59,15 @@ def get(
     upstream_url = f"{settings.PHOTON_ENDPOINT}{domain}{path}"
 
     try:
+        headers = {"Accept": accept_header} | HEADERS
+        if settings.PHOTON_AUTH_KEY:
+            headers["X-Photon-Authentication"] = settings.PHOTON_AUTH_KEY
+
         upstream_response = requests.get(
             upstream_url,
             timeout=10,
             params=params,
-            headers={"Accept": accept_header} | HEADERS,
+            headers=headers,
         )
         res_status = upstream_response.status_code
         content_type = upstream_response.headers.get("Content-Type")
@@ -89,15 +90,15 @@ def get(
         except ValueError:  # Key does not exist.
             cache.set(key, 1)
 
-        capture_exception(exc)
+        sentry_sdk.capture_exception(exc)
         raise UpstreamThumbnailException(
             f"Failed to render thumbnail due to timeout: {exc}"
         )
     except requests.RequestException as exc:
-        capture_exception(exc)
+        sentry_sdk.capture_exception(exc)
         raise UpstreamThumbnailException(f"Failed to render thumbnail: {exc}")
     except Exception as exc:
-        capture_exception(exc)
+        sentry_sdk.capture_exception(exc)
         raise UpstreamThumbnailException(
             f"Failed to render thumbnail due to unidentified exception: {exc}"
         )
