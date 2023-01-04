@@ -30,18 +30,26 @@ about Elasticsearch, full text-search, and Openverse's index configuration:
   catalogued in Openverse.
 - "Field": The individual queryable elements of a document. In the context of
   Openverse, these may be textual, numerical, or keywords.
+- "Keyword field": A field where the entire contents of the field are treated as
+  a single token. This is used for fields where the possible values are a known
+  and relatively small set. For example, descriptive
+  ["size" of an image](https://github.com/WordPress/openverse-api/blob/d9f83e53761dd502c93384f0aa6e2f7b711151e2/api/catalog/api/constants/field_values.py#L22-L26)
+  may be either "large", "medium", or "small". Because we know this ahead of
+  time, Elasticsearch is able to much more quickly create the index entries for
+  documents with this field because there are essentially only three keys that
+  need to be indexed.
 - "Result relevance": An individual result is "relevant" to a search when it
   matches the expectations of the user for a given query. A result is irrelevant
   if it does not match the expectations of the user for that same query. For
-  example, the query "bird watch" may produce pictures of a wrist watch with a
-  bird clockface illustration _or_ could surface pictures related to the
+  example, the query "bird watch" may produce pictures of a wristwatch with a
+  bird clock face illustration _or_ could surface pictures related to the
   activity also known as "birding" (bird watching), due to stemming. In the case
   of this specific query, "bird watching" may not be relevant, despite being a
   technically correct match for the query given Openverse's current index
   configuration. Other relevancy issues may be caused by descriptions that are
   not related to the contents of an image. This often happens on Flickr where
   users sometimes include blog-like text in the description of an image that
-  references things that happened outside of the context of the image itself.
+  references things that happened outside the context of the image itself.
 - "Result quality": A combination of relevance and other factors like the actual
   perceived "quality" of a given work. A work may be directly relevant to a
   particular query but be of low quality. Quality is subjective, though there
@@ -76,14 +84,19 @@ can be found in the
 > will be useful for understanding this section.
 
 Text analysis or tokenization is the broad process Elasticsearch follows to
-derive the index tokens for a given text document. A significant aspect of this
-for Openverse (and many applications) is
+generate the indexable list of words for each document. A significant aspect of
+this for Openverse (and many applications) is
 [stemming](https://www.elastic.co/guide/en/elasticsearch/reference/7.12/stemming.html).
-When Elasticsearch performs a full text search, it is searching the derived
-tokens, for which it has created quickly searchable index, rather than the
-original text itself. This means that the text analysis configuration applied
-has a significant impact on the way documents are searched and how relevance is
-calculated.
+When Elasticsearch performs a full text search, it is searching the index which
+maps stemmed words to a specific document, rather than the original text itself.
+This means that the text analysis configuration applied has a significant impact
+on the way documents are searched, how Elasticsearch calculates relevance, and,
+in particular, what terms are available for a given document. When searching for
+"animal", for example, if the document does not contain the word animal in any
+of the indexed fields, then it will _never_ be returned as a result (under the
+current configuration). Said another way: whether a document will be returned
+for a given query depends exclusively on the tokens derived when textual
+analysis is applied to the document.
 
 Openverse only applies our custom text analysis configuration to the "title",
 "description", and "tags" fields. All other fields use the
@@ -118,7 +131,7 @@ Openverse API:
 2. Individual field querying, which enables searching specific fields with
    independent query terms.
 
-Both of these search types also allow further keyword filtering along the
+Both of these search types also allow keyword filtering of the results by the
 following fields:
 
 - Extension
@@ -163,7 +176,7 @@ aspects of a document:
 Of these, title is weighted 10000 times more heavily than the description and
 tags. This makes searches that match a title very closely rise to the "top" of
 the results, even if the same text is present word-for-word in a description. It
-also breaks ties between documents, if for example two documents are returned,
+also breaks ties between documents, if, for example, two documents are returned,
 one because the title matches and one because a tag matches, the title-matched
 document will be ranked higher and therefore appear first.
 
