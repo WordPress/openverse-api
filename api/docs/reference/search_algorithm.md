@@ -63,10 +63,10 @@ Openverse uses Elasticsearch's
 We currently rely heavily on Elasticsearch's default behaviours in many aspects
 of our search including Elasticsearch's default stemming configuration, aside
 from small adjustments documented in the
-[text analysis and stemming](#text-analysis/tokenization) section below. The
+[text analysis and stemming](#text-analysistokenization) section below. The
 "raw" index configuration can be found in the `es_mapping.py` module (see link
-in [resources](#resources)). Information for how to understand the configuration
-can be found in the
+in [resources](#reference-resources)). Information for how to understand the
+configuration can be found in the
 [Elasticsearch documentation for index configuration](https://www.elastic.co/guide/en/elasticsearch/reference/7.12/index-modules.html).
 
 > **Note**: We also apply cluster-level configurations as part of our
