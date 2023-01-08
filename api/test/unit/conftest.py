@@ -1,5 +1,6 @@
-from rest_framework.test import APIClient
 from unittest.mock import MagicMock
+
+from rest_framework.test import APIClient
 
 import pytest
 
