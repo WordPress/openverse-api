@@ -19,13 +19,13 @@ from catalog.api.utils.dead_link_mask import get_query_hash, save_query_mask
         (0, 0, 10, 0, (0, 0)),
         # Setting page size to 0 raises an exception
         pytest.param(
-            0, 0, 0, 0, (0, 0), marks=pytest.mark.raises(exception=ZeroDivisionError)
+            5, 5, 0, 0, (0, 0), marks=pytest.mark.raises(exception=ZeroDivisionError)
         ),
         # Fewer results than page size leads to max of result total
-        (5, 5, 10, 0, (5, 0)),
-        # Even if no real results exist, total result count and page count are returned
-        # (seems like an impossible case IRL)
-        (100, 0, 10, 0, (100, 0)),
+        (5, 5, 10, 0, (5, 1)),
+        # If no real results exist, even if there are hits, fall back to 0, 0
+        # (This case represents where all the links for a result are dead, for example)
+        (100, 0, 10, 0, (0, 0)),
         # If there are real results and ES reports no hits, nothing is expected
         # (seems like an impossible case IRL)
         (0, 100, 10, 0, (0, 0)),
@@ -39,14 +39,14 @@ from catalog.api.utils.dead_link_mask import get_query_hash, save_query_mask
         # results per-page, would seem to result in 4 pages total not 5 🤷‍♀️
         (20, 5, 5, 0, (20, 4)),
         # Fewer hits than page size, but result list somehow differs, use that for count
-        (48, 20, 50, 0, (20, 0)),
+        (48, 20, 50, 0, (20, 1)),
         # Despite us applying a pagination limit, that is applied further up in the API, not at this low a level
         (2000, 20, 20, 2, (2000, 100)),
         # Page count is reduced to the current page number even though 2000 / 20 is much larger than 5
         # because despite that we have result count < page size which indicates we've exhausted the query
         (2000, 5, 20, 5, (2000, 5)),
         # First page, we got all the results and there are no further possible pages with the current page count
-        (10, 10, 20, 0, (10, 0)),
+        (10, 10, 20, 0, (10, 1)),
         # This is here to test a case that used to erroneously produce (10, 2) by adding 1
         # to the page count when it wasn't necessary to do so.
         (10, 10, 10, 0, (10, 1)),

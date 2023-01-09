@@ -506,8 +506,14 @@ def _get_result_and_page_count(
     :param results: The list of filtered result Hits.
     :return: Result and page count.
     """
-    if results is None:
-        return 0, 1
+    if not results:
+        return 0, 0
+
+    if page == 0:
+        # Realistically ``page`` shouldn't be submitted as 0, but if it is
+        # we treat it synonymously as the first page. We can set that here
+        # explicitly so that the behaviour if clear.
+        page = 1
 
     result_count = response_obj.hits.total.value
     page_count = ceil(result_count / page_size)
