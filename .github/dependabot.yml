@@ -34,11 +34,8 @@ updates:
       - "🐍 tech: python"
       - dependencies
       
-  # Enable GH Actions dependencies updates
   - package-ecosystem: github-actions
-    # Look for `github-actions` in the `/` directory
     directory: /
-    # Check for updates once a week
     schedule:
       interval: weekly
     labels:
