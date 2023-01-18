@@ -202,7 +202,7 @@ CACHES = {
     # Used for tracking tallied figures that shouldn't expire and are indexed
     # with a timestamp range (for example, the key could a timestamp valid
     # for a given week), allowing historical data analysis.
-    "tallies": _make_cache_config(3, {"TIMEOUT": None}),
+    "tallies": _make_cache_config(3, TIMEOUT=None),
 }
 
 # If key is not present then the authentication header won't be sent

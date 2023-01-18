@@ -1,7 +1,7 @@
 from collections import defaultdict
 from datetime import datetime
 
-from django_redis import get_redis_connection
+import django_redis
 from django_redis.client.default import Redis
 
 
@@ -24,7 +24,7 @@ def count_provider_occurrences(results: list[dict]) -> None:
     # 1. Takes two requests to execute; and
     # 2. Raises a ``ValueError`` if the key doesn't exist rather than
     # just initialising the key to the value like Redis's behaviour.
-    tallies: Redis = get_redis_connection("tallies")
+    tallies: Redis = django_redis.get_redis_connection("tallies")
 
     provider_occurrences = defaultdict(int)
     for result in results:
