@@ -6,6 +6,10 @@ from freezegun import freeze_time
 from catalog.api.utils import tallies
 
 
+# Use a fake media type to avoid having to run each test case for each media type
+FAKE_MEDIA_TYPE = "this_is_not_a_media_type"
+
+
 @pytest.mark.parametrize(
     ("now", "expected_timestamp"),
     (
@@ -19,15 +23,28 @@ def test_count_provider_occurrences_uses_week_timestamp(now, expected_timestamp,
         {"provider": "stocksnap"} for _ in range(6)
     ]
     with freeze_time(now):
-        tallies.count_provider_occurrences(results)
+        tallies.count_provider_occurrences(results, FAKE_MEDIA_TYPE)
 
-    assert redis.get(f"provider_occurrences:{expected_timestamp}:flickr") == b"4"
-    assert redis.get(f"provider_occurrences:{expected_timestamp}:stocksnap") == b"6"
     assert (
-        redis.get(f"provider_appeared_in_searches:{expected_timestamp}:flickr") == b"1"
+        redis.get(f"provider_occurrences:{FAKE_MEDIA_TYPE}:{expected_timestamp}:flickr")
+        == b"4"
     )
     assert (
-        redis.get(f"provider_appeared_in_searches:{expected_timestamp}:stocksnap")
+        redis.get(
+            f"provider_occurrences:{FAKE_MEDIA_TYPE}:{expected_timestamp}:stocksnap"
+        )
+        == b"6"
+    )
+    assert (
+        redis.get(
+            f"provider_appeared_in_searches:{FAKE_MEDIA_TYPE}:{expected_timestamp}:flickr"
+        )
+        == b"1"
+    )
+    assert (
+        redis.get(
+            f"provider_appeared_in_searches:{FAKE_MEDIA_TYPE}:{expected_timestamp}:stocksnap"
+        )
         == b"1"
     )
 
@@ -44,19 +61,53 @@ def test_count_provider_occurrences_increments_existing_tallies(redis):
     now = datetime(2023, 1, 19)  # 16th is start of week
     timestamp = "2023-01-16"
     with freeze_time(now):
-        tallies.count_provider_occurrences(results_1)
+        tallies.count_provider_occurrences(results_1, FAKE_MEDIA_TYPE)
 
-    assert redis.get(f"provider_occurrences:{timestamp}:flickr") == b"4"
-    assert redis.get(f"provider_occurrences:{timestamp}:stocksnap") == b"6"
-    assert redis.get(f"provider_appeared_in_searches:{timestamp}:flickr") == b"1"
-    assert redis.get(f"provider_appeared_in_searches:{timestamp}:stocksnap") == b"1"
+    assert (
+        redis.get(f"provider_occurrences:{FAKE_MEDIA_TYPE}:{timestamp}:flickr") == b"4"
+    )
+    assert (
+        redis.get(f"provider_occurrences:{FAKE_MEDIA_TYPE}:{timestamp}:stocksnap")
+        == b"6"
+    )
+    assert (
+        redis.get(f"provider_appeared_in_searches:{FAKE_MEDIA_TYPE}:{timestamp}:flickr")
+        == b"1"
+    )
+    assert (
+        redis.get(
+            f"provider_appeared_in_searches:{FAKE_MEDIA_TYPE}:{timestamp}:stocksnap"
+        )
+        == b"1"
+    )
 
     with freeze_time(now):
-        tallies.count_provider_occurrences(results_2)
+        tallies.count_provider_occurrences(results_2, FAKE_MEDIA_TYPE)
 
-    assert redis.get(f"provider_occurrences:{timestamp}:flickr") == b"7"  # 4 + 7
-    assert redis.get(f"provider_occurrences:{timestamp}:stocksnap") == b"6"  # no change
-    assert redis.get(f"provider_occurrences:{timestamp}:inaturalist") == b"7"
-    assert redis.get(f"provider_appeared_in_searches:{timestamp}:flickr") == b"2"
-    assert redis.get(f"provider_appeared_in_searches:{timestamp}:stocksnap") == b"1"
-    assert redis.get(f"provider_appeared_in_searches:{timestamp}:inaturalist") == b"1"
+    assert (
+        redis.get(f"provider_occurrences:{FAKE_MEDIA_TYPE}:{timestamp}:flickr") == b"7"
+    )  # 4 + 7
+    assert (
+        redis.get(f"provider_occurrences:{FAKE_MEDIA_TYPE}:{timestamp}:stocksnap")
+        == b"6"
+    )  # no change
+    assert (
+        redis.get(f"provider_occurrences:{FAKE_MEDIA_TYPE}:{timestamp}:inaturalist")
+        == b"7"
+    )
+    assert (
+        redis.get(f"provider_appeared_in_searches:{FAKE_MEDIA_TYPE}:{timestamp}:flickr")
+        == b"2"
+    )
+    assert (
+        redis.get(
+            f"provider_appeared_in_searches:{FAKE_MEDIA_TYPE}:{timestamp}:stocksnap"
+        )
+        == b"1"
+    )
+    assert (
+        redis.get(
+            f"provider_appeared_in_searches:{FAKE_MEDIA_TYPE}:{timestamp}:inaturalist"
+        )
+        == b"1"
+    )

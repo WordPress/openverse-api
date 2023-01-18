@@ -414,7 +414,11 @@ def search(
         search_response, results, page_size, page
     )
 
-    tallies.count_provider_occurrences(results)
+    if page <= 4:
+        # We ignore tallies for deep pages because they're not likely to
+        # be as important for search relevancy for most users at this point
+        tallies.count_provider_occurrences(results, index)
+
     return results or [], page_count, result_count
 
 

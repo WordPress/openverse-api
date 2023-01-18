@@ -16,7 +16,7 @@ def _get_weekly_timestamp() -> str:
     ).strftime("%Y-%m-%d")
 
 
-def count_provider_occurrences(results: list[dict]) -> None:
+def count_provider_occurrences(results: list[dict], index: str) -> None:
     # Use ``get_redis_connection`` rather than Django's caches
     # so that we can open a pipeline rather than sending off ``n``
     # writes and because the RedisPy client's ``incr`` method
@@ -33,7 +33,7 @@ def count_provider_occurrences(results: list[dict]) -> None:
     week = _get_weekly_timestamp()
     with tallies.pipeline() as pipe:
         for provider, occurrences in provider_occurrences.items():
-            pipe.incr(f"provider_occurrences:{week}:{provider}", occurrences)
-            pipe.incr(f"provider_appeared_in_searches:{week}:{provider}", 1)
+            pipe.incr(f"provider_occurrences:{index}:{week}:{provider}", occurrences)
+            pipe.incr(f"provider_appeared_in_searches:{index}:{week}:{provider}", 1)
 
         pipe.execute()
