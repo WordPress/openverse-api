@@ -17,6 +17,7 @@ from elasticsearch_dsl.query import EMPTY_QUERY, MoreLikeThis, Query
 from elasticsearch_dsl.response import Hit, Response
 
 import catalog.api.models as models
+from catalog.api.utils import tallies
 from catalog.api.utils.dead_link_mask import get_query_hash, get_query_mask
 from catalog.api.utils.validate_images import validate_images
 
@@ -413,13 +414,7 @@ def search(
         search_response, results, page_size, page
     )
 
-    models.Search(
-        query_hash=get_query_hash(s),
-        page=page,
-        results=[r["identifier"] for r in results],
-        query_params=search_params.data,
-    ).save()
-
+    tallies.count_provider_occurrences(results)
     return results or [], page_count, result_count
 
 

@@ -30,4 +30,3 @@ from catalog.api.models.oauth import (
     OAuth2Verification,
     ThrottledApplication,
 )
-from catalog.api.models.search import Search
