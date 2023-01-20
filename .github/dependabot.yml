@@ -33,6 +33,7 @@ updates:
       - "🟩 priority: low"
       - "🐍 tech: python"
       - dependencies
+
   - package-ecosystem: "github-actions"
     directory: /
     schedule:
