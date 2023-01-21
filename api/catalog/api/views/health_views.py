@@ -26,7 +26,7 @@ class HealthCheck(APIView):
     def _check_db() -> None:
         """
         Check that the database is available.
-        Returns nothing is everything is OK, throws error otherwise.
+        Returns nothing if everything is OK, throws error otherwise.
         """
         connection.ensure_connection()
 
