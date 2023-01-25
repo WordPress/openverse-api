@@ -13,7 +13,7 @@ from rest_framework.request import Request
 
 from elasticsearch.exceptions import NotFoundError, RequestError
 from elasticsearch_dsl import Q, Search
-from elasticsearch_dsl.query import EMPTY_QUERY, MoreLikeThis, Query
+from elasticsearch_dsl.query import EMPTY_QUERY, MoreLikeThis, MultiMatch, Query
 from elasticsearch_dsl.response import Hit, Response
 
 import catalog.api.models as models
@@ -345,6 +345,10 @@ def search(
             "fields": search_fields,
             "default_operator": "AND",
         }
+
+        if not search_params.data["mature"]:
+            for t in settings.SENSITIVE_TERMS:
+                s = s.query(~MultiMatch(query=t, fields=search_fields))
 
         if '"' in query:
             base_query_kwargs["quote_field_suffix"] = ".exact"

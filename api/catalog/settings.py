@@ -381,3 +381,12 @@ MAX_AUTHED_PAGE_SIZE = 500
 MAX_PAGINATION_DEPTH = 20
 
 BASE_URL = config("BASE_URL", default="https://wordpress.org/openverse/")
+
+# Keeping this as an environment variable allows us to avoid publishing a list
+# of "sensitive terms" in our normal application repository, decoupling a
+# complex issue from the rest of the codebase.
+SENSITIVE_TERMS = config(
+    "SENSITIVE_TERMS",
+    cast=lambda x: (t.strip() for t in x.split(",")),
+    default="dog, water" if ENVIRONMENT == "local" else "",
+)

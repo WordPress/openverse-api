@@ -503,3 +503,34 @@ def test_search_tallies_handles_empty_page(
     )
 
     count_provider_occurrences_mock.assert_not_called()
+
+
+@pytest.mark.django_db
+def test_sensitive_terms_exclusion(settings, request_factory):
+    search_kwargs = {
+        "ip": 0,
+        "index": "image",
+        "page": 1,
+        "page_size": 20,
+        "request": request_factory.get("/"),
+        "filter_dead": False,
+    }
+    # Use two terms to for posterity
+    settings.SENSITIVE_TERMS = ("dog", "water")
+    serializer = MediaSearchRequestSerializer(data={"q": "running", "mature": "False"})
+    serializer.is_valid()
+
+    _, __, excluding_sensitive_result_count = search_controller.search(
+        search_params=serializer, **search_kwargs
+    )
+
+    assert excluding_sensitive_result_count == 32
+
+    serializer = MediaSearchRequestSerializer(data={"q": "running", "mature": "True"})
+    serializer.is_valid()
+
+    _, __, including_sensitive_result_count = search_controller.search(
+        search_params=serializer, **search_kwargs
+    )
+
+    assert including_sensitive_result_count == 34
