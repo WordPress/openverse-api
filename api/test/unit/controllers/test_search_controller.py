@@ -381,6 +381,9 @@ def test_paginate_with_dead_link_mask_query_mask_overlaps_query_window(
     ), f"expected {expected_range} but got {actual_range}"
 
 
+MOCK_RESULTS = [{"provider": "a provider", "identifier": i} for i in range(20)]
+
+
 @pytest.mark.parametrize(
     "index",
     (
@@ -401,8 +404,13 @@ def test_paginate_with_dead_link_mask_query_mask_overlaps_query_window(
 @mock.patch.object(
     tallies, "count_provider_occurrences", wraps=tallies.count_provider_occurrences
 )
+@mock.patch(
+    "catalog.api.controllers.search_controller._post_process_results",
+    return_value=MOCK_RESULTS,
+)
 @pytest.mark.django_db
 def test_search_tallies_pages_less_than_5(
+    _,
     count_provider_occurrences_mock: mock.MagicMock,
     page,
     does_tally,
