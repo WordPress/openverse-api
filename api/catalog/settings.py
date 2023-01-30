@@ -388,5 +388,5 @@ BASE_URL = config("BASE_URL", default="https://wordpress.org/openverse/")
 SENSITIVE_TERMS = config(
     "SENSITIVE_TERMS",
     cast=lambda x: (t.strip() for t in x.split(",")),
-    default="dog, water" if ENVIRONMENT == "local" else "",
+    default="dog, water" if ENVIRONMENT in ["local", "development"] else "",
 )
