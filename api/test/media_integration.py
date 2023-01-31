@@ -44,14 +44,17 @@ def search_source_and_excluded(media_path):
 def search_quotes(media_path, q="test"):
     """Return a response when quote matching is messed up."""
 
-    response = requests.get(f'{API_URL}/v1/{media_path}?q="{q}', verify=False)
+    response = requests.get(
+        f'{API_URL}/v1/{media_path}?q="{q}&mature=True',
+        verify=False
+    )
     assert response.status_code == 200
 
 
 def search_quotes_exact(media_path, q):
     """Return only exact matches for the given query."""
 
-    url_format = f"{API_URL}/v1/{media_path}?q={{q}}"
+    url_format = f"{API_URL}/v1/{media_path}?q={{q}}&mature=True"
     unquoted_response = requests.get(url_format.format(q=q), verify=False)
     assert unquoted_response.status_code == 200
     unquoted_result_count = unquoted_response.json()["result_count"]
