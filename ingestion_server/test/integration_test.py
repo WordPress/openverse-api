@@ -264,6 +264,38 @@ class TestIngestion(unittest.TestCase):
         es = self._get_es()
         assert list(es.indices.get(index=alias).keys())[0] == f"{model}-{suffix}"
 
+    def _create_filtered_index(self, model, suffix="integration"):
+        req = {
+            "model": model,
+            "action": "CREATE_FILTERED_INDEX",
+            "index_suffix": suffix,
+            "callback_url": bottle_url,
+        }
+        res = requests.post(f"{ingestion_server}/task", json=req)
+
+        stat_msg = "The job should launch successfully and return 202 ACCEPTED."
+        self.assertEqual(res.status_code, 202, msg=stat_msg)
+
+        # Wait for the task to send us a callback.
+        assert self.__class__.cb_queue.get(timeout=120) == "CALLBACK!"
+
+        self.check_index_exists(f"{model}-{suffix}-filtered")
+
+    def _point_alias(self, model, suffix, alias):
+        req = {
+            "model": model,
+            "action": "POINT_ALIAS",
+            "index_suffix": suffix,
+            "alias": alias,
+            "callback_url": bottle_url,
+        }
+        res = requests.post(f"{ingestion_server}/task", json=req)
+
+        stat_msg = "The job should launch successfully and return 202 ACCEPTED."
+        self.assertEqual(res.status_code, 202, msg=stat_msg)
+
+        self.check_index_exists(alias)
+
     def _delete_index(self, model, suffix="integration", alias=None):
         req = {
             "model": model,
@@ -393,22 +425,22 @@ class TestIngestion(unittest.TestCase):
         msg = "There should be no tasks in the task list"
         self.assertEqual(res_json, [], msg)
 
-    @pytest.mark.order(2)
+    @pytest.mark.order(after="test_list_tasks_empty")
     def test_image_ingestion_succeeds(self):
         self._ingest_upstream("image", "integration")
 
-    @pytest.mark.order(3)
+    @pytest.mark.order(after="test_image_ingestion_succeeds")
     def test_task_count_after_one(self):
         res = requests.get(f"{ingestion_server}/task")
         res_json = res.json()
         msg = "There should be one task in the task list now."
         self.assertEqual(1, len(res_json), msg)
 
-    @pytest.mark.order(4)
+    @pytest.mark.order(after="test_task_count_after_one")
     def test_audio_ingestion_succeeds(self):
         self._ingest_upstream("audio", "integration")
 
-    @pytest.mark.order(5)
+    @pytest.mark.order(after="test_audio_ingestion_succeeds")
     def test_task_count_after_two(self):
         res = requests.get(f"{ingestion_server}/task")
         res_json = res.json()
@@ -427,15 +459,15 @@ class TestIngestion(unittest.TestCase):
             wait_for_status="yellow",
         )
 
-    @pytest.mark.order(6)
+    @pytest.mark.order(after="test_task_count_after_two")
     def test_promote_images(self):
         self._promote("image", "integration", "image-main")
 
-    @pytest.mark.order(7)
+    @pytest.mark.order(after="test_promote_images")
     def test_promote_audio(self):
         self._promote("audio", "integration", "audio-main")
 
-    @pytest.mark.order(8)
+    @pytest.mark.order(after="test_promote_audio")
     def test_upstream_indexed_images(self):
         """
         Check that the image data has been successfully indexed in Elasticsearch.
@@ -450,7 +482,7 @@ class TestIngestion(unittest.TestCase):
         msg = "There should be 5000 images in Elasticsearch after ingestion."
         self.assertEqual(count, 5000, msg)
 
-    @pytest.mark.order(9)
+    @pytest.mark.order(after="test_upstream_indexed_images")
     def test_upstream_indexed_audio(self):
         """
         Check that the audio data has been successfully indexed in Elasticsearch.
@@ -465,7 +497,7 @@ class TestIngestion(unittest.TestCase):
         msg = "There should be 5000 audio tracks in Elasticsearch after ingestion."
         self.assertEqual(count, 5000, msg)
 
-    @pytest.mark.order(10)
+    @pytest.mark.order(after="test_upstream_indexed_audio")
     def test_update_index_images(self):
         """Check that the image data can be updated from the API database into ES."""
 
@@ -483,7 +515,7 @@ class TestIngestion(unittest.TestCase):
         # Wait for the task to send us a callback.
         assert self.__class__.cb_queue.get(timeout=120) == "CALLBACK!"
 
-    @pytest.mark.order(11)
+    @pytest.mark.order(after="test_update_index_images")
     def test_update_index_audio(self):
         """Check that the audio data can be updated from the API database into ES."""
 
@@ -501,44 +533,60 @@ class TestIngestion(unittest.TestCase):
         # Wait for the task to send us a callback.
         assert self.__class__.cb_queue.get(timeout=120) == "CALLBACK!"
 
-    @pytest.mark.order(12)
+    @pytest.mark.order(after="test_update_index_audio")
     def test_index_deletion_succeeds(self):
         self._ingest_upstream("audio", "temporary")
         self._delete_index("audio", "temporary")
 
-    @pytest.mark.order(13)
+    @pytest.mark.order(after="test_index_deletion_succeeds")
     def test_alias_force_deletion_succeeds(self):
         self._ingest_upstream("audio", "temporary")
         self._promote("audio", "temporary", "audio-temp")
         self._delete_index("audio", "temporary", "audio-temp")
 
-    @pytest.mark.order(14)
+    @pytest.mark.order(after="test_alias_force_deletion_succeeds")
     def test_alias_soft_deletion_fails(self):
         self._ingest_upstream("audio", "temporary")
         self._promote("audio", "temporary", "audio-temp")
         self._soft_delete_index("audio", "audio-temp", "temporary")
 
-    @pytest.mark.order(15)
+    @pytest.mark.order(after="test_alias_soft_deletion_fails")
     def test_alias_ambiguous_deletion_fails(self):
         # No need to ingest or promote, index and alias exist
         self._soft_delete_index("audio", "audio-temp", "temporary", True)
 
-    @pytest.mark.order(16)
+    @pytest.mark.order(after="test_alias_ambiguous_deletion_fails")
     def test_stat_endpoint_for_index(self):
         res = requests.get(f"{ingestion_server}/stat/audio-integration")
         data = res.json()
         assert data["exists"]
         assert data["alt_names"] == ["audio-main"]
 
-    @pytest.mark.order(17)
+    @pytest.mark.order(after="test_stat_endpoint_for_index")
     def test_stat_endpoint_for_alias(self):
         res = requests.get(f"{ingestion_server}/stat/audio-main")
         data = res.json()
         assert data["exists"]
         assert data["alt_names"] == "audio-integration"
 
-    @pytest.mark.order(18)
+    @pytest.mark.order(after="test_stat_endpoint_for_alias")
     def test_stat_endpoint_for_non_existent(self):
         res = requests.get(f"{ingestion_server}/stat/non-existent")
         data = res.json()
         assert not data["exists"]
+
+    @pytest.mark.order(after="test_stat_endpoint_for_non_existent")
+    def test_create_filtered_image_index(self):
+        self._create_filtered_index("image")
+
+    @pytest.mark.order(after="test_create_filtered_image_index")
+    def test_point_filtered_image_alias(self):
+        self._point_alias("image", "integration-filtered", "image-filtered")
+
+    @pytest.mark.order(after="test_point_filtered_image_alias")
+    def test_create_filtered_audio_index(self):
+        self._create_filtered_index("audio")
+
+    @pytest.mark.order(after="test_create_filtered_audio_index")
+    def test_point_filtered_audio_alias(self):
+        self._point_alias("audio", "integration-filtered", "audio-filtered")
