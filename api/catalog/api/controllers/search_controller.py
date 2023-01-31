@@ -303,6 +303,9 @@ def search(
     :return: Tuple with a List of Hits from elasticsearch, the total count of
     pages, and number of results.
     """
+    if not search_params.data["mature"]:
+        index = f"{index}-filtered"
+
     search_client = Search(index=index)
 
     s = search_client
@@ -338,6 +341,11 @@ def search(
     # Search either by generic multimatch or by "advanced search" with
     # individual field-level queries specified.
     search_fields = ["tags.name", "title", "description"]
+
+    if not search_params.data["mature"]:
+        for t in settings.SENSITIVE_TERMS:
+            s = s.query(~MultiMatch(query=t, fields=search_fields))
+
     if "q" in search_params.data:
         query = _quote_escape(search_params.data["q"])
         base_query_kwargs = {
@@ -345,10 +353,6 @@ def search(
             "fields": search_fields,
             "default_operator": "AND",
         }
-
-        if not search_params.data["mature"]:
-            for t in settings.SENSITIVE_TERMS:
-                s = s.query(~MultiMatch(query=t, fields=search_fields))
 
         if '"' in query:
             base_query_kwargs["quote_field_suffix"] = ".exact"
