@@ -285,6 +285,7 @@ class TestIngestion(unittest.TestCase):
 
         # Wait for the task to send us a callback.
         assert self.__class__.cb_queue.get(timeout=120) == "CALLBACK!"
+        time.sleep(5)  # Wait for the reindex to complete.
 
         self.check_index_exists(f"{model}-{suffix}-filtered")
 
