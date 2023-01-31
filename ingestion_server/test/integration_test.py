@@ -298,7 +298,6 @@ class TestIngestion(unittest.TestCase):
         # Wait for the task to send us a callback.
         assert self.__class__.cb_queue.get(timeout=120) == "CALLBACK!"
 
-        self._wait_for_index(f"{model}-{suffix}-filtered")
         self.check_index_exists(f"{model}-{suffix}-filtered")
 
     def _point_alias(self, model, suffix, alias):

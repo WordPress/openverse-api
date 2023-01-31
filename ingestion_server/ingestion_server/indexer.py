@@ -346,6 +346,7 @@ class TableIndexer:
                 "dest": {"index": destination_index},
             }
         )
+        self.refresh(index_name=destination_index, change_settings=True)
         self.ping_callback()
 
     def update_index(self, model_name: str, index_suffix: str, since_date: str, **_):
