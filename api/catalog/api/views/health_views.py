@@ -26,6 +26,7 @@ class HealthCheck(APIView):
     def _check_db() -> None:
         """
         Check that the database is available.
+
         Returns nothing if everything is OK, throws error otherwise.
         """
         connection.ensure_connection()
@@ -33,15 +34,17 @@ class HealthCheck(APIView):
     @staticmethod
     def _check_es() -> None:
         """
-        Checks Elasticsearch cluster health. Raises an exception if ES is not healthy.
+        Check Elasticsearch cluster health.
+
+        Raises an exception if ES is not healthy.
         """
         es_health = settings.ES.cluster.health(timeout="5s")
 
         if es_health["timed_out"]:
             raise ElasticsearchHealthcheckException("es_timed_out")
 
-        if (status := es_health["status"]) != "green":
-            raise ElasticsearchHealthcheckException(f"es_status_{status}")
+        if (es_status := es_health["status"]) != "green":
+            raise ElasticsearchHealthcheckException(f"es_status_{es_status}")
 
     def get(self, request: Request):
         if "check_es" in request.query_params:
