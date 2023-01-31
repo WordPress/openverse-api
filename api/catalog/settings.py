@@ -385,8 +385,11 @@ BASE_URL = config("BASE_URL", default="https://wordpress.org/openverse/")
 # Keeping this as an environment variable allows us to avoid publishing a list
 # of "sensitive terms" in our normal application repository, decoupling a
 # complex issue from the rest of the codebase.
+# When editing this list, cross-reference it with the list of default sensitive terms
+# used in the ingestion server (found in ingestion_server/env.docker) and
+# ensure they're different so that testing each one is distinct.
 SENSITIVE_TERMS = config(
     "SENSITIVE_TERMS",
     cast=lambda x: (t.strip() for t in x.split(",")),
-    default="dog, water" if ENVIRONMENT in ["local", "development"] else "",
+    default="spoiled, perched" if ENVIRONMENT in ["local", "development"] else "",
 )
