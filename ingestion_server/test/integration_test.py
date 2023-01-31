@@ -141,6 +141,18 @@ class TestIngestion(unittest.TestCase):
         logging.info("Connected to ingestion-server")
 
     @classmethod
+    def _wait_for_index(cls, index_name) -> None:
+        """
+        Wait for the given index to be ready.
+
+        :param index_name: the name of the index for which we are waiting
+        """
+
+        logging.info(f"Waiting for index {index_name} to be ready...")
+        cls._wait(["just", "wait-for-index", index_name])
+        logging.info(f"Index {index_name} is ready")
+
+    @classmethod
     def _load_schemas(cls, conn, schema_names):
         cur = conn.cursor()
         for schema_name in schema_names:
@@ -285,8 +297,8 @@ class TestIngestion(unittest.TestCase):
 
         # Wait for the task to send us a callback.
         assert self.__class__.cb_queue.get(timeout=120) == "CALLBACK!"
-        time.sleep(5)  # Wait for the reindex to complete.
 
+        self._wait_for_index(f"{model}-{suffix}-filtered")
         self.check_index_exists(f"{model}-{suffix}-filtered")
 
     def _point_alias(self, model, suffix, alias):
