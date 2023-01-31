@@ -103,16 +103,50 @@ just load-test-data "image"
 sleep 2
 
 # Ingest and index the data
-just ingest-upstream "audio" "init"
-just wait-for-index "audio-init"
-just promote "audio" "init" "audio"
-just wait-for-index "audio"
+ingest_and_wait() {
+	index=$1
+	suffix=$2
+
+	just ingest-upstream "$index" "$suffix"
+	just wait-for-index "$index-$suffix"
+}
+
+promote_and_wait() {
+	index=$1
+	suffix=$2
+	alias=$3
+
+	just promote "$index" "$suffix" "$alias"
+	just wait-for-index "$alias"
+}
+
+create_filtered_and_wait() {
+	index=$1
+	suffix=$2
+
+	just create-filtered-index "$index" "$suffix"
+	just wait-for-index "$index-$suffix-filtered"
+}
+
+point_alias_and_wait() {
+	index=$1
+	suffix=$2
+	alias=$3
+	pointed_at=$4
+
+	just point-alias "$index" "$suffix" "$alias"
+	just wait-for-index "$alias" "$pointed_at"
+}
+
+ingest_and_wait "audio" "init"
+promote_and_wait "audio" "init" "audio"
+create_filtered_and_wait "audio" "init"
+point_alias_and_wait "audio" "init-filtered" "audio-filtered" "audio-init-filtered"
 
 # Image ingestion is flaky; but usually works on the next attempt
 set +e
 while true; do
-	just ingest-upstream "image" "init"
-	if just wait-for-index "image-init"
+	if ingest_and_wait "image" "init"
 	then
 		break
 	fi
@@ -120,8 +154,9 @@ while true; do
 done
 set -e
 
-just promote "image" "init" "image"
-just wait-for-index "image"
+promote_and_wait "image" "init" "image"
+create_filtered_and_wait "image" "init"
+point_alias_and_wait "image" "init-filtered" "image-filtered" "image-init-filtered"
 
 # Clear source cache since it's out of date after data has been loaded
 docker-compose exec -T "$CACHE_SERVICE_NAME" /bin/bash -c "echo \"del :1:sources-image\" | redis-cli"

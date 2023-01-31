@@ -142,13 +142,13 @@ cert:
     '"$(just es-health {{ es_host }})" != "200"' \
     "Waiting for Elasticsearch to be healthy..."
 
-@check-index index="image":
-    -curl -sb -H "Accept:application/json" "http://localhost:50292/_cat/indices/{{ index }}" | grep -o "{{ index }}" | wc -l | xargs
+@check-index index="image" match="":
+    -curl -sb -H "Accept:application/json" "http://localhost:50292/_cat/indices/{{ index }}" | grep -o "{{ if match != "" { match } else { index } }}" | wc -l | xargs
 
 # Wait for the media to be indexed in Elasticsearch
-@wait-for-index index="image":
+@wait-for-index index="image" match="":
     just _loop \
-    '"$(just check-index {{ index }})" != "1"' \
+    '"$(just check-index {{ index }} {{ match }})" != "1"' \
     "Waiting for index '{{ index }}' to be ready..."
 
 
@@ -190,6 +190,12 @@ _ing-api data port="50281":
 # Promote temp table to prod in API and new index to primary in Elasticsearch
 @promote model="image" suffix="init" alias="image":
     just _ing-api '{"model": "{{ model }}", "action": "PROMOTE", "index_suffix": "{{ suffix }}", "alias": "{{ alias }}"}'
+
+@point-alias model="image" suffix="init" alias="image":
+    just _ing-api '{"model": "{{ model }}", "action": "POINT_ALIAS", "index_suffix": "{{ suffix }}", "alias": "{{ alias }}"}'
+
+@create-filtered-index model="image" suffix="init":
+    just _ing-api '{"model": "{{ model }}", "action": "CREATE_FILTERED_INDEX", "index_suffix": "{{ suffix }}"}'
 
 # Delete an index in Elasticsearch
 @delete model="image" suffix="init" alias="image":

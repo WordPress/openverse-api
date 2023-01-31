@@ -2,6 +2,9 @@ def index_settings(table_name):
     """
     Return the Elasticsearch mapping for a given table in the database.
 
+    These mappings are used for both the "sensitive" and "full" (unaltered)
+    index aliases.
+
     :param table_name: The name of the table in the upstream database.
     :return:
     """

@@ -56,6 +56,10 @@ REP_TABLES = config(
     "COPY_TABLES", default="image", cast=lambda var: [s.strip() for s in var.split(",")]
 )
 
+SENSITIVE_TERMS = config(
+    "SENSITIVE_TERMS", default="", cast=lambda x: (t.strip() for t in x.split(","))
+)
+
 
 def database_connect(autocommit=False):
     """
@@ -311,6 +315,38 @@ class TableIndexer:
         schedule_distributed_index(
             database_connect(), model_name, table_name, destination_index, self.task_id
         )
+
+    def create_filtered_index(self, model_name: str, index_suffix: str, **_):
+        """
+        Create a secondary index that excludes documents filtered by a list of terms.
+        """
+
+        source_index = f"{model_name}-{index_suffix}"
+        destination_index = f"{source_index}-filtered"
+
+        log.info(f"Creating filtered index '{destination_index}' from '{source_index}'")
+        self.es.reindex(
+            body={
+                "source": {
+                    "index": source_index,
+                    "query": {
+                        "bool": {
+                            "must_not": [
+                                {
+                                    "multi_match": {
+                                        "query": term,
+                                        "fields": ["tags.name", "title", "description"],
+                                    }
+                                }
+                                for term in SENSITIVE_TERMS
+                            ]
+                        }
+                    },
+                },
+                "dest": {"index": destination_index},
+            }
+        )
+        self.ping_callback()
 
     def update_index(self, model_name: str, index_suffix: str, since_date: str, **_):
         """
