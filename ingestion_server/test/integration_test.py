@@ -468,6 +468,22 @@ class TestIngestion(unittest.TestCase):
         self._promote("audio", "integration", "audio-main")
 
     @pytest.mark.order(after="test_promote_audio")
+    def test_create_filtered_image_index(self):
+        self._create_filtered_index("image")
+
+    @pytest.mark.order(after="test_create_filtered_image_index")
+    def test_point_filtered_image_alias(self):
+        self._point_alias("image", "integration-filtered", "image-filtered")
+
+    @pytest.mark.order(after="test_point_filtered_image_alias")
+    def test_create_filtered_audio_index(self):
+        self._create_filtered_index("audio")
+
+    @pytest.mark.order(after="test_create_filtered_audio_index")
+    def test_point_filtered_audio_alias(self):
+        self._point_alias("audio", "integration-filtered", "audio-filtered")
+
+    @pytest.mark.order(after="test_point_filtered_audio_alias")
     def test_upstream_indexed_images(self):
         """
         Check that the image data has been successfully indexed in Elasticsearch.
@@ -574,19 +590,3 @@ class TestIngestion(unittest.TestCase):
         res = requests.get(f"{ingestion_server}/stat/non-existent")
         data = res.json()
         assert not data["exists"]
-
-    @pytest.mark.order(after="test_stat_endpoint_for_non_existent")
-    def test_create_filtered_image_index(self):
-        self._create_filtered_index("image")
-
-    @pytest.mark.order(after="test_create_filtered_image_index")
-    def test_point_filtered_image_alias(self):
-        self._point_alias("image", "integration-filtered", "image-filtered")
-
-    @pytest.mark.order(after="test_point_filtered_image_alias")
-    def test_create_filtered_audio_index(self):
-        self._create_filtered_index("audio")
-
-    @pytest.mark.order(after="test_create_filtered_audio_index")
-    def test_point_filtered_audio_alias(self):
-        self._point_alias("audio", "integration-filtered", "audio-filtered")
