@@ -32,7 +32,7 @@ identifier = "cdbd3bf6-1745-45bb-b399-61ee149cd58a"
 
 @pytest.fixture
 def image_fixture():
-    response = requests.get(f"{API_URL}/v1/images?q=dog", verify=False)
+    response = requests.get(f"{API_URL}/v1/images?q=dog&mature=True", verify=False)
     assert response.status_code == 200
     parsed = json.loads(response.text)
     return parsed

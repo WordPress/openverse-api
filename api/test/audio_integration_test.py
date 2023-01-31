@@ -50,7 +50,7 @@ def force_result_validity():
 
 @pytest.fixture
 def audio_fixture(force_result_validity):
-    res = requests.get(f"{API_URL}/v1/audio/", verify=False)
+    res = requests.get(f"{API_URL}/v1/audio/?mature=True", verify=False)
     parsed = res.json()
     force_result_validity(parsed)
     assert res.status_code == 200

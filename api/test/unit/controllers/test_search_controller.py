@@ -417,7 +417,8 @@ def test_search_tallies_pages_less_than_5(
     index,
     request_factory,
 ):
-    serializer = MediaSearchRequestSerializer(data={"q": "dogs"})
+    # Add mature=True to get around any sensitive term filtering
+    serializer = MediaSearchRequestSerializer(data={"q": "dogs", "mature": True})
     serializer.is_valid()
 
     search_controller.search(
@@ -450,7 +451,7 @@ def test_sensitive_terms_exclusion(settings, request_factory):
         "filter_dead": False,
     }
     # Use two terms to for posterity
-    settings.SENSITIVE_TERMS = ("dog", "water")
+    settings.SENSITIVE_TERMS = ("spoiled", "perched")
     serializer = MediaSearchRequestSerializer(data={"q": "running", "mature": "False"})
     serializer.is_valid()
 
@@ -458,7 +459,12 @@ def test_sensitive_terms_exclusion(settings, request_factory):
         search_params=serializer, **search_kwargs
     )
 
-    assert excluding_sensitive_result_count == 32
+    # There is no easy way to derive this number other than testing the API
+    # with the query. "running" includes results that overlap with the
+    # ingestion server and with the two terms used to test the query-time
+    # filtering. The easiest way is to try the query out locally and use the
+    # result number from that.
+    assert excluding_sensitive_result_count == 24
 
     serializer = MediaSearchRequestSerializer(data={"q": "running", "mature": "True"})
     serializer.is_valid()
