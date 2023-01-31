@@ -125,8 +125,8 @@ be followed.
    application that removes the old column and the fallback reads to it and only
    uses the new column.
 
-To reiterate, yes, this is a much more tedious process. However, note the
-following benefits.
+To reiterate, yes, this is a much more tedious process. However, the
+benefits to this approach are listed below.
 
 Relatively similar processes and patterns can be applied to other
 "downtime-causing" database changes. These are covered in
