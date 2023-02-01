@@ -347,8 +347,7 @@ jobs:
     name: Publish Docker images
     runs-on: ubuntu-latest
     # prevent running on fork PRs
-    #    if: (github.event_name == 'push' && github.ref_name == 'main') || github.event_name == 'release' || github.event.pull_request.head.repo.owner.login == 'WordPress'
-    if: github.event_name == 'push' || github.event_name == 'release' || github.event.pull_request.head.repo.owner.login == 'WordPress'
+    if: (github.event_name == 'push' || github.event_name == 'release') && github.repository == 'WordPress/openverse-api'
     needs:
       - test-ing
       - test-api
@@ -396,7 +395,7 @@ jobs:
     name: Deploy staging API
     runs-on: ubuntu-latest
     # Deploy a new version when `main` is pushed to in this repository
-    # if: github.event_name == 'push' && github.repository == 'WordPress/openverse-api'
+    if: github.event_name == 'push' && github.repository == 'WordPress/openverse-api'
     needs: push
 
     steps:
