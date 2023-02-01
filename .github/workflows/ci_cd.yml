@@ -376,13 +376,18 @@ jobs:
           name: ${{ matrix.image }}
           path: /tmp
 
-      - name: Load and tag image `${{ matrix.image }}`
+      - name: Load and tag image `${{ matrix.image }}` (latest & sha)
         run: |
           docker load --input /tmp/${{ matrix.image }}.tar
           docker tag openverse-${{ matrix.image }} \
             ghcr.io/wordpress/openverse-${{ matrix.image }}:latest
           docker tag openverse-${{ matrix.image }} \
             ghcr.io/wordpress/openverse-${{ matrix.image }}:${{ github.sha }}
+          docker push --all-tags ghcr.io/wordpress/openverse-${{ matrix.image }}
+
+      - name: Tag image `${{ matrix.image }}` (release)
+        if: github.event_name == 'release'
+        run: |
           docker tag openverse-${{ matrix.image }} \
             ghcr.io/wordpress/openverse-${{ matrix.image }}:${{ github.ref_name }}
           docker push --all-tags ghcr.io/wordpress/openverse-${{ matrix.image }}
