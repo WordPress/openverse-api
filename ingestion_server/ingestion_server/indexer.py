@@ -316,7 +316,10 @@ class TableIndexer:
 
     def create_filtered_index(self, model_name: str, index_suffix: str, **_):
         """
-        Create a secondary index that excludes documents filtered by a list of terms.
+        Create a secondary index that excludes documents by a list of sensitive terms.
+
+        :param model_name: the name of the media type
+        :param index_suffix: the unique suffix to add to the index name
         """
 
         source_index = f"{model_name}-{index_suffix}"

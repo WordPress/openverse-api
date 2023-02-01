@@ -45,8 +45,7 @@ def search_quotes(media_path, q="test"):
     """Return a response when quote matching is messed up."""
 
     response = requests.get(
-        f'{API_URL}/v1/{media_path}?q="{q}&mature=True',
-        verify=False
+        f'{API_URL}/v1/{media_path}?q="{q}&mature=True', verify=False
     )
     assert response.status_code == 200
 
