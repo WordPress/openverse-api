@@ -1,4 +1,4 @@
-# Zero Downtime Database Management
+# Zero Downtime and Database Management
 
 Openverse practices zero-downtime deployments. This puts a handful of
 constraints on our database migration and data management practices. This
@@ -125,8 +125,8 @@ be followed.
    application that removes the old column and the fallback reads to it and only
    uses the new column.
 
-To reiterate, yes, this is a much more tedious process. However, the
-benefits to this approach are listed below.
+To reiterate, yes, this is a much more tedious process. However, the benefits to
+this approach are listed below.
 
 Relatively similar processes and patterns can be applied to other
 "downtime-causing" database changes. These are covered in
@@ -184,10 +184,12 @@ often. In turn, this means new features and bug fixes get to production sooner.
 Sometimes long-running schema changes are unavoidable. In these cases, provided
 that the instructions above are followed to prevent the need for downtime, it is
 reasonable to take alternative approaches to deploying the migration.
-Specifically the individuals responsible for the migration and its deployment
-may:
 
-<!-- Fill in how to handle these situations. -->
+At the moment we do not have specific recommendations or policies regarding
+these hopefully rare instances. If you come across the need for this, please
+carefully consider the reasons why it is necessary in the particular case and
+document the steps taken to prepare and deploy the migration. Please update this
+document with any general findings or advice, as applicable.
 
 ## Django management command based data transformations
 
