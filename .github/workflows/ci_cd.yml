@@ -64,7 +64,9 @@ jobs:
         image:
           - api
           - ingestion_server
-    needs: get-image-tag
+    needs:
+      - get-image-tag
+      - lint
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
