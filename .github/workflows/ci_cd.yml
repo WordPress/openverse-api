@@ -51,9 +51,9 @@ jobs:
         id: get-image-tag
         run: |
           if [[ "${{ github.event_name }}" == "release" ]]; then
-              echo "image-tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+              echo "image-tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
           else
-              echo "image-tag=${{ github.sha }}" >> $GITHUB_OUTPUT
+              echo "image-tag=${{ github.sha }}" >> "$GITHUB_OUTPUT"
           fi
 
   build-images:
