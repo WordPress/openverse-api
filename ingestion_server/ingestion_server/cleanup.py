@@ -6,12 +6,12 @@ This includes cleaning up malformed URLs and filtering out undesirable tags.
 import csv
 import logging as log
 import multiprocessing
+import re as regex
 import time
 import uuid
 from urllib.parse import urlparse
 
 import requests as re
-import re as regex
 import tldextract
 from psycopg2.extras import DictCursor, Json
 
@@ -76,10 +76,10 @@ class CleanupFunctions:
     @staticmethod
     def cleanup_wiki_title(title):
         """
-        Remove the "File:" prefix and the image filetype suffix from the title if it exists. If no change is
-        made, return None.
+        Remove the "File:" prefix and the image filetype suffix from the title
+        if it exists. If no change is made, return None.
         """
-        pat = regex.compile("File:?(.*?)(?:\.(jpg|jpeg|png|gif|bmp|svg))?$")
+        pat = regex.compile(r"File:?(.*?)(?:\.(jpg|jpeg|png|gif|bmp|svg))?$")
         if match := pat.match(title):
             clean_title = match.group(1).replace("'", "''")
             return f"'{clean_title}'"
@@ -165,17 +165,23 @@ _cleanup_config = {
                     "fields": {
                         "title": CleanupFunctions.cleanup_wiki_title,
                     }
-                }
+                },
             }
         }
     }
 }
-# Extracts global and sources-specific field names from _cleanup_config for specific table
+
+
 def _get_cleanable_fields(table):
+    """
+    Extract global and sources-specific field names from
+    _cleanup_config for specific table.
+    """
     cleanable_fields = []
     for source in _cleanup_config["tables"][table]["sources"].values():
         cleanable_fields += list(source["fields"].keys())
     return cleanable_fields
+
 
 class TlsTest:
     """
@@ -216,13 +222,13 @@ def _clean_data_worker(rows, temp_table, sources_config, all_fields: list[str]):
     log.info(f"Cleaning {len(rows)} rows")
     # We know that flickr and wikimedia support TLS, so we can add them here
     tls_cache = {
-        'www.flickr.com': True,
-        'commons.wikimedia.org': True,
-        'https://www.eol.org/': True,
-        '.geograph.org.uk': True,
-        '.eol.org': True,
-        '.digitaltmuseum.org': True,
-        'www.geograph.org.uk': True,
+        "www.flickr.com": True,
+        "commons.wikimedia.org": True,
+        "https://www.eol.org/": True,
+        ".geograph.org.uk": True,
+        ".eol.org": True,
+        ".digitaltmuseum.org": True,
+        "www.geograph.org.uk": True,
     }
 
     start_time = time.time()
@@ -272,11 +278,12 @@ def _clean_data_worker(rows, temp_table, sources_config, all_fields: list[str]):
     log.info(f"Worker finished batch in {total_time}")
     return cleaned_values
 
+
 def save_cleaned_data(results):
     log.info("Saving cleaned data...")
     start_time = time.time()
 
-    results_to_save: dict[str, list[tuple[str, str|Json]]] = {}
+    results_to_save: dict[str, list[tuple[str, str | Json]]] = {}
     # Results is a list of dicts, where each dict is a mapping of field name to
     # a list of tuples of (identifier, cleaned_value). There are as many dicts
     # as there are workers. We need to merge the lists of tuples for each field
@@ -325,7 +332,8 @@ def clean_image_data(table):
             fields_to_clean.add(f)
 
     cleanup_selection = (
-        f"SELECT id, identifier, source, " f"{', '.join(fields_to_clean)} from temp_import_{table}"
+        f"SELECT id, identifier, source, "
+        f"{', '.join(fields_to_clean)} from temp_import_{table}"
     )
     log.info(f'Running cleanup on selection "{cleanup_selection}"')
     conn = database_connect(autocommit=True)
@@ -359,7 +367,14 @@ def clean_image_data(table):
                 end = job_size * n
                 last_end = end
                 # Arguments for parallel _clean_data_worker calls
-                jobs.append((batch[start:end], temp_table, source_config, _get_cleanable_fields("image")))
+                jobs.append(
+                    (
+                        batch[start:end],
+                        temp_table,
+                        source_config,
+                        _get_cleanable_fields("image"),
+                    )
+                )
             pool = multiprocessing.Pool(processes=num_workers)
             log.info(f"Starting {len(jobs)} cleaning jobs")
             conn.commit()
@@ -372,7 +387,10 @@ def clean_image_data(table):
             batch_end_time = time.time()
             rate = len(batch) / (batch_end_time - batch_start_time)
             log.info(f"Batch finished, records/s: cleanup_rate={rate}")
-            log.info(f"Fetching next batch. Records cleaned so far: {num_cleaned}, counts: {batch_cleaned_counts}")
+            log.info(
+                f"Fetching next batch. Records cleaned so far: {num_cleaned},"
+                f"counts: {batch_cleaned_counts}"
+            )
             jobs = []
             batch = iter_cur.fetchmany(size=CLEANUP_BUFFER_SIZE)
     conn.commit()
@@ -380,4 +398,7 @@ def clean_image_data(table):
     conn.close()
     end_time = time.time()
     cleanup_time = end_time - start_time
-    log.info(f"Cleaned all records in {cleanup_time} seconds, counts: {cleaned_counts_by_field}")
+    log.info(
+        f"Cleaned all records in {cleanup_time} seconds,"
+        f"counts: {cleaned_counts_by_field}"
+    )
