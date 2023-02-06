@@ -494,7 +494,10 @@ def test_search_tallies_handles_empty_page(
         search_params=serializer,
         ip=0,
         index=index,
-        page_size=100,  # High page size to trigger potential results past 80
+        # Force calculated result depth length to include results within 80th position and above
+        # to force edge case where retrieved results are only partially tallied.
+        page=1,
+        page_size=100,
         request=request_factory.get("/"),
         filter_dead=True,
     )
