@@ -123,7 +123,8 @@ be followed.
    when necessary), the query will eventually return zero rows.
 1. Once the data transformation is complete, deploy a new version of the
    application that removes the old column and the fallback reads to it and only
-   uses the new column.
+   uses the new column. Also, add the corresponding constraints for the said
+   column if required, e.g. non-nullable, default value, etc.
 
 To reiterate, yes, this is a much more tedious process. However, the benefits to
 this approach are listed below.
@@ -179,6 +180,17 @@ multiple days. This makes the expectation of keeping a close watch on the
 deployment more sustainable long-term and helps encourage us to deploy more
 often. In turn, this means new features and bug fixes get to production sooner.
 
+#### Possibility to throttle
+
+Management commands that iterate over data progressively can be throttled to
+prevent excessive load on the database or other related services that need to be
+accessed.
+
+#### Unit testing
+
+Management command data migrations can be far more easily unit tested using our
+existing tools and fixture utilities.
+
 ### Long running migrations
 
 Sometimes long-running schema changes are unavoidable. In these cases, provided
@@ -208,6 +220,13 @@ details:
 
 - Migrations are run _at the time of deployment_ by the first instance of the
   new version of the application that runs in the pool.
+  - **Note**: This specific detail will only be the case once we've fully
+    migrated to ECS based deployments. For now one of the people deploying the
+    application manually runs the migrations before deploying. The effect is the
+    same though: we end up with a version of the application running against a
+    database schema that it's not entirely configured to work with. Whether that
+    is an issue depends solely on whether the practices described in this
+    document regarding migrations have been followed.
 - Deployments should be timely so that developers are able to reasonably monitor
   their progress and have clear expectations for how long a deployment should
   take. Ideally a full production deployment should not take much longer than 10
