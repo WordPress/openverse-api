@@ -390,6 +390,6 @@ BASE_URL = config("BASE_URL", default="https://wordpress.org/openverse/")
 # ensure they're different so that testing each one is distinct.
 SENSITIVE_TERMS = config(
     "SENSITIVE_TERMS",
-    cast=lambda x: (t.strip() for t in x.split(",")),
+    cast=lambda x: tuple(t.strip() for t in x.split(",")),
     default="spoiled, perched" if ENVIRONMENT in ["local", "development"] else "",
 )
