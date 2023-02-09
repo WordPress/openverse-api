@@ -388,4 +388,4 @@ MAX_ANONYMOUS_PAGE_SIZE = 20
 MAX_AUTHED_PAGE_SIZE = 500
 MAX_PAGINATION_DEPTH = 20
 
-BASE_URL = config("BASE_URL", default="https://openverse.org/")
+BASE_URL = config("BASE_URL", default="https://openverse.org/api")

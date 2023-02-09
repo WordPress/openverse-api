@@ -26,32 +26,34 @@ def search_by_category(media_path, category, fixture):
     assert all(audio_item["category"] == category for audio_item in results)
 
 
-def search_all_excluded(media_path, excluded_source):
+def search_all_excluded(media_type, excluded_source):
     response = requests.get(
-        f"{API_URL}/v1/{media_path}?q=test&excluded_source={','.join(excluded_source)}"
+        f"{API_URL}{reverse(f'{media_type}-list')}?q=test&excluded_source={','.join(excluded_source)}"
     )
     data = json.loads(response.text)
     assert data["result_count"] == 0
 
 
-def search_source_and_excluded(media_path):
+def search_source_and_excluded(media_type):
     response = requests.get(
-        f"{API_URL}/v1/{media_path}?q=test&source=x&excluded_source=y"
+        f"{API_URL}{reverse(f'{media_type}-list')}?q=test&source=x&excluded_source=y"
     )
     assert response.status_code == 400
 
 
-def search_quotes(media_path, q="test"):
+def search_quotes(media_type, q="test"):
     """Return a response when quote matching is messed up."""
 
-    response = requests.get(f'{API_URL}/v1/{media_path}?q="{q}', verify=False)
+    response = requests.get(
+        f'{API_URL}{reverse(f"{media_type}-list")}?q="{q}', verify=False
+    )
     assert response.status_code == 200
 
 
-def search_quotes_exact(media_path, q):
+def search_quotes_exact(media_type, q):
     """Return only exact matches for the given query."""
 
-    url_format = f"{API_URL}/v1/{media_path}?q={{q}}"
+    url_format = f"{API_URL}{reverse(f'{media_type}-list')}?q={{q}}"
     unquoted_response = requests.get(url_format.format(q=q), verify=False)
     assert unquoted_response.status_code == 200
     unquoted_result_count = unquoted_response.json()["result_count"]
@@ -69,15 +71,17 @@ def search_quotes_exact(media_path, q):
     assert quoted_result_count < unquoted_result_count
 
 
-def search_special_chars(media_path, q="test"):
+def search_special_chars(media_type, q="test"):
     """Return a response when query includes special characters."""
 
-    response = requests.get(f"{API_URL}/v1/{media_path}?q={q}!", verify=False)
+    response = requests.get(
+        f"{API_URL}{reverse(f'{media_type}-list')}?q={q}!", verify=False
+    )
     assert response.status_code == 200
 
 
 def search_consistency(
-    media_path,
+    media_type,
     n_pages,
 ):
     """
@@ -90,7 +94,9 @@ def search_consistency(
     """
 
     searches = {
-        requests.get(f"{API_URL}/v1/{media_path}?page={page}", verify=False)
+        requests.get(
+            f"{API_URL}{reverse(f'{media_type}-list')}?page={page}", verify=False
+        )
         for page in range(1, n_pages)
     }
 
@@ -105,12 +111,15 @@ def search_consistency(
 
 def detail(media_type, fixture):
     test_id = fixture["results"][0]["id"]
-    response = requests.get(f"{API_URL}/v1/{media_type}/{test_id}", verify=False)
+    response = requests.get(
+        f"{API_URL}{reverse(f'{media_type}-retrieve', identifier=test_id)}",
+        verify=False,
+    )
     assert response.status_code == 200
 
 
 def stats(media_type, count_key="media_count"):
-    response = requests.get(f"{API_URL}/v1/{media_type}/stats", verify=False)
+    response = requests.get(f"{API_URL}{reverse(f'{media_type}-stats')}", verify=False)
     parsed_response = json.loads(response.text)
     assert response.status_code == 200
     num_media = 0
@@ -126,7 +135,7 @@ def stats(media_type, count_key="media_count"):
 def report(media_type, fixture):
     test_id = fixture["results"][0]["id"]
     response = requests.post(
-        f"{API_URL}/v1/{media_type}/{test_id}/report/",
+        f"{API_URL}{reverse(f'{media_type}-report', identifier=test_id)}",
         json={
             "reason": "mature",
             "description": "This item contains sensitive content",
@@ -139,13 +148,18 @@ def report(media_type, fixture):
 
 
 def license_filter_case_insensitivity(media_type):
-    response = requests.get(f"{API_URL}/v1/{media_type}?license=bY", verify=False)
+    response = requests.get(
+        f"{API_URL}{reverse(f'{media_type}-list')}?license=bY", verify=False
+    )
     parsed = json.loads(response.text)
     assert parsed["result_count"] > 0
 
 
 def uuid_validation(media_type, identifier):
-    response = requests.get(f"{API_URL}/v1/{media_type}/{identifier}", verify=False)
+    response = requests.get(
+        f"{API_URL}{reverse(f'{media_type}-retrieve', identifier=identifier)}",
+        verify=False,
+    )
     assert response.status_code == 404
 
 

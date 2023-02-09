@@ -1,5 +1,7 @@
 import os
 
+from django.urls import reverse_lazy
+
 
 token = os.getenv("AUDIO_REQ_TOKEN", "DLBYIcfnKfolaXKcmMC8RIDCavc2hW")
 origin = os.getenv("AUDIO_REQ_ORIGIN", "https://api.openverse.engineering")
@@ -25,7 +27,7 @@ audio_search_list_curl = "\n".join(
 # Example {index}: Search for audio {purpose}
 curl \\
   {auth} \\
-  "{origin}/v1/audio/?q={syntax}"
+  "{origin}{reverse('audio-list')}?q={syntax}"
 """
     for (index, (purpose, syntax)) in enumerate(syntax_examples.items())
 )
@@ -34,28 +36,28 @@ audio_search_curl = f"""
 # Search for music titled "Wish You Were Here" by The.madpix.project
 curl \\
   {auth} \\
-  "{origin}/v1/audio/?title=Wish%20You%20Were%20Here&creator=The.madpix.project"
+  "{origin}{reverse('audio-list')}?title=Wish%20You%20Were%20Here&creator=The.madpix.project"
 """
 
 audio_stats_curl = f"""
 # Get the statistics for audio sources
 curl \\
   {auth} \\
-  "{origin}/v1/audio/stats/"
+  "{origin}{reverse('audio-list')}stats/"
 """
 
 audio_detail_curl = f"""
 # Get the details of audio ID {identifier}
 curl \\
   {auth} \\
-  "{origin}/v1/audio/{identifier}/"
+  "{origin}{reverse('audio-list')}{identifier}/"
 """
 
 audio_related_curl = f"""
 # Get related audio files for audio ID {identifier}
 curl \\
   {auth} \\
-  "{origin}/v1/audio/{identifier}/related/"
+  "{origin}{reverse('audio-list')}{identifier}/related/"
 """
 
 audio_complain_curl = f"""
@@ -65,5 +67,5 @@ curl \\
   -H "Content-Type: application/json" \\
   {auth} \\
   -d '{{"reason": "mature", "description": "This audio contains sensitive content"}}' \\
-  "{origin}/v1/audio/{identifier}/report/"
+  "{origin}{reverse('audio-list')}{identifier}/report/"
 """

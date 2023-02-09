@@ -1,5 +1,7 @@
 import os
 
+from django.urls import reverse
+
 
 token = os.getenv("AUDIO_REQ_TOKEN", "DLBYIcfnKfolaXKcmMC8RIDCavc2hW")
 origin = os.getenv("AUDIO_REQ_ORIGIN", "https://api.openverse.engineering")
@@ -25,7 +27,7 @@ image_search_list_curl = "\n".join(
 # Example {index}: Search for images {purpose}
 curl \\
   {auth} \\
-  "{origin}/v1/images/?q={syntax}"
+  "{origin}{reverse('image-list')}?q={syntax}"
 """
     for (index, (purpose, syntax)) in enumerate(syntax_examples.items())
 )
@@ -34,28 +36,28 @@ image_search_curl = f"""
 # Search for images titled "Bark" by Sullivan
 curl \\
   {auth} \\
-  "{origin}/v1/images/?title=Bark&creator=Sullivan"
+  "{origin}{reverse('image-list')}?title=Bark&creator=Sullivan"
 """
 
 image_stats_curl = f"""
 # Get the statistics for image sources
 curl \\
   {auth} \\
-  "{origin}/v1/images/stats/"
+  "{origin}{reverse('image-list')}stats/"
 """
 
 image_detail_curl = f"""
 # Get the details of image ID {identifier}
 curl \\
   {auth} \\
-  "{origin}/v1/images/{identifier}/"
+  "{origin}{reverse('image-list')}{identifier}/"
 """
 
 image_related_curl = f"""
 # Get related images for image ID {identifier}
 curl \\
   {auth} \\
-  "{origin}/v1/images/{identifier}/related/"
+  "{origin}{reverse('image-list')}{identifier}/related/"
 """
 
 image_complain_curl = f"""
@@ -65,12 +67,12 @@ curl \\
   -H "Content-Type: application/json" \\
   {auth} \\
   -d '{{"reason": "mature", "description": "Image contains sensitive content"}}' \\
-  "{origin}/v1/images/{identifier}/report/"
+  "{origin}{reverse('image-list')}{identifier}/report/"
 """
 
 image_oembed_curl = f"""
 # Retrieve embedded content from an image's URL
 curl \\
   {auth} \\
-  "{origin}/v1/images/oembed/?url=https://wordpress.org/openverse/photos/{identifier}"
+  "{origin}{reverse('image-list')}oembed/?url=https://wordpress.org/openverse/photos/{identifier}"
 """

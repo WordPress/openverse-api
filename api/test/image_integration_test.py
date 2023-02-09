@@ -25,6 +25,8 @@ from test.media_integration import (
 )
 from urllib.parse import urlencode
 
+from django.urls import reverse
+
 import pytest
 import requests
 
@@ -34,7 +36,7 @@ identifier = "cdbd3bf6-1745-45bb-b399-61ee149cd58a"
 
 @pytest.fixture
 def image_fixture():
-    response = requests.get(f"{API_URL}/v1/images?q=dog", verify=False)
+    response = requests.get(f"{API_URL}{reverse('image-list')}?q=dog", verify=False)
     assert response.status_code == 200
     parsed = json.loads(response.text)
     return parsed
@@ -45,41 +47,41 @@ def test_search(image_fixture):
 
 
 def test_search_all_excluded():
-    search_all_excluded("images", ["flickr", "stocksnap"])
+    search_all_excluded("image", ["flickr", "stocksnap"])
 
 
 def test_search_source_and_excluded():
-    search_source_and_excluded("images")
+    search_source_and_excluded("image")
 
 
 def test_search_quotes():
-    search_quotes("images", "dog")
+    search_quotes("image", "dog")
 
 
 def test_search_quotes_exact():
     # ``bird perched`` returns different results when quoted vs unquoted
-    search_quotes_exact("images", "bird perched")
+    search_quotes_exact("image", "bird perched")
 
 
 def test_search_with_special_characters():
-    search_special_chars("images", "dog")
+    search_special_chars("image", "dog")
 
 
 def test_search_consistency():
     n_pages = 5
-    search_consistency("images", n_pages)
+    search_consistency("image", n_pages)
 
 
 def test_image_detail(image_fixture):
-    detail("images", image_fixture)
+    detail("image", image_fixture)
 
 
 def test_image_stats():
-    stats("images")
+    stats("image")
 
 
 def test_audio_report(image_fixture):
-    report("images", image_fixture)
+    report("image", image_fixture)
 
 
 def test_oembed_endpoint_with_non_existent_image():
@@ -87,7 +89,7 @@ def test_oembed_endpoint_with_non_existent_image():
         "url": "https://any.domain/any/path/00000000-0000-0000-0000-000000000000",
     }
     response = requests.get(
-        f"{API_URL}/v1/images/oembed?{urlencode(params)}", verify=False
+        f"{API_URL}{reverse('image-oembed')}?{urlencode(params)}", verify=False
     )
     assert response.status_code == 404
 
@@ -103,7 +105,7 @@ def test_oembed_endpoint_with_non_existent_image():
 def test_oembed_endpoint_with_fuzzy_input(url):
     params = {"url": url}
     response = requests.get(
-        f"{API_URL}/v1/images/oembed?{urlencode(params)}", verify=False
+        f"{API_URL}{reverse('image-oembed')}?{urlencode(params)}", verify=False
     )
     assert response.status_code == 200
 
@@ -114,7 +116,7 @@ def test_oembed_endpoint_for_json():
         # 'format': 'json' is the default
     }
     response = requests.get(
-        f"{API_URL}/v1/images/oembed?{urlencode(params)}", verify=False
+        f"{API_URL}{reverse('image-oembed')}?{urlencode(params)}", verify=False
     )
     assert response.status_code == 200
     assert response.headers["Content-Type"] == "application/json"
@@ -131,7 +133,7 @@ def test_oembed_endpoint_for_xml():
         "format": "xml",
     }
     response = requests.get(
-        f"{API_URL}/v1/images/oembed?{urlencode(params)}", verify=False
+        f"{API_URL}{reverse('image-oembed')}?{urlencode(params)}", verify=False
     )
     assert response.status_code == 200
     assert response.headers["Content-Type"] == "application/xml; charset=utf-8"
@@ -147,13 +149,13 @@ def test_oembed_endpoint_for_xml():
 
 
 def test_image_license_filter_case_insensitivity():
-    license_filter_case_insensitivity("images")
+    license_filter_case_insensitivity("image")
 
 
 def test_image_uuid_validation():
-    uuid_validation("images", "123456789123456789123456789123456789")
-    uuid_validation("images", "12345678-1234-5678-1234-1234567891234")
-    uuid_validation("images", "abcd")
+    uuid_validation("image", "123456789123456789123456789123456789")
+    uuid_validation("image", "12345678-1234-5678-1234-1234567891234")
+    uuid_validation("image", "abcd")
 
 
 def test_image_related(image_fixture):

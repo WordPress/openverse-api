@@ -49,7 +49,7 @@ def requests(monkeypatch) -> RequestsFixture:
 @pytest.mark.django_db
 def test_oembed_sends_ua_header(api_client, requests):
     image = ImageFactory.create()
-    res = api_client.get("/v1/images/oembed/", data={"url": f"/{image.identifier}"})
+    res = api_client.get(reverse("image-oembed"), data={"url": f"/{image.identifier}"})
 
     assert res.status_code == 200
 
