@@ -18,6 +18,7 @@ from test.media_integration import (
     search_consistency,
     search_quotes,
     search_quotes_exact,
+    search_sort,
     search_source_and_excluded,
     search_special_chars,
     stats,
@@ -116,6 +117,10 @@ def test_search_with_special_characters():
 def test_search_consistency():
     n_pages = 5
     search_consistency("audio", n_pages)
+
+
+def test_search_sort():
+    search_sort("audio")
 
 
 def test_audio_detail(audio_fixture):
