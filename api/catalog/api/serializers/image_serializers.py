@@ -66,6 +66,12 @@ class ImageSearchRequestSerializer(
 
 
 class ImageReportRequestSerializer(MediaReportRequestSerializer):
+    identifier = serializers.SlugRelatedField(
+        slug_field="identifier",
+        queryset=Image.objects.all(),
+        source="media_obj",
+    )
+
     class Meta(MediaReportRequestSerializer.Meta):
         model = ImageReport
 
@@ -96,10 +102,13 @@ class ImageSerializer(ImageHyperlinksSerializer, MediaSerializer):
         used to generate Swagger documentation.
         """
 
+    needs_db = True  # for the 'height' and 'width' fields
+
 
 class ImageSearchSerializer(MediaSearchSerializer):
     """
     The full image search response.
+
     This serializer is purely representational and not actually used to
     serialize the response.
     """
@@ -132,8 +141,10 @@ class OembedRequestSerializer(serializers.Serializer):
 
 class OembedSerializer(BaseModelSerializer):
     """
-    The embedded content from a specified image URL. This is essentially an
-    ``ImageSerializer`` with some changes to match the oEmbed spec: https://oembed.com.
+    The embedded content from a specified image URL.
+
+    This is essentially an ``ImageSerializer`` with some changes to match the oEmbed
+    spec: https://oembed.com.
     """
 
     version = serializers.ReadOnlyField(

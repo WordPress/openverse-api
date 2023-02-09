@@ -1,5 +1,6 @@
 import logging
 import os
+import struct
 from enum import Flag, auto
 from io import BytesIO
 from textwrap import wrap
@@ -27,9 +28,7 @@ HEADERS = {
 
 
 class Dimension(Flag):
-    """
-    This enum represents the two dimensions of an image
-    """
+    """This enum represents the two dimensions of an image."""
 
     HEIGHT = auto()
     WIDTH = auto()
@@ -42,7 +41,8 @@ class Dimension(Flag):
 
 def _smaller_dimension(width, height):
     """
-    Determine which image dimensions are below the breakpoint dimensions
+    Determine which image dimensions are below the breakpoint dimensions.
+
     :param width: the width of the image
     :param height: the height of the image
     :return: True if the image is small, False otherwise
@@ -58,7 +58,8 @@ def _smaller_dimension(width, height):
 
 def _get_font_path(monospace=False):
     """
-    Return the path to the TTF font file
+    Return the path to the TTF font file.
+
     :param monospace: True for monospaced font, False for variable-width font
     :return: the path to the TTF font file
     """
@@ -71,7 +72,8 @@ def _get_font_path(monospace=False):
 
 def _fit_in_width(text, font, max_width):
     """
-    Break the given text so that it fits in the given space
+    Break the given text so that it fits in the given space.
+
     :param text: the text to fit in the limited width
     :param font: the font containing size and other info
     :param max_width: the maximum width the text is allowed to take
@@ -91,7 +93,8 @@ def _fit_in_width(text, font, max_width):
 
 def _create_frame(dimensions):
     """
-    Creates an frame with the given dimensions
+    Create a frame with the given dimensions.
+
     :param dimensions: a tuple containing the width and height of the frame
     :return: a white frame with the given dimensions
     """
@@ -101,7 +104,8 @@ def _create_frame(dimensions):
 
 def _frame_image(image, frame, left_margin, top_margin):
     """
-    Fix the image in the frame with the specified spacing
+    Fix the image in the frame with the specified spacing.
+
     :param image: the image to frame
     :param frame: the frame in which to fit the image
     :param left_margin: the margin to the left of the image
@@ -118,7 +122,8 @@ def _frame_image(image, frame, left_margin, top_margin):
 
 def _full_license(image_info):
     """
-    Get the full license from the image info
+    Get the full license from the image info.
+
     :param image_info: the information about a particular image
     :return: the full license text for the image
     """
@@ -132,7 +137,8 @@ def _full_license(image_info):
 
 def _get_attribution_text(image_info):
     """
-    Generate the attribution text from the image info
+    Generate the attribution text from the image info.
+
     :param image_info: the info pertaining to the licensing of the image
     :return: the attribution text
     """
@@ -149,7 +155,8 @@ def _get_attribution_text(image_info):
 
 def _open_image(url):
     """
-    Read an image from a URL and convert it into a PIL Image object
+    Read an image from a URL and convert it into a PIL Image object.
+
     :param url: the URL from where to read the image
     :return: the PIL image object with the EXIF data
     """
@@ -158,21 +165,23 @@ def _open_image(url):
         response = requests.get(url, headers=HEADERS)
         img_bytes = BytesIO(response.content)
         img = Image.open(img_bytes)
-        # Preserve EXIF metadata
-        if "exif" in img.info:
-            exif = piexif.load(img.info["exif"])
-        else:
-            exif = None
-        return img, exif
     except requests.exceptions.RequestException as e:
         capture_exception(e)
         logger.error(f"Error loading image data: {e}")
         return None, None
 
+    try:
+        # Preserve EXIF metadata
+        exif = piexif.load(img.info["exif"]) if "exif" in img.info else None
+        return img, exif
+    except struct.error:
+        return img, None
+
 
 def _print_attribution_on_image(img, image_info):
     """
-    Add a frame around the image and put the attribution text on the bottom
+    Add a frame around the image and put the attribution text on the bottom.
+
     :param img: the image to frame and attribute
     :param image_info: the information about a particular image
     :return: return the framed and attributed image
@@ -228,7 +237,7 @@ def _print_attribution_on_image(img, image_info):
 
 def watermark(image_url, info, draw_frame=True):
     """
-    Returns a PIL Image with a watermark and embedded metadata.
+    Return a PIL Image with a watermark and embedded metadata.
 
     :param image_url: The URL of the image.
     :param info: A dictionary with keys title, creator, license, and

@@ -5,7 +5,7 @@ import logging as log
 import pprint
 from itertools import accumulate
 from math import ceil
-from typing import Any, List, Literal, Optional, Tuple
+from typing import Any, Literal
 
 from django.conf import settings
 from django.core.cache import cache
@@ -13,12 +13,12 @@ from rest_framework.request import Request
 
 from elasticsearch.exceptions import NotFoundError, RequestError
 from elasticsearch_dsl import Q, Search
-from elasticsearch_dsl.query import EMPTY_QUERY, Query
+from elasticsearch_dsl.query import EMPTY_QUERY, MoreLikeThis, Query
 from elasticsearch_dsl.response import Hit, Response
 
 import catalog.api.models as models
+from catalog.api.utils import tallies
 from catalog.api.utils.dead_link_mask import get_query_hash, get_query_mask
-from catalog.api.utils.pagination import MAX_TOTAL_PAGE_COUNT
 from catalog.api.utils.validate_images import validate_images
 
 
@@ -39,8 +39,10 @@ class RankFeature(Query):
 
 def _unmasked_query_end(page_size, page):
     """
-    Used to retrieve the upper index of results to retrieve
-    from Elasticsearch under the following conditions:
+    Calculate the upper index of results to retrieve from Elasticsearch.
+
+    Used to retrieve the upper index of results to retrieve from Elasticsearch under the
+    following conditions:
     1. There is no query mask
     2. The lower index is beyond the scope of the existing query mask
     3. The lower index is within the scope of the existing query mask
@@ -53,10 +55,9 @@ def _unmasked_query_end(page_size, page):
 
 def _paginate_with_dead_link_mask(
     s: Search, page_size: int, page: int
-) -> Tuple[int, int]:
+) -> tuple[int, int]:
     """
-    Given a query, a page and page_size, return the start and end
-    of the slice of results.
+    Return the start and end of the results slice, given the query, page and page size.
 
     In almost all cases the ``DEAD_LINK_RATIO`` will effectively double
     the page size (given the current configuration of 0.5).
@@ -118,11 +119,10 @@ def _paginate_with_dead_link_mask(
 
 
 def _get_query_slice(
-    s: Search, page_size: int, page: int, filter_dead: Optional[bool] = False
-) -> Tuple[int, int]:
-    """
-    Select the start and end of the search results for this query.
-    """
+    s: Search, page_size: int, page: int, filter_dead: bool | None = False
+) -> tuple[int, int]:
+    """Select the start and end of the search results for this query."""
+
     if filter_dead:
         start_slice, end_slice = _paginate_with_dead_link_mask(s, page_size, page)
     else:
@@ -135,10 +135,8 @@ def _get_query_slice(
 
 
 def _quote_escape(query_string):
-    """
-    If there are any unmatched quotes in the query supplied by the user, ignore
-    them.
-    """
+    """Ignore any unmatched quotes in the query supplied by the user."""
+
     num_quotes = query_string.count('"')
     if num_quotes % 2 == 1:
         return query_string.replace('"', '\\"')
@@ -148,8 +146,10 @@ def _quote_escape(query_string):
 
 def _post_process_results(
     s, start, end, page_size, search_results, request, filter_dead
-) -> Optional[List[Hit]]:
+) -> list[Hit] | None:
     """
+    Perform some steps on results fetched from the backend.
+
     After fetching the search results from the back end, iterate through the
     results, perform image validation, and route certain thumbnails through our
     proxy.
@@ -223,12 +223,13 @@ def _apply_filter(
     # Any is used here to avoid a circular import
     search_params: Any,  # MediaSearchRequestSerializer
     serializer_field: str,
-    es_field: Optional[str] = None,
+    es_field: str | None = None,
     behaviour: Literal["filter", "exclude"] = "filter",
 ):
     """
-    Parse and apply a filter from the search parameters serializer. The
-    parameter key is assumed to have the same name as the corresponding
+    Parse and apply a filter from the search parameters serializer.
+
+    The parameter key is assumed to have the same name as the corresponding
     Elasticsearch property. Each parameter value is assumed to be a comma
     separated list encoded as a string.
 
@@ -241,21 +242,21 @@ def _apply_filter(
     """
 
     if serializer_field in search_params.data:
-        filters = []
-        for arg in search_params.data[serializer_field].split(","):
-            _param = es_field or serializer_field
-            args = {"name_or_query": "term", _param: arg}
-            filters.append(Q(**args))
+        arguments = search_params.data.get(serializer_field)
+        if arguments is None:
+            return s
+        arguments = arguments.split(",")
+        parameter = es_field or serializer_field
+        query = Q("terms", **{parameter: arguments})
         method = getattr(s, behaviour)
-        return method("bool", should=filters)
-    else:
-        return s
+        return method("bool", should=query)
+
+    return s
 
 
 def _exclude_filtered(s: Search):
-    """
-    Hide data sources from the catalog dynamically.
-    """
+    """Hide data sources from the catalog dynamically."""
+
     filter_cache_key = "filtered_providers"
     filtered_providers = cache.get(key=filter_cache_key)
     if not filtered_providers:
@@ -285,10 +286,9 @@ def search(
     request: Request,
     filter_dead: bool,
     page: int = 1,
-) -> Tuple[List[Hit], int, int]:
+) -> tuple[list[Hit], int, int]:
     """
-    Given a set of keywords and an optional set of filters, perform a ranked
-    paginated search.
+    Perform a ranked paginated search from the set of keywords and, optionally, filters.
 
     :param search_params: Search parameters. See
      :class: `ImageSearchQueryStringSerializer`.
@@ -340,18 +340,25 @@ def search(
     search_fields = ["tags.name", "title", "description"]
     if "q" in search_params.data:
         query = _quote_escape(search_params.data["q"])
+        base_query_kwargs = {
+            "query": query,
+            "fields": search_fields,
+            "default_operator": "AND",
+        }
+
+        if '"' in query:
+            base_query_kwargs["quote_field_suffix"] = ".exact"
+
         s = s.query(
             "simple_query_string",
-            query=query,
-            fields=search_fields,
-            default_operator="AND",
+            **base_query_kwargs,
         )
-        # Boost exact matches
+        # Boost exact matches on the title
         quotes_stripped = query.replace('"', "")
         exact_match_boost = Q(
             "simple_query_string",
             fields=["title"],
-            query=f'"{quotes_stripped}"',
+            query=f"{quotes_stripped}",
             boost=10000,
         )
         s = search_client.query(Q("bool", must=s.query, should=exact_match_boost))
@@ -407,15 +414,43 @@ def search(
     )
 
     result_count, page_count = _get_result_and_page_count(
-        search_response, results, page_size
+        search_response, results, page_size, page
     )
+
+    results_to_tally = results or []
+    max_result_depth = page * page_size
+    if max_result_depth <= 80:
+        # Applies when `page_size * page` could land "evenly" on 80
+        should_tally = True
+    elif max_result_depth - page_size < 80:
+        # Applies when `page_size * page` could land beyond 80, but still
+        # encompass some results on _this page_ that are at or below the 80th
+        # position. For example: page=7 page_size=12 result depth=84.
+        # While max_result_depth exceeds 80, we still want to count
+        # the first eight results in `results` that are below or at the 80th
+        # position for the query.
+        should_tally = True
+        results_to_tally = results_to_tally[: 80 - (max_result_depth - page_size)]
+    else:
+        should_tally = False
+
+    if results and should_tally:
+        # We ignore tallies for deep results because they're not likely to
+        # be as important for search relevancy for most users at this point
+        # 80 is chosen because it represents the first four pages of the
+        # default page count of 20 (20 * 4) which is how our own frontend
+        # makes requests and displays results. Because that is the only
+        # place we can actually conceivably measure relevancy down the
+        # line, it is the only sensible, controlled space we can use to
+        # check things like provider density for a set of queries.
+        tallies.count_provider_occurrences(results_to_tally, index)
+
     return results or [], page_count, result_count
 
 
 def related_media(uuid, index, request, filter_dead):
-    """
-    Given a UUID, find related search results.
-    """
+    """Given a UUID, find related search results."""
+
     search_client = Search(index=index)
 
     # Convert UUID to sequential ID.
@@ -425,11 +460,12 @@ def related_media(uuid, index, request, filter_dead):
 
     s = search_client
     s = s.query(
-        "more_like_this",
-        fields=["tags.name", "title", "creator"],
-        like={"_index": index, "_id": _id},
-        min_term_freq=1,
-        max_query_terms=50,
+        MoreLikeThis(
+            fields=["tags.name", "title", "creator"],
+            like={"_index": index, "_id": _id},
+            min_term_freq=1,
+            max_query_terms=50,
+        )
     )
     # Never show mature content in recommendations.
     s = s.exclude("term", mature=True)
@@ -443,7 +479,7 @@ def related_media(uuid, index, request, filter_dead):
         s, start, end, page_size, response, request, filter_dead
     )
 
-    result_count, _ = _get_result_and_page_count(response, results, page_size)
+    result_count, _ = _get_result_and_page_count(response, results, page_size, page)
 
     return results or [], result_count
 
@@ -492,25 +528,31 @@ def get_sources(index):
 
 
 def _get_result_and_page_count(
-    response_obj: Response, results: Optional[List[Hit]], page_size: int
-) -> Tuple[int, int]:
+    response_obj: Response, results: list[Hit] | None, page_size: int, page: int
+) -> tuple[int, int]:
     """
-    Elasticsearch does not allow deep pagination of ranked queries.
-    Adjust returned page count to reflect this.
+    Adjust related page count because ES disallows deep pagination of ranked queries.
 
     :param response_obj: The original Elasticsearch response object.
     :param results: The list of filtered result Hits.
     :return: Result and page count.
     """
-    if results is None:
-        return 0, 1
+    if not results:
+        return 0, 0
 
     result_count = response_obj.hits.total.value
-    natural_page_count = int(result_count / page_size)
-    if natural_page_count % page_size != 0:
-        natural_page_count += 1
-    page_count = min(natural_page_count, MAX_TOTAL_PAGE_COUNT)
-    if len(results) < page_size and page_count == 0:
-        result_count = len(results)
+    page_count = ceil(result_count / page_size)
+
+    if len(results) < page_size:
+        if page_count == 1:
+            result_count = len(results)
+
+        # If we have fewer results than the requested page size and are
+        # not on the first page that means that we've reached the end of
+        # the query and can set the page_count to the currently requested
+        # page. This means that the `page_count` can change during
+        # pagination for the same query, but it's the only way to
+        # communicate under the current v1 API that a query has been exhausted.
+        page_count = page
 
     return result_count, page_count

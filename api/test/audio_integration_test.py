@@ -1,6 +1,8 @@
 """
-End-to-end API tests for audio. Can be used to verify a live deployment is
-functioning as designed. Run with the `pytest -s` command from this directory.
+End-to-end API tests for audio.
+
+Can be used to verify a live deployment is functioning as designed.
+Run with the `pytest -s` command from this directory.
 """
 
 import json
@@ -15,6 +17,7 @@ from test.media_integration import (
     search_by_category,
     search_consistency,
     search_quotes,
+    search_quotes_exact,
     search_source_and_excluded,
     search_special_chars,
     stats,
@@ -49,9 +52,7 @@ def force_result_validity():
 
 @pytest.fixture
 def audio_fixture(force_result_validity):
-    res = requests.get(
-        f"{API_URL}/v1/audio/", data={"filter_dead": False}, verify=False
-    )
+    res = requests.get(f"{API_URL}/v1/audio/", verify=False)
     parsed = res.json()
     force_result_validity(parsed)
     assert res.status_code == 200
@@ -61,12 +62,14 @@ def audio_fixture(force_result_validity):
 @pytest.fixture
 def jamendo_audio_fixture(force_result_validity):
     """
+    Get an audio object specifically from the Jamendo provider.
+
     Thumbnail tests must use Jamendo results because the Wikimedia
     sample audio results do not have thumbnails.
     """
     res = requests.get(
         f"{API_URL}/v1/audio/",
-        data={"source": "jamendo", "filter_dead": False},
+        data={"source": "jamendo"},
         verify=False,
     )
     parsed = res.json()
@@ -101,6 +104,11 @@ def test_search_quotes():
     search_quotes("audio", "love")
 
 
+def test_search_quotes_exact():
+    # ``water running`` returns different results when quoted vs unquoted
+    search_quotes_exact("audio", "water running")
+
+
 def test_search_with_special_characters():
     search_special_chars("audio", "love")
 
@@ -127,7 +135,7 @@ def test_audio_detail_without_thumb():
 
 def test_audio_search_without_thumb():
     """The first audio of this search should not have a thumbnail."""
-    resp = requests.get(f"{API_URL}/v1/audio/?q=zaus&filter_dead=false")
+    resp = requests.get(f"{API_URL}/v1/audio/?q=zaus")
     assert resp.status_code == 200
     parsed = json.loads(resp.text)
     assert parsed["results"][0]["thumbnail"] is None

@@ -1,5 +1,6 @@
 """
 Base test cases for all media types.
+
 These are not tests and cannot be invoked.
 """
 
@@ -10,7 +11,8 @@ import requests
 
 
 def search(fixture):
-    """Returns results for test query."""
+    """Return results for test query."""
+
     assert fixture["result_count"] > 0
 
 
@@ -40,13 +42,36 @@ def search_source_and_excluded(media_path):
 
 
 def search_quotes(media_path, q="test"):
-    """Returns a response when quote matching is messed up."""
+    """Return a response when quote matching is messed up."""
+
     response = requests.get(f'{API_URL}/v1/{media_path}?q="{q}', verify=False)
     assert response.status_code == 200
 
 
+def search_quotes_exact(media_path, q):
+    """Return only exact matches for the given query."""
+
+    url_format = f"{API_URL}/v1/{media_path}?q={{q}}"
+    unquoted_response = requests.get(url_format.format(q=q), verify=False)
+    assert unquoted_response.status_code == 200
+    unquoted_result_count = unquoted_response.json()["result_count"]
+    assert unquoted_result_count > 0
+
+    quoted_response = requests.get(url_format.format(q=f'"{q}"'), verify=False)
+    assert quoted_response.status_code == 200
+    quoted_result_count = quoted_response.json()["result_count"]
+    assert quoted_result_count > 0
+
+    # The rationale here is that the unquoted results will match more records due
+    # to the query being overall less strict. Quoting the query will make it more
+    # strict causing it to return fewer results.
+    # Above we check that the results are not 0 to confirm that we do still get results back.
+    assert quoted_result_count < unquoted_result_count
+
+
 def search_special_chars(media_path, q="test"):
-    """Returns a response when query includes special characters."""
+    """Return a response when query includes special characters."""
+
     response = requests.get(f"{API_URL}/v1/{media_path}?q={q}!", verify=False)
     assert response.status_code == 200
 
@@ -56,7 +81,7 @@ def search_consistency(
     n_pages,
 ):
     """
-    Returns consistent, non-duplicate results in the first n pages.
+    Return consistent, non-duplicate results in the first n pages.
 
     Elasticsearch sometimes reaches an inconsistent state, which causes search
     results to appear differently upon page refresh. This can also introduce
@@ -64,10 +89,10 @@ def search_consistency(
     appear in the first few pages of a search query.
     """
 
-    searches = set(
+    searches = {
         requests.get(f"{API_URL}/v1/{media_path}?page={page}", verify=False)
         for page in range(1, n_pages)
-    )
+    }
 
     results = set()
     for response in searches:
@@ -102,7 +127,7 @@ def report(media_type, fixture):
     test_id = fixture["results"][0]["id"]
     response = requests.post(
         f"{API_URL}/v1/{media_type}/{test_id}/report/",
-        {
+        json={
             "reason": "mature",
             "description": "This item contains sensitive content",
         },

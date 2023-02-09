@@ -1,24 +1,24 @@
 """
 This module highly mirrors the JavaScript code present in the frontend repository.
+
 For any changes made here, please make the corresponding changes in the
 frontend, or open an issue to track it.
 """
-
-from typing import Optional
 
 from catalog.api.utils.licenses import get_full_license_name, is_public_domain
 
 
 def get_attribution_text(
-    title: Optional[str],
-    creator: Optional[str],
+    title: str | None,
+    creator: str | None,
     _license: str,
-    license_version: Optional[str],
-    license_url: Optional[str],
+    license_version: str | None,
+    license_url: str | None,
 ) -> str:
     """
-    Get the attribution text to properly and legally attribute a creative work to its
-    creator. This text is only in plain-text English. Refer to the frontend for an
+    Get the text to properly and legally attribute a creative work to its creator.
+
+    This text is only in plain-text English. Refer to the frontend for an
     internationalised implementation with rich-text and HTML variants.
 
     :param title: the title of the creative work

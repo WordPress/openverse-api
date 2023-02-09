@@ -18,36 +18,40 @@ base_image = {
     "provider": "stocksnap",
     "source": "stocksnap",
     "category": "photograph",
-    "filesize": None,
-    "filetype": None,
+    "filesize": 896128,
+    "filetype": "jpg",
     "tags": [
-        {"name": "tree"},
-        {"name": "bark"},
-        {"name": "texture"},
-        {"name": "wood"},
-        {"name": "nature"},
-        {"name": "pattern"},
-        {"name": "rough"},
-        {"name": "surface"},
-        {"name": "brown"},
-        {"name": "old"},
-        {"name": "background"},
-        {"name": "trunk"},
-        {"name": "natural"},
-        {"name": "forest"},
-        {"name": "detail"},
-        {"name": "lumber"},
-        {"name": "weathered"},
-        {"name": "timber"},
-        {"name": "stump"},
-        {"name": "closeup"},
-        {"name": "root"},
+        {"accuracy": None, "name": "tree"},
+        {"accuracy": None, "name": "bark"},
+        {"accuracy": None, "name": "texture"},
+        {"accuracy": None, "name": "wood"},
+        {"accuracy": None, "name": "nature"},
+        {"accuracy": None, "name": "pattern"},
+        {"accuracy": None, "name": "rough"},
+        {"accuracy": None, "name": "surface"},
+        {"accuracy": None, "name": "brown"},
+        {"accuracy": None, "name": "old"},
+        {"accuracy": None, "name": "background"},
+        {"accuracy": None, "name": "trunk"},
+        {"accuracy": None, "name": "natural"},
+        {"accuracy": None, "name": "forest"},
+        {"accuracy": None, "name": "detail"},
+        {"accuracy": None, "name": "lumber"},
+        {"accuracy": None, "name": "weathered"},
+        {"accuracy": None, "name": "timber"},
+        {"accuracy": None, "name": "stump"},
+        {"accuracy": None, "name": "closeup"},
+        {"accuracy": None, "name": "root"},
     ],
-    "attribution": None,
+    "attribution": (
+        '"Tree Bark Photo" by Tim Sullivan is marked with '
+        "CC0 1.0. To view the terms, visit "
+        "https://creativecommons.org/publicdomain/zero/1.0/."
+    ),
     "fields_matched": [],
     "mature": False,
-    "height": None,
-    "width": None,
+    "height": 4016,
+    "width": 6016,
     "thumbnail": f"{origin}/v1/images/{identifier}/thumb/",
     "detail_url": f"{origin}/v1/images/{identifier}/",
     "related_url": f"{origin}/v1/images/{identifier}/related/",
@@ -59,27 +63,15 @@ detailed_image = base_image | {
     "filesize": 896128,
     "filetype": "jpg",
     "width": 6016,
-    "mature": None,
 }
 
 image_search_200_example = {
     "application/json": {
         "result_count": 1,
-        "page_count": 0,
+        "page_count": 1,
         "page_size": 20,
         "page": 1,
-        "results": [
-            base_image
-            | {
-                "fields_matched": ["title"],
-                "mature": False,
-                "height": None,
-                "width": None,
-                "attribution": None,
-                "filesize": None,
-                "filetype": None,
-            }
-        ],
+        "results": [base_image | {"fields_matched": ["title"]}],
     },
 }
 
@@ -117,7 +109,7 @@ image_detail_404_example = {"application/json": {"detail": "Not found."}}
 image_related_200_example = {
     "application/json": {
         "result_count": 10000,
-        "page_count": 0,
+        "page_count": 1,
         "results": [
             {
                 "title": "exam tactics",

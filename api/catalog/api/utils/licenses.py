@@ -1,10 +1,10 @@
 """
 This module highly mirrors the JavaScript code present in the frontend repository.
+
 For any changes made here, please make the corresponding changes in the
 frontend, or open an issue to track it.
 """
 
-from typing import Optional
 
 from catalog.api.constants.licenses import (
     ALL_CC_LICENSES,
@@ -13,7 +13,7 @@ from catalog.api.constants.licenses import (
 )
 
 
-def get_license_url(_license: str, license_version: Optional[str]) -> str:
+def get_license_url(_license: str, license_version: str | None) -> str:
     """
     Get the URL to the deed of the license.
 
@@ -33,10 +33,9 @@ def get_license_url(_license: str, license_version: Optional[str]) -> str:
     return f"https://creativecommons.org/{fragment}/"
 
 
-def get_full_license_name(_license: str, license_version: Optional[str]) -> str:
+def get_full_license_name(_license: str, license_version: str | None) -> str:
     """
-    Get the full name of the license in a displayable format from the license
-    slug and version.
+    Get the readable full name of the license from the license slug and version.
 
     :param _license: the slug of the license
     :param license_version: the version number of the license
@@ -57,9 +56,10 @@ def get_full_license_name(_license: str, license_version: Optional[str]) -> str:
 
 def is_public_domain(_license: str) -> bool:
     """
+    Check if the given name belongs to a public-domain mark and is not a license.
+
     CC licenses have different legal status from the public domain marks
-    such as CC0 and PDM, and need different wording. Check if the given name
-    belongs to a public-domain mark and is not a license.
+    such as CC0 and PDM, and need different wording.
 
     :param _license: the license slug to check
     :return: ``True`` if the license is a public domain mark, ``False`` otherwise
@@ -70,8 +70,9 @@ def is_public_domain(_license: str) -> bool:
 
 def is_cc(_license: str) -> bool:
     """
-    Check if the given name belongs to a CC license, active or deprecated. This
-    includes CC0, which although not technically a license, is offered by CC.
+    Check if the given name belongs to a CC license, active or deprecated.
+
+    This includes CC0, which although not technically a license, is offered by CC.
 
     :param _license: the license slug to check
     :return: ``True`` if the license is a CC license, ``False`` otherwise
@@ -82,8 +83,9 @@ def is_cc(_license: str) -> bool:
 
 def is_deprecated(_license: str) -> bool:
     """
-    Check if the given name belongs to a deprecated CC license. The full list of
-    deprecated licenses can be found on the
+    Check if the given name belongs to a deprecated CC license.
+
+    The full list of deprecated licenses can be found on the
     [Retired Legal Tools page](https://creativecommons.org/retiredlicenses/) on
     the CC.org site.
 

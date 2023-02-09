@@ -1,6 +1,8 @@
 """
-End-to-end API tests for images. Can be used to verify a live deployment is
-functioning as designed. Run with the `pytest -s` command from this directory.
+End-to-end API tests for images.
+
+Can be used to verify a live deployment is functioning as designed.
+Run with the `pytest -s` command from this directory.
 """
 
 import json
@@ -15,6 +17,7 @@ from test.media_integration import (
     search_all_excluded,
     search_consistency,
     search_quotes,
+    search_quotes_exact,
     search_source_and_excluded,
     search_special_chars,
     stats,
@@ -53,6 +56,11 @@ def test_search_quotes():
     search_quotes("images", "dog")
 
 
+def test_search_quotes_exact():
+    # ``bird perched`` returns different results when quoted vs unquoted
+    search_quotes_exact("images", "bird perched")
+
+
 def test_search_with_special_characters():
     search_special_chars("images", "dog")
 
@@ -72,6 +80,32 @@ def test_image_stats():
 
 def test_audio_report(image_fixture):
     report("images", image_fixture)
+
+
+def test_oembed_endpoint_with_non_existent_image():
+    params = {
+        "url": "https://any.domain/any/path/00000000-0000-0000-0000-000000000000",
+    }
+    response = requests.get(
+        f"{API_URL}/v1/images/oembed?{urlencode(params)}", verify=False
+    )
+    assert response.status_code == 404
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        f"https://any.domain/any/path/{identifier}",  # no trailing slash
+        f"https://any.domain/any/path/{identifier}/",  # trailing slash
+        identifier,  # just identifier instead of URL
+    ],
+)
+def test_oembed_endpoint_with_fuzzy_input(url):
+    params = {"url": url}
+    response = requests.get(
+        f"{API_URL}/v1/images/oembed?{urlencode(params)}", verify=False
+    )
+    assert response.status_code == 200
 
 
 def test_oembed_endpoint_for_json():

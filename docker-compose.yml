@@ -11,15 +11,6 @@ services:
     volumes:
       - api-postgres:/var/lib/postgresql/data
 
-  thumbnails:
-    image: ghcr.io/wordpress/openverse-imaginary:latest
-    expose:
-      - "8222"
-    environment:
-      PORT: 8222
-      MALLOC_ARENA_MAX: 2
-    command: ["-enable-url-source", "-forward-headers", "User-Agent"]
-
   upstream_db:
     image: postgres:13.2-alpine
     expose:
@@ -46,6 +37,8 @@ services:
       # https://www.elastic.co/guide/en/elasticsearch/reference/5.3/docker.html#_security_note
       - xpack.security.enabled=false
       - discovery.type=single-node
+      - http.cors.enabled=true
+      - http.cors.allow-origin=/.*/
     healthcheck:
       test:
         [
@@ -67,7 +60,10 @@ services:
       - es-data:/usr/share/elasticsearch/data
 
   web:
-    build: ./api/
+    build:
+      context: ./api/
+      args:
+        SEMANTIC_VERSION: ${SEMANTIC_VERSION:-v1.0.0}
     image: openverse-api
     volumes:
       - ./api:/api
@@ -80,9 +76,12 @@ services:
       - cache
     env_file:
       - api/env.docker
+      - api/.env
+    environment:
+      STATIC_ROOT: ${STATIC_ROOT:-}
+      MEDIA_ROOT: ${MEDIA_ROOT:-}
     stdin_open: true
     tty: true
-    user: ${DOCKER_USER_ID}:${DOCKER_GROUP_ID}
 
   ingestion_server:
     build: ./ingestion_server/

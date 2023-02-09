@@ -1,6 +1,6 @@
 import random
+from collections.abc import Callable
 from enum import Enum, auto
-from typing import Callable
 from unittest import mock
 from uuid import uuid4
 
@@ -9,43 +9,55 @@ from django_redis import get_redis_connection
 from elasticsearch_dsl import Search
 
 from catalog.api.controllers import search_controller
+from catalog.api.serializers.media_serializers import MediaSearchRequestSerializer
+from catalog.api.utils import tallies
 from catalog.api.utils.dead_link_mask import get_query_hash, save_query_mask
-from catalog.api.utils.pagination import MAX_TOTAL_PAGE_COUNT
 
 
 @pytest.mark.parametrize(
-    "total_hits, real_result_count, page_size, expected",
+    "total_hits, real_result_count, page_size, page, expected",
     [
         # No results
-        (0, 0, 10, (0, 0)),
+        (0, 0, 10, 1, (0, 0)),
         # Setting page size to 0 raises an exception
+        # Not possible in the actual API
         pytest.param(
-            0, 0, 0, (0, 0), marks=pytest.mark.raises(exception=ZeroDivisionError)
+            5, 5, 0, 1, (0, 0), marks=pytest.mark.raises(exception=ZeroDivisionError)
         ),
         # Fewer results than page size leads to max of result total
-        (5, 5, 10, (5, 0)),
-        # Even if no real results exist, total result count and page count are returned
-        # (seems like an impossible case IRL)
-        (100, 0, 10, (100, 10)),
+        (5, 5, 10, 1, (5, 1)),
+        # If no real results exist, even if there are hits, fall back to 0, 0
+        # (This case represents where all the links for a result are dead, for example)
+        (100, 0, 10, 1, (0, 0)),
         # If there are real results and ES reports no hits, nothing is expected
         # (seems like an impossible case IRL)
-        (0, 100, 10, (0, 0)),
+        (0, 100, 10, 1, (0, 0)),
         # Evenly divisible number of pages
-        (25, 5, 5, (25, 5)),
+        (25, 5, 5, 1, (25, 5)),
+        # An edge case that previously did not behave as expected with evenly divisble numbers of pages
+        (20, 5, 5, 1, (20, 4)),
         # Unevenly divisible number of pages
-        (21, 5, 5, (21, 5)),
-        # My assumption would be that this yields (20, 4), but the code is such that
-        # when the "natural" page count can't be cleanly divisible by the page size,
-        # We increment it plus one. Why would that be the case? 20 results, with 5
-        # results per-page, would seem to result in 4 pages total not 5 🤷‍♀️
-        (20, 5, 5, (20, 5)),
+        (21, 5, 5, 1, (21, 5)),
         # Fewer hits than page size, but result list somehow differs, use that for count
-        (48, 20, 50, (20, 0)),
-        # Page count gets truncated always
-        (5000, 10, 10, (5000, MAX_TOTAL_PAGE_COUNT)),
+        (48, 20, 50, 1, (20, 1)),
+        # Despite us applying a pagination limit, that is applied further up in the API, not at this low a level
+        (2000, 20, 20, 2, (2000, 100)),
+        # Page count is reduced to the current page number even though 2000 / 20 is much larger than 5
+        # because despite that we have result count < page size which indicates we've exhausted the query
+        (2000, 5, 20, 5, (2000, 5)),
+        # First page, we got all the results and there are no further possible pages with the current page count
+        (10, 10, 20, 1, (10, 1)),
+        # This is here to test a case that used to erroneously produce (10, 2) by adding 1
+        # to the page count when it wasn't necessary to do so.
+        (10, 10, 10, 1, (10, 1)),
+        # This is technically impossible because we truncate results to the page size before entering this method
+        # I think the handling of this case is a likely source for the bug in the previous case
+        (10, 10, 9, 1, (10, 2)),
     ],
 )
-def test_get_result_and_page_count(total_hits, real_result_count, page_size, expected):
+def test_get_result_and_page_count(
+    total_hits, real_result_count, page_size, page, expected
+):
     response_obj = mock.MagicMock()
     response_obj.hits.total.value = total_hits
     results = [mock.MagicMock() for _ in range(real_result_count)]
@@ -54,6 +66,7 @@ def test_get_result_and_page_count(total_hits, real_result_count, page_size, exp
         response_obj,
         results,
         page_size,
+        page,
     )
     assert actual == expected
 
@@ -140,7 +153,7 @@ class CreateMaskConfig(Enum):
 
 
 @pytest.fixture(name="create_mask")
-def create_mask_fixture() -> Callable[(Search, int, int), None]:
+def create_mask_fixture() -> Callable[[Search, int, int], None]:
     created_masks = []
 
     def create_mask(
@@ -366,3 +379,127 @@ def test_paginate_with_dead_link_mask_query_mask_overlaps_query_window(
     assert (
         actual_range == expected_range
     ), f"expected {expected_range} but got {actual_range}"
+
+
+@pytest.mark.parametrize(
+    "index",
+    (
+        "image",
+        "audio",
+    ),
+)
+@pytest.mark.parametrize(
+    ("page", "page_size", "does_tally", "number_of_results_passed"),
+    (
+        (1, 20, True, 20),
+        (2, 20, True, 20),
+        (3, 20, True, 20),
+        (4, 20, True, 20),
+        (5, 20, False, 0),
+        (1, 40, True, 40),
+        (2, 40, True, 40),
+        (3, 40, False, 0),
+        (4, 40, False, 0),
+        (5, 40, False, 0),
+        (1, 10, True, 10),
+        (2, 10, True, 10),
+        (3, 10, True, 10),
+        (4, 10, True, 10),
+        (5, 10, True, 10),
+        (6, 10, True, 10),
+        (7, 10, True, 10),
+        (8, 10, True, 10),
+        (9, 10, False, 0),
+        (1, 12, True, 12),
+        (2, 12, True, 12),
+        (3, 12, True, 12),
+        (4, 12, True, 12),
+        (5, 12, True, 12),
+        (6, 12, True, 12),
+        (7, 12, True, 8),
+        (8, 12, False, 0),
+    ),
+)
+@mock.patch.object(
+    tallies, "count_provider_occurrences", wraps=tallies.count_provider_occurrences
+)
+@mock.patch(
+    "catalog.api.controllers.search_controller._post_process_results",
+)
+@pytest.mark.django_db
+def test_search_tallies_pages_less_than_5(
+    mock_post_process_results,
+    count_provider_occurrences_mock: mock.MagicMock,
+    page,
+    page_size,
+    does_tally,
+    number_of_results_passed,
+    index,
+    request_factory,
+):
+    mock_post_process_results.return_value = [
+        {"provider": "a provider", "identifier": i} for i in range(page_size)
+    ]
+
+    serializer = MediaSearchRequestSerializer(data={"q": "dogs"})
+    serializer.is_valid()
+
+    search_controller.search(
+        search_params=serializer,
+        ip=0,
+        index=index,
+        page=page,
+        page_size=page_size,
+        request=request_factory.get("/"),
+        filter_dead=False,
+    )
+
+    if does_tally:
+        count_provider_occurrences_mock.assert_called_once_with(
+            mock.ANY,
+            index,
+        )
+        passed_results = count_provider_occurrences_mock.call_args_list[0][0][0]
+        assert len(passed_results) == number_of_results_passed
+    else:
+        count_provider_occurrences_mock.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    "index",
+    (
+        "image",
+        "audio",
+    ),
+)
+@mock.patch.object(
+    tallies, "count_provider_occurrences", wraps=tallies.count_provider_occurrences
+)
+@mock.patch(
+    "catalog.api.controllers.search_controller._post_process_results",
+)
+@pytest.mark.django_db
+def test_search_tallies_handles_empty_page(
+    mock_post_process_results,
+    count_provider_occurrences_mock: mock.MagicMock,
+    index,
+    request_factory,
+):
+    mock_post_process_results.return_value = None
+
+    serializer = MediaSearchRequestSerializer(data={"q": "dogs"})
+    serializer.is_valid()
+
+    search_controller.search(
+        search_params=serializer,
+        ip=0,
+        index=index,
+        # Force calculated result depth length to include results within 80th position and above
+        # to force edge case where retrieved results are only partially tallied.
+        page=1,
+        page_size=100,
+        request=request_factory.get("/"),
+        filter_dead=True,
+    )
+
+    count_provider_occurrences_mock.assert_not_called()

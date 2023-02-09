@@ -22,21 +22,21 @@ base_audio = {
     "filesize": 7139840,
     "filetype": "mp3",
     "tags": [
-        {"name": "vocal"},
-        {"name": "female"},
-        {"name": "speed_medium"},
-        {"name": "guitar"},
-        {"name": "strings"},
-        {"name": "energetic"},
-        {"name": "acoustic"},
-        {"name": "vocal"},
-        {"name": "voice"},
-        {"name": "funkyhouse"},
+        {"accuracy": None, "name": "vocal"},
+        {"accuracy": None, "name": "female"},
+        {"accuracy": None, "name": "speed_medium"},
+        {"accuracy": None, "name": "guitar"},
+        {"accuracy": None, "name": "strings"},
+        {"accuracy": None, "name": "energetic"},
+        {"accuracy": None, "name": "acoustic"},
+        {"accuracy": None, "name": "vocal"},
+        {"accuracy": None, "name": "voice"},
+        {"accuracy": None, "name": "funkyhouse"},
     ],
     "alt_files": None,
     "attribution": '"Wish You Were Here" by The.madpix.project is licensed under CC BY-NC-SA 3.0. To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/.',  # noqa: E501,
     "fields_matched": [],
-    "mature": None,
+    "mature": False,
     "audio_set": {
         "title": "Wish You Were Here",
         "foreign_landing_url": "https://www.jamendo.com/album/145774/wish-you-were-here",  # noqa: E501
@@ -53,24 +53,16 @@ base_audio = {
     "detail_url": f"{origin}/v1/audio/{identifier}/",
     "related_url": f"{origin}/v1/audio/{identifier}/related/",
     "waveform": f"{origin}/v1/audio/{identifier}/waveform/",
-    "peaks": [],
 }
 
 audio_search_200_example = {
     "application/json": {
         "result_count": 1,
-        "page_count": 0,
+        "page_count": 1,
         "page_size": 20,
         "page": 1,
         "results": [
-            base_audio
-            | {
-                "fields_matched": ["title"],
-                "mature": False,
-                "audio_set": None,
-                "attribution": None,
-                "filesize": None,
-            },
+            base_audio | {"fields_matched": ["title"]},
         ],
     },
 }
@@ -116,7 +108,7 @@ audio_detail_404_example = {"application/json": {"detail": "Not found."}}
 audio_related_200_example = {
     "application/json": {
         "result_count": 10000,
-        "page_count": 0,
+        "page_count": 1,
         "results": [
             {
                 "title": "File:Mozart - Eine kleine Nachtmusik - 1. Allegro.ogg",

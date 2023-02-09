@@ -1,3 +1,12 @@
+"""
+These are the LEGACY API integration tests.
+
+**Do not add further tests here. New tests should be added in v1_integration_test.**
+
+End-to-end API tests. Can be used to verify a live deployment is functioning as
+designed. Run with the `pytest -s` command from this directory.
+"""
+
 import json
 import os
 import uuid
@@ -8,15 +17,6 @@ import requests
 from catalog.api.constants.licenses import LICENSE_GROUPS
 from catalog.api.models import Image
 from catalog.api.utils.watermark import watermark
-
-
-"""
-**These are the LEGACY API integration tests; do not add further tests here.**
-New tests should be added in v1_integration_test.
-
-End-to-end API tests. Can be used to verify a live deployment is functioning as
-designed. Run with the `pytest -s` command from this directory.
-"""
 
 
 API_URL = os.getenv("INTEGRATION_TEST_URL", "http://localhost:8000")
@@ -41,9 +41,8 @@ def search_fixture():
 
 
 def test_search_quotes():
-    """
-    We want to return a response even if the user messes up quote matching.
-    """
+    """Test that a response is given even if the user messes up quote matching."""
+
     response = requests.get(f'{API_URL}/image/search?q="test"', verify=False)
     assert response.status_code == 200
 
@@ -54,16 +53,18 @@ def test_search(search_fixture):
 
 def test_search_consistency():
     """
+    Ensure that no duplicates appear in the first few pages of a search query.
+
     Elasticsearch sometimes reaches an inconsistent state, which causes search
     results to appear differently upon page refresh. This can also introduce
-    image duplicates in subsequent pages. This test ensures that no duplicates
-    appear in the first few pages of a search query.
+    image duplicates in subsequent pages.
     """
+
     n_pages = 5
-    searches = set(
+    searches = {
         requests.get(f"{API_URL}/image/search?q=honey;page={page}", verify=False)
         for page in range(1, n_pages)
-    )
+    }
 
     images = set()
     for response in searches:
@@ -167,9 +168,8 @@ def test_list_delete(test_list_create):
 
 
 def test_license_type_filtering():
-    """
-    Ensure that multiple license type filters interact together correctly.
-    """
+    """Ensure that multiple license type filters interact together correctly."""
+
     commercial = LICENSE_GROUPS["commercial"]
     modification = LICENSE_GROUPS["modification"]
     commercial_and_modification = set.intersection(modification, commercial)
@@ -199,10 +199,8 @@ def test_specific_license_filter():
 
 
 def test_creator_quotation_grouping():
-    """
-    Users should be able to group terms together with quotation marks to narrow
-    down their searches more effectively.
-    """
+    """Test that quotation marks can be used to narrow down search results."""
+
     no_quotes = json.loads(
         requests.get(
             f"{API_URL}/image/search?creator=claude%20monet", verify=False
@@ -281,10 +279,12 @@ def test_watermark_preserves_exif():
 
 def test_attribution():
     """
-    The API includes an attribution string. Since there are some works where
-    the title or creator is not known, the format of the attribution string
-    can need to be tweaked slightly.
+    Check that the API includes an attribution string.
+
+    Since there are some works where the title or creator is not known, the format of
+    the attribution string can need to be tweaked slightly.
     """
+
     title_and_creator_missing = Image(
         identifier="ab80dbe1-414c-4ee8-9543-f9599312aeb8",
         title=None,
@@ -348,9 +348,7 @@ def test_extension_filter():
 
 @pytest.fixture
 def search_factory():
-    """
-    Allows passing url parameters along with a search request.
-    """
+    """Allow passing url parameters along with a search request."""
 
     def _parameterized_search(**kwargs):
         response = requests.get(f"{API_URL}/image/search", params=kwargs, verify=False)
@@ -363,9 +361,7 @@ def search_factory():
 
 @pytest.fixture
 def search_with_dead_links(search_factory):
-    """
-    Here we pass filter_dead = False.
-    """
+    """Test with ``filter_dead`` parameter set to ``False``."""
 
     def _search_with_dead_links(**kwargs):
         return search_factory(filter_dead=False, **kwargs)
@@ -375,9 +371,7 @@ def search_with_dead_links(search_factory):
 
 @pytest.fixture
 def search_without_dead_links(search_factory):
-    """
-    Here we pass filter_dead = True.
-    """
+    """Test with ``filter_dead`` parameter set to ``True``."""
 
     def _search_without_dead_links(**kwargs):
         return search_factory(filter_dead=True, **kwargs)
@@ -387,12 +381,12 @@ def search_without_dead_links(search_factory):
 
 def test_page_size_removing_dead_links(search_without_dead_links):
     """
+    Test whether the number of results returned is equal to the requested page size.
+
     We have about 500 dead links in the sample data and should have around
     8 dead links in the first 100 results on a query composed of a single
     wildcard operator.
 
-    Test whether the number of results returned is equal to the requested
-    pagesize of 100.
     """
     data = search_without_dead_links(q="*", pagesize=100)
     assert len(data["results"]) == 100
@@ -402,8 +396,7 @@ def test_dead_links_are_correctly_filtered(
     search_with_dead_links, search_without_dead_links
 ):
     """
-    Test the results for the same query with and without dead links are
-    actually different.
+    Test the results for the same query with and without dead links are different.
 
     We use the results' id to compare them.
     """
@@ -421,10 +414,8 @@ def test_dead_links_are_correctly_filtered(
 
 
 def test_page_consistency_removing_dead_links(search_without_dead_links):
-    """
-    Test the results returned in consecutive pages are never repeated when
-    filtering out dead links.
-    """
+    """Test that results in consecutive pages don't repeat when filtering dead links."""
+
     total_pages = 100
     pagesize = 5
 
@@ -455,9 +446,7 @@ def test_related_does_not_break():
 
 @pytest.fixture
 def related_factory():
-    """
-    Allows passing url parameters along with a related images request.
-    """
+    """Allow passing url parameters along with a related images request."""
 
     def _parameterized_search(identifier, **kwargs):
         response = requests.get(

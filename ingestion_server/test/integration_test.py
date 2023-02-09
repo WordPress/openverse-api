@@ -1,7 +1,8 @@
 """
-Integration test for the ingestion-server. Spins up Docker containers, loads
-1000 images into the upstream database, and ensures that the data has been
-copied and indexed downstream.
+Integration test for the ingestion-server.
+
+This test spins up Docker containers, loads media items into the upstream database, and
+ensures that the data has been copied and indexed downstream.
 """
 
 import logging
@@ -67,6 +68,7 @@ class TestIngestion(unittest.TestCase):
     def _wait_for_dbs(cls):
         """
         Wait for databases to come up and establish connections to both.
+
         :return: the connections to the upstream and downstream databases
         """
 
@@ -106,8 +108,8 @@ class TestIngestion(unittest.TestCase):
     @classmethod
     def _wait(cls, cmd):
         """
-        Run the given long running command in a subprocess and block while that
-        command executes.
+        Run the given long-running command in a subprocess and block while it runs.
+
         :param cmd: the long-running command to execute in a subprocess
         """
 
@@ -120,9 +122,7 @@ class TestIngestion(unittest.TestCase):
 
     @classmethod
     def _wait_for_es(cls) -> None:
-        """
-        Wait for Elasticsearch to come up.
-        """
+        """Wait for Elasticsearch to come up."""
 
         logging.info("Waiting for ES to be ready...")
         port = service_ports["es"]
@@ -131,9 +131,7 @@ class TestIngestion(unittest.TestCase):
 
     @classmethod
     def _wait_for_ing(cls) -> None:
-        """
-        Wait for ingestion-server to come up.
-        """
+        """Wait for ingestion-server to come up."""
 
         logging.info("Waiting for ingestion-server to be ready...")
         port = service_ports["ingestion_server"]
@@ -145,7 +143,7 @@ class TestIngestion(unittest.TestCase):
         cur = conn.cursor()
         for schema_name in schema_names:
             schema_path = this_dir.joinpath("mock_schemas", f"{schema_name}.sql")
-            with open(schema_path, "r") as schema:
+            with open(schema_path) as schema:
                 cur.execute(schema.read())
         conn.commit()
         cur.close()
@@ -155,7 +153,7 @@ class TestIngestion(unittest.TestCase):
         cur = conn.cursor()
         for table_name in table_names:
             data_path = this_dir.joinpath("mock_data", f"mocked_{table_name}.csv")
-            with open(data_path, "r") as data:
+            with open(data_path) as data:
                 cur.copy_expert(
                     f"COPY {table_name} FROM STDIN WITH (FORMAT csv, HEADER true)",
                     data,
@@ -167,6 +165,7 @@ class TestIngestion(unittest.TestCase):
     def _get_index_parts(index: str, table: str) -> list[str]:
         """
         Strip out common keywords from the index to get a the name & columns.
+
         Indices take the form of:
           CREATE [UNIQUE] INDEX {name} ON {table} USING btree {columns}
         Output will look like: ["my_special_index", "(my_column)"]
@@ -185,9 +184,8 @@ class TestIngestion(unittest.TestCase):
 
     @classmethod
     def _get_indices(cls, conn, table) -> dict[str, str]:
-        """
-        Get the indices on a given table using a given connection.
-        """
+        """Get the indices on a given table using a given connection."""
+
         index_sql = f"SELECT indexdef FROM pg_indexes WHERE tablename = '{table}';"
         with conn.cursor() as cursor:
             cursor.execute(index_sql)
@@ -197,9 +195,8 @@ class TestIngestion(unittest.TestCase):
 
     @classmethod
     def _get_constraints(cls, conn, table) -> dict[str, str]:
-        """
-        Get the constraints on a given table using a given connection.
-        """
+        """Get the constraints on a given table using a given connection."""
+
         constraint_sql = f"""
              SELECT conname, pg_get_constraintdef(c.oid)
              FROM pg_constraint AS c
@@ -218,10 +215,8 @@ class TestIngestion(unittest.TestCase):
         assert es.indices.get(index=index_name) is not None
 
     def _ingest_upstream(self, model, suffix="integration"):
-        """
-        Check that INGEST_UPSTREAM task completes successfully and responds
-        with a callback.
-        """
+        """Check that INGEST_UPSTREAM task succeeds and responds with a callback."""
+
         before_indices = self._get_indices(self.downstream_db, model)
         before_constraints = self._get_constraints(self.downstream_db, model)
         req = {
@@ -248,10 +243,8 @@ class TestIngestion(unittest.TestCase):
         ), "Constraints in DB don't match the names they had before the go-live"
 
     def _promote(self, model, suffix="integration", alias=None):
-        """
-        Check that PROMOTE task completes successfully and configures alias mapping
-        in Elasticsearch.
-        """
+        """Check that PROMOTE task succeeds and configures alias mapping in ES."""
+
         if alias is None:
             alias = model
         req = {
@@ -299,11 +292,14 @@ class TestIngestion(unittest.TestCase):
         self, model, alias, suffix="integration", omit_force_delete=False
     ):
         """
+        Send a soft delete request.
+
         Deleting without the ``force_delete`` flag set to ``True`` is
         considered a soft-delete because it will be declined if the target is
         an alias. Not providing the flag is equivalent to setting it to
         ``False``.
         """
+
         req = {
             "model": model,
             "action": "DELETE_INDEX",
@@ -442,37 +438,37 @@ class TestIngestion(unittest.TestCase):
     @pytest.mark.order(8)
     def test_upstream_indexed_images(self):
         """
-        Check that the image data has been successfully indexed in
-        Elasticsearch. The number of hits for a blank search should match the
-        size of the loaded mock data.
+        Check that the image data has been successfully indexed in Elasticsearch.
+
+        The number of hits for a blank search should match the size of the loaded mock
+        data.
         """
 
         es = self._get_es()
         es.indices.refresh(index="image-integration")
         count = es.count(index="image-integration")["count"]
         msg = "There should be 5000 images in Elasticsearch after ingestion."
-        self.assertEquals(count, 5000, msg)
+        self.assertEqual(count, 5000, msg)
 
     @pytest.mark.order(9)
     def test_upstream_indexed_audio(self):
         """
-        Check that the audio data has been successfully indexed in
-        Elasticsearch. The number of hits for a blank search should match the
-        size of the loaded mock data.
+        Check that the audio data has been successfully indexed in Elasticsearch.
+
+        The number of hits for a blank search should match the size of the loaded mock
+        data.
         """
 
         es = self._get_es()
         es.indices.refresh(index="audio-integration")
         count = es.count(index="audio-integration")["count"]
         msg = "There should be 5000 audio tracks in Elasticsearch after ingestion."
-        self.assertEquals(count, 5000, msg)
+        self.assertEqual(count, 5000, msg)
 
     @pytest.mark.order(10)
     def test_update_index_images(self):
-        """
-        Check that the image data can be updated from the API database into
-        Elasticsearch.
-        """
+        """Check that the image data can be updated from the API database into ES."""
+
         req = {
             "model": "image",
             "action": "UPDATE_INDEX",
@@ -489,10 +485,8 @@ class TestIngestion(unittest.TestCase):
 
     @pytest.mark.order(11)
     def test_update_index_audio(self):
-        """
-        Check that the audio data can be updated from the API database into
-        Elasticsearch.
-        """
+        """Check that the audio data can be updated from the API database into ES."""
+
         req = {
             "model": "audio",
             "action": "UPDATE_INDEX",

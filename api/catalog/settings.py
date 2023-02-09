@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 from socket import gethostbyname, gethostname
 
@@ -20,6 +21,9 @@ from sentry_sdk.integrations.logging import ignore_logger
 
 from catalog.configuration.aws import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 from catalog.configuration.elasticsearch import ES, MEDIA_INDEX_MAPPING
+from catalog.configuration.link_validation_cache import (
+    LinkValidationCacheExpiryConfiguration,
+)
 from catalog.configuration.logging import LOGGING
 
 
@@ -27,11 +31,11 @@ from catalog.configuration.logging import LOGGING
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Where to collect static files in production/development deployments
-STATIC_ROOT = "/var/api_static_content/static"
+STATIC_ROOT = config("STATIC_ROOT", default="/var/api_static_content/static")
 
-# Logo uploads
-MEDIA_ROOT = "/var/api_media/"
-MEDIA_URL = "/media/"
+FILTER_DEAD_LINKS_BY_DEFAULT = config(
+    "FILTER_DEAD_LINKS_BY_DEFAULT", cast=bool, default=True
+)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -174,40 +178,51 @@ if config("DISABLE_GLOBAL_THROTTLING", default=True, cast=bool):
 REDIS_HOST = config("REDIS_HOST", default="localhost")
 REDIS_PORT = config("REDIS_PORT", default=6379, cast=int)
 REDIS_PASSWORD = config("REDIS_PASSWORD", default="")
+
+
+def _make_cache_config(dbnum: int, **overrides) -> dict:
+    return {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{dbnum}",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+        | overrides.pop("OPTIONS", {}),
+    } | overrides
+
+
 CACHES = {
     # Site cache writes to 'default'
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/0",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
-    },
+    "default": _make_cache_config(0),
     # For rapidly changing stats that we don't want to hammer the database with
-    "traffic_stats": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/1",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
-    },
+    "traffic_stats": _make_cache_config(1),
     # For ensuring consistency among multiple Django workers and servers.
     # Used by Redlock.
-    "locks": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/2",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
-    },
+    "locks": _make_cache_config(2),
+    # Used for tracking tallied figures that shouldn't expire and are indexed
+    # with a timestamp range (for example, the key could a timestamp valid
+    # for a given week), allowing historical data analysis.
+    "tallies": _make_cache_config(3, TIMEOUT=None),
 }
 
-# Produce CC-hosted thumbnails dynamically through a proxy.
-THUMBNAIL_PROXY_URL = config("THUMBNAIL_PROXY_URL", default="http://localhost:8222")
+# If key is not present then the authentication header won't be sent
+# and query forwarding will not work as expected. Lack of query forwarding
+# is not an issue for local development so this compromise is okay.
+PHOTON_AUTH_KEY = config("PHOTON_AUTH_KEY", default=None)
 
-THUMBNAIL_WIDTH_PX = config("THUMBNAIL_WIDTH_PX", cast=int, default=600)
-THUMBNAIL_JPG_QUALITY = config("THUMBNAIL_JPG_QUALITY", cast=int, default=80)
-THUMBNAIL_PNG_COMPRESSION = config("THUMBNAIL_PNG_COMPRESSION", cast=int, default=6)
+# Produce CC-hosted thumbnails dynamically through a proxy.
+PHOTON_ENDPOINT = config("PHOTON_ENDPOINT", default="https://i0.wp.com/")
+
+# These do not need to be cast to int because we don't use them directly,
+# they're just passed through to Photon's API
+# Keeping them as strings makes the tests slightly less verbose (for not needing
+# to cast them in assertions to match the parsed param types)
+THUMBNAIL_WIDTH_PX = config("THUMBNAIL_WIDTH_PX", default="600")
+THUMBNAIL_QUALITY = config("THUMBNAIL_JPG_QUALITY", default="80")
+
+THUMBNAIL_TIMEOUT_PREFIX = config(
+    "THUMBNAIL_TIMEOUT_PREFIX", default="thumbnail_timeout:"
+)
 
 AUTHENTICATION_BACKENDS = (
     "oauth2_provider.backends.OAuth2Backend",
@@ -245,14 +260,6 @@ DATABASES = {
         "USER": config("DJANGO_DATABASE_USER", default="deploy"),
         "PASSWORD": config("DJANGO_DATABASE_PASSWORD", default="deploy"),
         "NAME": config("DJANGO_DATABASE_NAME", default="openledger"),
-    },
-    "upstream": {
-        "ENGINE": "django.db.backends.postgresql",
-        "HOST": config("UPSTREAM_DATABASE_HOST", default="localhost"),
-        "PORT": config("UPSTREAM_DATABASE_PORT", default=5433, cast=int),
-        "USER": config("UPSTREAM_DATABASE_USER", default="deploy"),
-        "PASSWORD": config("UPSTREAM_DATABASE_PASSWORD", default="deploy"),
-        "NAME": config("UPSTREAM_DATABASE_NAME", default="openledger"),
     },
 }
 
@@ -361,3 +368,16 @@ if not DEBUG and SENTRY_DSN:
     # from pushing un-actionable alerts to Sentry like
     # https://sentry.io/share/issue/9af3cdf8ef74420aa7bbb6697760a82c/
     ignore_logger("django.security.DisallowedHost")
+
+# Custom link validation expiration times
+# Overrides can be set via LINK_VALIDATION_CACHE_EXPIRY__<http integer status code>
+# and should be set as kwarg dicts for datetime.timedelta
+# E.g. LINK_VALIDATION_CACHE_EXPIRY__200='{"days": 1}' will set the expiration time
+# for links with HTTP status 200 to 1 day
+LINK_VALIDATION_CACHE_EXPIRY_CONFIGURATION = LinkValidationCacheExpiryConfiguration()
+
+MAX_ANONYMOUS_PAGE_SIZE = 20
+MAX_AUTHED_PAGE_SIZE = 500
+MAX_PAGINATION_DEPTH = 20
+
+BASE_URL = config("BASE_URL", default="https://wordpress.org/openverse/")

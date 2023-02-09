@@ -1,12 +1,9 @@
-"""
-Simple in-memory tracking of executed tasks.
-"""
+"""Simple in-memory tracking of executed tasks."""
 
 import datetime
 import logging
 from enum import Enum, auto
 from multiprocessing import Value
-from typing import Optional
 
 from ingestion_server import slack
 from ingestion_server.constants.media_types import MediaType
@@ -19,8 +16,9 @@ class TaskTypes(Enum):
     @staticmethod
     def _generate_next_value_(name: str, *args, **kwargs) -> str:
         """
-        Generates the value for ``auto()`` given the name of the enum item. Therefore,
-        this function must be defined before any of the enum items.
+        Generate the value for ``auto()`` given the name of the enum item.
+
+        Therefore, this function must be defined before any of the enum items.
 
         :param name: the enum variable name
         :return: the enum value
@@ -58,8 +56,9 @@ class TaskTypes(Enum):
 
     def __str__(self):
         """
-        Get the string representation of this enum. Unlike other objects, this
-        does not default to ``__repr__``.
+        Get the string representation of this enum.
+
+        Unlike other objects, this does not default to ``__repr__``.
 
         :return: the string representation
         """
@@ -78,6 +77,7 @@ class TaskTracker:
     def add_task(self, task_id: str, **kwargs):
         """
         Store information about a new task in memory.
+
         :param task: the task being performed
         :param task_id: the UUID of the task
         """
@@ -92,13 +92,15 @@ class TaskTracker:
     def serialize_task_info(task_info: dict) -> dict:
         """
         Generate a response dictionary containing all relevant information about a task.
+
         :param task_info: the stored information about the task
         :return: the details of the task to show to the user
         """
 
-        def _time_fmt(timestamp: int) -> Optional[str]:
+        def _time_fmt(timestamp: int) -> str | None:
             """
             Format the timestamp into a human-readable date and time notation.
+
             :param timestamp: the timestamp to format
             :return: the human-readable form of the timestamp
             """
@@ -130,6 +132,7 @@ class TaskTracker:
     def list_task_statuses(self) -> list:
         """
         Get the statuses of all tasks.
+
         :return: the statuses of all tasks
         """
 
@@ -140,6 +143,7 @@ class TaskTracker:
     def get_task_status(self, task_id) -> dict:
         """
         Get the status of a single task with the given task ID.
+
         :param task_id: the ID of the task to get the status for
         :return: the status of the task
         """
@@ -154,7 +158,7 @@ def perform_task(
     task_id: str,
     model: MediaType,
     action: TaskTypes,
-    callback_url: Optional[str],
+    callback_url: str | None,
     progress: Value,
     finish_time: Value,
     active_workers: Value,
@@ -162,9 +166,9 @@ def perform_task(
     **kwargs,
 ):
     """
-    Perform the task defined by the API request by invoking the task function with the
-    correct arguments. Any additional keyword arguments will be forwarded to the
-    appropriate task functions.
+    Perform the requested task by invoking the task function with the correct arguments.
+
+    Any additional keyword arguments will be forwarded to the task functions.
 
     :param task_id: the UUID assigned to the task for tracking
     :param model: the media type for which the action is being performed

@@ -34,6 +34,27 @@ COPY Pipfile Pipfile.lock ./
 # Install Python dependencies system-wide (uses the active virtualenv)
 RUN pipenv install --system --deploy --dev
 
+#########
+# Nginx #
+#########
+
+# This target assumes that the build host has run `manage.py collectstatic`
+# `just collectstatic` is provided as a convenient alias for running it the expected way
+
+FROM nginx:1.23.2-alpine as nginx
+
+WORKDIR /app
+
+COPY nginx.conf.template /etc/nginx/templates/openverse-api.conf.template
+COPY /static /app/static
+
+# Only environment variables with this prefix will be available in the template
+ENV NGINX_ENVSUBST_FILTER="DJANGO_NGINX_"
+ENV DJANGO_NGINX_ENVIRONMENT="local"
+# Add the release version to the docker container
+ARG SEMANTIC_VERSION
+ENV DJANGO_NGINX_GIT_REVISION=$SEMANTIC_VERSION
+
 #######
 # API #
 #######
@@ -61,12 +82,20 @@ COPY --from=awf /usr/local/bin/audiowaveform /usr/local/bin
 #   - libpq-dev: required by `psycopg2`
 # - Create directory for dumping API logs
 RUN apt-get update \
-      && apt-get install -y curl libpq-dev libexempi8 \
+      && apt-get install -y curl libpq-dev libexempi8 postgresql-client \
       && rm -rf /var/lib/apt/lists/* \
     && mkdir -p /var/log/openverse_api/openverse_api.log
 
+# Create a non-root user
+RUN useradd --create-home opener
+USER opener
+
 # Copy code into the final image
-COPY . /api/
+COPY --chown=opener . /api/
+
+# Add the release version to the docker container
+ARG SEMANTIC_VERSION
+ENV SEMANTIC_VERSION=$SEMANTIC_VERSION
 
 # Exposes
 # - 8000: Dev server for API Django app

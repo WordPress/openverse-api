@@ -1,11 +1,14 @@
+import asyncio
 import logging
 import time
 
 from django.conf import settings
 
+import aiohttp
 import django_redis
-import grequests
+from asgiref.sync import async_to_sync
 from decouple import config
+from elasticsearch_dsl.response import Hit
 
 from catalog.api.utils.dead_link_mask import get_query_mask, save_query_mask
 
@@ -28,11 +31,35 @@ def _get_expiry(status, default):
     return config(f"LINK_VALIDATION_CACHE_EXPIRY__{status}", default=default, cast=int)
 
 
-def validate_images(query_hash, start_slice, results, image_urls):
+async def _head(url: str, session: aiohttp.ClientSession) -> tuple[str, int]:
+    try:
+        async with session.head(url, allow_redirects=False) as response:
+            return url, response.status
+    except (aiohttp.ClientError, asyncio.TimeoutError) as exception:
+        _log_validation_failure(exception)
+        return url, -1
+
+
+# https://stackoverflow.com/q/55259755
+@async_to_sync
+async def _make_head_requests(urls: list[str]) -> list[tuple[str, int]]:
+    tasks = []
+    timeout = aiohttp.ClientTimeout(total=2)
+    async with aiohttp.ClientSession(headers=HEADERS, timeout=timeout) as session:
+        tasks = [asyncio.ensure_future(_head(url, session)) for url in urls]
+        responses = asyncio.gather(*tasks)
+        await responses
+    return responses.result()
+
+
+def validate_images(
+    query_hash: str, start_slice: int, results: list[Hit], image_urls: list[str]
+) -> None:
     """
-    Make sure images exist before we display them. Treat redirects as broken
-    links since 99% of the time the redirect leads to a generic "not found"
-    placeholder.
+    Make sure images exist before we display them.
+
+    Treat redirects as broken links since most of the time the redirect leads to a
+    generic "not found" placeholder.
 
     Results are cached in redis and shared amongst all API servers in the
     cluster.
@@ -57,46 +84,25 @@ def validate_images(query_hash, start_slice, results, image_urls):
             to_verify[url] = idx
     logger.debug(f"len(to_verify)={len(to_verify)}")
 
-    reqs = (
-        grequests.head(
-            url, headers=HEADERS, allow_redirects=False, timeout=2, verify=False
-        )
-        for url in to_verify.keys()
-    )
-    verified = grequests.map(reqs, exception_handler=_validation_failure)
-    # Cache newly verified image statuses.
-    to_cache = {}
-    # relies on the consistenct of the order returned by `dict::keys()` which
-    # is safe as of Python 3 dot something
-    for idx, url in enumerate(to_verify.keys()):
-        cache_key = CACHE_PREFIX + url
-        if verified[idx]:
-            status = verified[idx].status_code
-        # Response didn't arrive in time. Try again later.
-        else:
-            status = -1
-        to_cache[cache_key] = status
+    verified = _make_head_requests(to_verify.keys())
 
-    thirty_minutes = 60 * 30
-    twenty_four_hours_seconds = 60 * 60 * 24
+    # Cache newly verified image statuses.
+    to_cache = {CACHE_PREFIX + url: status for url, status in verified}
 
     pipe = redis.pipeline()
     if len(to_cache) > 0:
         pipe.mset(to_cache)
 
     for key, status in to_cache.items():
-        # Cache successful links for a day, and broken links for 120 days.
         if status == 200:
-            logger.debug("healthy link " f"key={key} ")
-            expiry = _get_expiry(200, twenty_four_hours_seconds * 30)
+            logger.debug(f"healthy link key={key}")
         elif status == -1:
-            logger.debug("no response from provider " f"key={key}")
-            # Content provider failed to respond; try again in a short interval
-            expiry = _get_expiry("_1", thirty_minutes)
+            logger.debug(f"no response from provider key={key}")
         else:
-            logger.debug("broken link " f"key={key} ")
-            expiry = _get_expiry("DEFAULT", twenty_four_hours_seconds * 120)
+            logger.debug(f"broken link key={key}")
 
+        expiry = settings.LINK_VALIDATION_CACHE_EXPIRY_CONFIGURATION[status]
+        logger.debug(f"caching status={status} expiry={expiry}")
         pipe.expire(key, expiry)
 
     pipe.execute()
@@ -104,10 +110,7 @@ def validate_images(query_hash, start_slice, results, image_urls):
     # Merge newly verified results with cached statuses
     for idx, url in enumerate(to_verify):
         cache_idx = to_verify[url]
-        if verified[idx] is not None:
-            cached_statuses[cache_idx] = verified[idx].status_code
-        else:
-            cached_statuses[cache_idx] = -1
+        cached_statuses[cache_idx] = verified[idx][1]
 
     # Create a new dead link mask
     new_mask = [1] * len(results)
@@ -151,6 +154,6 @@ def validate_images(query_hash, start_slice, results, image_urls):
     )
 
 
-def _validation_failure(request, exception):
-    logger = parent_logger.getChild("_validation_failure")
+def _log_validation_failure(exception):
+    logger = parent_logger.getChild("_log_validation_failure")
     logger.warning(f"Failed to validate image! Reason: {exception}")

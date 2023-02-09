@@ -1,13 +1,16 @@
 from collections import namedtuple
 
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator
 from rest_framework import serializers
+from rest_framework.exceptions import NotAuthenticated
 
 from catalog.api.constants.licenses import LICENSE_GROUPS
 from catalog.api.controllers import search_controller
 from catalog.api.models.media import AbstractMedia
 from catalog.api.serializers.base import BaseModelSerializer
 from catalog.api.serializers.fields import SchemableHyperlinkedIdentityField
-from catalog.api.utils.exceptions import get_api_exception
 from catalog.api.utils.help_text import make_comma_separated_help_text
 from catalog.api.utils.licenses import get_license_url
 from catalog.api.utils.url import add_protocol
@@ -19,9 +22,7 @@ from catalog.api.utils.url import add_protocol
 
 
 class MediaSearchRequestSerializer(serializers.Serializer):
-    """
-    This serializer parses and validates search query string parameters.
-    """
+    """This serializer parses and validates search query string parameters."""
 
     DeprecatedParam = namedtuple("DeprecatedParam", ["original", "successor"])
     deprecated_params = [
@@ -42,6 +43,7 @@ class MediaSearchRequestSerializer(serializers.Serializer):
         "mature",
         "qa",
         "page_size",
+        "page",
     ]
     """
     Keep the fields names in sync with the actual fields below as this list is
@@ -87,7 +89,7 @@ class MediaSearchRequestSerializer(serializers.Serializer):
         label="filter_dead",
         help_text="Control whether 404 links are filtered out.",
         required=False,
-        default=True,
+        default=settings.FILTER_DEAD_LINKS_BY_DEFAULT,
     )
     extension = serializers.CharField(
         label="extension",
@@ -111,6 +113,16 @@ class MediaSearchRequestSerializer(serializers.Serializer):
         label="page_size",
         help_text="Number of results to return per page.",
         required=False,
+        default=settings.MAX_ANONYMOUS_PAGE_SIZE,
+        min_value=1,
+    )
+    page = serializers.IntegerField(
+        label="page",
+        help_text="The page of results to retrieve.",
+        required=False,
+        default=1,
+        max_value=settings.MAX_PAGINATION_DEPTH,
+        min_value=1,
     )
 
     @staticmethod
@@ -123,7 +135,7 @@ class MediaSearchRequestSerializer(serializers.Serializer):
 
     @staticmethod
     def validate_license(value):
-        """Checks whether license is a valid license code."""
+        """Check whether license is a valid license code."""
 
         licenses = value.lower().split(",")
         for _license in licenses:
@@ -136,7 +148,7 @@ class MediaSearchRequestSerializer(serializers.Serializer):
 
     @staticmethod
     def validate_license_type(value):
-        """Checks whether license type is a known collection of licenses."""
+        """Check whether license type is a known collection of licenses."""
 
         license_types = value.lower().split(",")
         license_groups = []
@@ -161,10 +173,30 @@ class MediaSearchRequestSerializer(serializers.Serializer):
     def validate_page_size(self, value):
         request = self.context.get("request")
         is_anonymous = bool(request and request.user and request.user.is_anonymous)
-        if is_anonymous and value > 20:
-            raise get_api_exception(
-                "Page size must be between 1 & 20 for unauthenticated requests.", 401
-            )
+        max_value = (
+            settings.MAX_ANONYMOUS_PAGE_SIZE
+            if is_anonymous
+            else settings.MAX_AUTHED_PAGE_SIZE
+        )
+
+        validator = MaxValueValidator(
+            max_value,
+            message=serializers.IntegerField.default_error_messages["max_value"].format(
+                max_value=max_value
+            ),
+        )
+
+        if is_anonymous:
+            try:
+                validator(value)
+            except ValidationError as e:
+                raise NotAuthenticated(
+                    detail=e.message,
+                    code=e.code,
+                )
+        else:
+            validator(value)
+
         return value
 
     @staticmethod
@@ -184,11 +216,13 @@ class MediaSearchRequestSerializer(serializers.Serializer):
             raise serializers.ValidationError(errors)
         return data
 
+    @property
+    def needs_db(self) -> bool:
+        return False
+
 
 class MediaThumbnailRequestSerializer(serializers.Serializer):
-    """
-    This serializer parses and validates thumbnail query string parameters.
-    """
+    """This serializer parses and validates thumbnail query string parameters."""
 
     full_size = serializers.BooleanField(
         source="is_full_size",
@@ -235,24 +269,23 @@ class MediaReportRequestSerializer(serializers.ModelSerializer):
 
 
 class TagSerializer(serializers.Serializer):
-    """
-    This output serializer serializes a singular tag.
-    """
+    """This output serializer serializes a singular tag."""
 
     name = serializers.CharField(
         help_text="The name of a detailed tag.",
     )
     accuracy = serializers.FloatField(
-        required=False,
+        default=None,
         help_text="The accuracy of a machine-generated tag. Human-generated "
-        "tags do not have an accuracy field.",
+        "tags have a null accuracy field.",
     )
 
 
 class MediaSearchSerializer(serializers.Serializer):
     """
-    This serializer serializes the full media search response. The class should
-    be inherited by all individual media serializers.
+    This serializer serializes the full media search response.
+
+    The class should be inherited by all individual media serializers.
     """
 
     result_count = serializers.IntegerField(
@@ -272,8 +305,9 @@ class MediaSearchSerializer(serializers.Serializer):
 
 class MediaSerializer(BaseModelSerializer):
     """
-    This serializer serializes a single media file. The class should be
-    inherited by all individual media serializers.
+    This serializer serializes a single media file.
+
+    The class should be inherited by all individual media serializers.
     """
 
     class Meta:
@@ -304,6 +338,9 @@ class MediaSerializer(BaseModelSerializer):
         used to generate Swagger documentation.
         """
 
+    needs_db = False
+    """whether the serializer needs fields from the DB to process results"""
+
     id = serializers.CharField(
         help_text="Our unique identifier for an open-licensed work.",
         source="identifier",
@@ -325,7 +362,6 @@ class MediaSerializer(BaseModelSerializer):
     )
 
     mature = serializers.BooleanField(
-        allow_null=True,  # present in ``Hit`` but not in Django media models
         help_text="Whether the media item is marked as mature",
     )
 
@@ -362,10 +398,7 @@ class MediaSerializer(BaseModelSerializer):
 
 def get_search_request_source_serializer(media_type):
     class MediaSearchRequestSourceSerializer(serializers.Serializer):
-        """
-        This serializer parses and validates the source/not_source fields from the query
-        parameters.
-        """
+        """Parses and validates the source/not_source fields from the query params."""
 
         field_names = [
             "source",
@@ -394,7 +427,7 @@ def get_search_request_source_serializer(media_type):
 
         @staticmethod
         def validate_source_field(value):
-            """Checks whether source is a valid source."""
+            """Check whether source is a valid source."""
 
             allowed_sources = list(search_controller.get_sources(media_type).keys())
             sources = value.lower().split(",")
@@ -423,8 +456,9 @@ def get_search_request_source_serializer(media_type):
 def get_hyperlinks_serializer(media_type):
     class MediaHyperlinksSerializer(serializers.Serializer):
         """
-        This serializer creates URLs pointing to other endpoints related with this media
-        item such as details and related media.
+        This serializer creates URLs pointing to other endpoints for this media item.
+
+        These URLs include the thumbnail, details page and list of related media.
         """
 
         field_names = [

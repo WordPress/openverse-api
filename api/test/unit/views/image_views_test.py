@@ -1,10 +1,8 @@
 import json
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from test.factory.models.image import ImageFactory
-from typing import Callable
-
-from rest_framework.test import APIClient
 
 import pytest
 from requests import Request, Response
@@ -17,16 +15,11 @@ _MOCK_IMAGE_BYTES = (_MOCK_IMAGE_PATH / "sample-image.jpg").read_bytes()
 _MOCK_IMAGE_INFO = json.loads((_MOCK_IMAGE_PATH / "sample-image-info.json").read_text())
 
 
-@pytest.fixture
-def api_client():
-    return APIClient()
-
-
 @dataclass
 class RequestsFixture:
     requests: list[Request]
     response_factory: Callable[
-        (Request,), Response
+        [Request], Response
     ] = lambda x: RequestsFixture._default_response_factory(x)
 
     @staticmethod

@@ -45,18 +45,20 @@ RELATIVE_UPSTREAM_DB_HOST = config(
     "RELATIVE_UPSTREAM_DB_HOST",
     default=UPSTREAM_DB_HOST,
 )
-"""The hostname of the upstream DB from the POV of the downstream DB"""
+#: the hostname of the upstream DB from the POV of the downstream DB
 
 RELATIVE_UPSTREAM_DB_PORT = config(
     "RELATIVE_UPSTREAM_DB_PORT",
     default=UPSTREAM_DB_PORT,
     cast=int,
 )
-"""The port of the upstream DB from the POV of the downstream DB"""
+#: the port of the upstream DB from the POV of the downstream DB
 
 
 def _get_shared_cols(downstream, upstream, table: str):
     """
+    Get the common columns between two tables with the same name in different DBs.
+
     Given two database connections and a table name, return the list of columns
     that the two tables have in common. The upstream table has the "_view"
     suffix attached to it.
@@ -69,9 +71,9 @@ def _get_shared_cols(downstream, upstream, table: str):
     with downstream.cursor() as cur1, upstream.cursor() as cur2:
         get_tables = SQL("SELECT * FROM {table} LIMIT 0;")
         cur1.execute(get_tables.format(table=Identifier(table)))
-        conn1_cols = set([desc[0] for desc in cur1.description])
+        conn1_cols = {desc[0] for desc in cur1.description}
         cur2.execute(get_tables.format(table=Identifier(f"{table}_view")))
-        conn2_cols = set([desc[0] for desc in cur2.description])
+        conn2_cols = {desc[0] for desc in cur2.description}
 
     shared = list(conn1_cols.intersection(conn2_cols))
     log.info(f"Shared columns: {shared}")
@@ -80,14 +82,11 @@ def _get_shared_cols(downstream, upstream, table: str):
 
 def _generate_indices(conn, table: str) -> tuple[list[str], dict[str, str]]:
     """
-    Using the existing table as a template, generate CREATE INDEX statements for
-    the new table.
+    Apply the existing table indices to the new temp table imported from upstream.
 
-    :param conn: A connection to the API database.
-    :param table: The table to be updated.
-    :return: A list of CREATE INDEX statements, and a mapping from new indices to
-    the previous ones.
+    :return: a list of ``CREATE INDEX`` SQL statements
     """
+
     index_mapping = {}
 
     def _clean_idxs(indices: list[str]):
@@ -139,6 +138,7 @@ def _is_foreign_key(_statement, table):
 
 def _remap_constraint(name, con_table, fk_statement, table) -> list[SQL]:
     """Produce ALTER TABLE ... statements for each constraint."""
+
     alterations = [
         SQL("ALTER TABLE {con_table} DROP CONSTRAINT {name}").format(
             con_table=Identifier(con_table), name=Identifier(name)
@@ -173,11 +173,13 @@ def _remap_constraint(name, con_table, fk_statement, table) -> list[SQL]:
 
 def _generate_delete_orphans(fk_statement, fk_table):
     """
+    Parse the foreign key statement and generate the deletion statement.
+
     Sometimes, upstream data is deleted. If there are foreign key
     references to deleted data, we must delete them before adding
-    constraints back to the table. To accomplish this, parse the
-    foreign key statement and generate the deletion statement.
+    constraints back to the table.
     """
+
     fk_tokens = fk_statement.split(" ")
     fk_field_idx = fk_tokens.index("KEY") + 1
     fk_ref_idx = fk_tokens.index("REFERENCES") + 1
@@ -201,11 +203,11 @@ def _generate_delete_orphans(fk_statement, fk_table):
 
 def _generate_constraints(conn, table: str) -> list[SQL]:
     """
-    Using the existing table as a template, generate ALTER TABLE ADD CONSTRAINT
-    statements pointing to the new table.
+    Apply the existing table constraints to the new temp table imported from upstream.
 
-    :return: A list of SQL statements.
+    :return: a list of ``ALTER TABLE ADD CONSTRAINT`` SQL statements
     """
+
     # List all active constraints across the database.
     get_all_constraints = SQL(
         """
@@ -254,8 +256,9 @@ def refresh_api_table(
     approach: ApproachType = "advanced",
 ):
     """
-    Import updates from the upstream catalog database into the API. The
-    process involves the following steps.
+    Import updates from the upstream catalog database into the API.
+
+    The process involves the following steps.
 
     1. Get the list of overlapping columns: ``_get_shared_cols``
     2. Create the FDW extension if it does not exist
@@ -271,7 +274,10 @@ def refresh_api_table(
     """
 
     # Step 1: Get the list of overlapping columns
-    slack.info(f"`{table}`: Starting data refresh | _Next: copying data from upstream_")
+    slack.status(
+        table,
+        "Starting ingestion server data refresh | _Next: copying data from upstream_",
+    )
     downstream_db = database_connect()
     upstream_db = psycopg2.connect(
         dbname=UPSTREAM_DB_NAME,
@@ -319,21 +325,15 @@ def refresh_api_table(
         log.info(f"Running copy-data query: \n{copy_data.as_string(downstream_cur)}")
         downstream_cur.execute(copy_data)
 
-    next_step = (
-        "_Next: {starting data cleaning}_"
-        if table == "image"
-        else "Finished refreshing table"
-    )
-    slack.verbose(f"`{table}`: Data copy complete | {next_step}")
+    next_step = "image data cleaning" if table == "image" else "Elasticsearch reindex"
+    slack.status(table, f"Data copy complete | _Next: {next_step}_")
 
     if table == "image":
         # Step 5: Clean the data
         log.info("Cleaning data...")
         clean_image_data(table)
         log.info("Cleaning completed!")
-        slack.verbose(
-            f"`{table}`: Data cleaning complete | " f"Finished refreshing table"
-        )
+        slack.status(table, "Data cleaning complete | _Next: Elasticsearch reindex_")
 
     downstream_db.close()
     log.info(f"Finished refreshing table '{table}'.")
@@ -345,6 +345,8 @@ def promote_api_table(
     progress: multiprocessing.Value = None,
 ):
     """
+    Promote the temporary table in the API database to the main one.
+
     This runs after ``refresh_api_table``. The process involves the following steps.
 
     6. Recreate indices from the original table: ``_generate_indices``
@@ -378,17 +380,14 @@ def promote_api_table(
                 downstream_cur.execute(remap_constraint)
         log.info("Done remapping constraints! Going live with new table...")
         _update_progress(progress, 99.0)
-        slack.verbose(
-            f"`{table}`: Indices & constraints applied, finished refreshing table | "
-            f"_Next: Elasticsearch reindex_"
-        )
+        slack.status(table, "Indices & constraints applied | _Next: table promotion_")
 
         # Step 8: Promote the temporary table and delete the original
         go_live = get_go_live_query(table, index_mapping)
         log.info(f"Running go-live: \n{go_live.as_string(downstream_cur)}")
         downstream_cur.execute(go_live)
-        slack.verbose(
-            f"`{table}`: Finished table promotion | " f"_Next: Elasticsearch promotion_"
+        slack.status(
+            table, "Finished table promotion | _Next: Elasticsearch promotion_"
         )
 
     downstream_db.close()

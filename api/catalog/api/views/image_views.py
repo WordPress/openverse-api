@@ -1,8 +1,10 @@
 import io
+import re
 import struct
 
 from django.conf import settings
 from django.http.response import FileResponse, HttpResponse
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
@@ -33,7 +35,6 @@ from catalog.api.serializers.image_serializers import (
     WatermarkRequestSerializer,
 )
 from catalog.api.serializers.media_serializers import MediaThumbnailRequestSerializer
-from catalog.api.utils.exceptions import get_api_exception
 from catalog.api.utils.throttle import (
     AnonThumbnailRateThrottle,
     OAuth2IdThumbnailRateThrottle,
@@ -51,9 +52,7 @@ from catalog.api.views.media_views import MediaViewSet
 @method_decorator(swagger_auto_schema(**ImageThumbnail.swagger_setup), "thumbnail")
 @method_decorator(swagger_auto_schema(auto_schema=None), "watermark")
 class ImageViewSet(MediaViewSet):
-    """
-    Viewset for all endpoints pertaining to images.
-    """
+    """Viewset for all endpoints pertaining to images."""
 
     model_class = Image
     query_serializer_class = ImageSearchRequestSerializer
@@ -65,6 +64,9 @@ class ImageViewSet(MediaViewSet):
     OEMBED_HEADERS = {
         "User-Agent": settings.OUTBOUND_USER_AGENT_TEMPLATE.format(purpose="OEmbed"),
     }
+
+    def get_queryset(self):
+        return super().get_queryset().select_related("mature_image")
 
     # Extra actions
 
@@ -81,11 +83,10 @@ class ImageViewSet(MediaViewSet):
         context = self.get_serializer_context()
 
         url = params.validated_data["url"]
+        if url.endswith("/"):
+            url = url[:-1]
         identifier = url.rsplit("/", 1)[1]
-        try:
-            image = self.get_queryset().get(identifier=identifier)
-        except Image.DoesNotExist:
-            return get_api_exception("Could not find image.", 404)
+        image = get_object_or_404(Image, identifier=identifier)
         if not (image.height and image.width):
             image_file = requests.get(image.url, headers=self.OEMBED_HEADERS)
             width, height = PILImage.open(io.BytesIO(image_file.content)).size
@@ -109,7 +110,14 @@ class ImageViewSet(MediaViewSet):
 
         image_url = image.url
         if not image_url:
-            raise get_api_exception("Could not find image.", 404)
+            raise NotFound("Could not find image.", 404)
+
+        # Hotfix to use scaled down version of the image from SMK
+        # TODO Remove when this issue is addressed:
+        # TODO https://github.com/WordPress/openverse-catalog/issues/698
+        if "iip.smk.dk" in image_url:
+            width = settings.THUMBNAIL_WIDTH_PX
+            image_url = re.sub(r"!\d+,", f"!{width},", image_url)
 
         return super().thumbnail(image_url, request)
 
@@ -185,10 +193,8 @@ class ImageViewSet(MediaViewSet):
 
     @staticmethod
     def _save_wrapper(pil_img, exif_bytes, destination):
-        """
-        PIL crashes if exif_bytes=None, so we have to wrap it to avoid littering
-        the code with branches.
-        """
+        """Prevent PIL from crashing if ``exif_bytes`` is ``None``."""
+
         if exif_bytes:
             pil_img.save(destination, "jpeg", exif=exif_bytes)
         else:

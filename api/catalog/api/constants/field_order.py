@@ -1,6 +1,7 @@
 """
-This file hardcodes the logical order for serializer fields to be defined in so that
-their output feels suitable for human consumption.
+This file hardcodes the logical order for serializer fields.
+
+This leads to the JSON output being more suitable for human consumption.
 """
 
 json_fields = [
@@ -46,4 +47,4 @@ json_fields = [
 field_position_map: dict[str, int] = {
     field: idx for idx, field in enumerate(json_fields)
 }
-"""mapping of JSON fields to their sort positions"""
+#: mapping of JSON fields to their sort positions

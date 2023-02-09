@@ -4,6 +4,7 @@ from django.db import models
 
 from uuslug import uuslug
 
+from catalog.api.constants.media_types import AUDIO_TYPE
 from catalog.api.models import OpenLedgerModel
 from catalog.api.models.media import (
     AbstractAltFile,
@@ -21,7 +22,7 @@ class AltAudioFile(AbstractAltFile):
     def __init__(self, attrs):
         self.bit_rate = attrs.get("bit_rate")
         self.sample_rate = attrs.get("sample_rate")
-        super(AltAudioFile, self).__init__(attrs)
+        super().__init__(attrs)
 
     @property
     def sample_rate_in_khz(self):
@@ -42,9 +43,10 @@ class AltAudioFile(AbstractAltFile):
 
 class AudioSet(ForeignIdentifierMixin, MediaMixin, FileMixin, OpenLedgerModel):
     """
-    This is an ordered collection of audio files, such as a podcast series or
-    an album. Not to be confused with AudioList which is a many-to-many
-    collection of audio files, like a playlist or favourites library.
+    This is an ordered collection of audio files, such as a podcast series or an album.
+
+    Not to be confused with AudioList which is a many-to-many collection of audio files,
+    like a playlist or favourites library.
 
     The FileMixin inherited by this model refers not to audio but album art.
     """
@@ -73,6 +75,7 @@ class AudioSet(ForeignIdentifierMixin, MediaMixin, FileMixin, OpenLedgerModel):
 class AudioFileMixin(FileMixin):
     """
     This mixin adds fields related to audio quality to the standard file mixin.
+
     Do not use this as the sole base class.
     """
 
@@ -135,10 +138,20 @@ class AudioAddOn(OpenLedgerModel):
 
 class Audio(AudioFileMixin, AbstractMedia):
     """
+    Represents one audio media instance.
+
     Inherited fields
     ================
     category: eg. music, sound_effect, podcast, news & audiobook
     """
+
+    audioset = models.ForeignObject(
+        to="AudioSet",
+        on_delete=models.DO_NOTHING,
+        from_fields=["audio_set_foreign_identifier", "provider"],
+        to_fields=["foreign_identifier", "provider"],
+        null=True,
+    )
 
     # Replaces the foreign key to AudioSet
     audio_set_foreign_identifier = models.CharField(
@@ -176,6 +189,10 @@ class Audio(AudioFileMixin, AbstractMedia):
     )
 
     @property
+    def mature(self) -> bool:
+        return hasattr(self, "mature_audio")
+
+    @property
     def alternative_files(self):
         if hasattr(self.alt_files, "__iter__"):
             return [AltAudioFile(alt_file) for alt_file in self.alt_files]
@@ -187,17 +204,12 @@ class Audio(AudioFileMixin, AbstractMedia):
 
     @property
     def audio_set(self):
-        try:
-            return AudioSet.objects.get(
-                provider=self.provider,
-                foreign_identifier=self.audio_set_foreign_identifier,
-            )
-        except AudioSet.DoesNotExist:
-            return None
+        return getattr(self, "audioset")
 
     def get_waveform(self) -> list[float]:
         """
         Get the waveform if it exists. Return a blank list otherwise.
+
         :return: the waveform, if it exists; empty list otherwise
         """
 
@@ -222,39 +234,79 @@ class Audio(AudioFileMixin, AbstractMedia):
         db_table = "audio"
 
 
+class DeletedAudio(AbstractDeletedMedia):
+    """
+    Stores identifiers of audio tracks that have been deleted from the source.
+
+    Do not create instances of this model manually. Create an ``AudioReport`` instance
+    instead.
+    """
+
+    media_class = Audio
+    es_index = settings.MEDIA_INDEX_MAPPING[AUDIO_TYPE]
+
+    media_obj = models.OneToOneField(
+        to="Audio",
+        to_field="identifier",
+        on_delete=models.DO_NOTHING,
+        primary_key=True,
+        db_constraint=False,
+        db_column="identifier",
+        related_name="deleted_audio",
+        help_text="The reference to the deleted audio.",
+    )
+
+    class Meta:
+        verbose_name_plural = "Deleted audio"
+
+
+class MatureAudio(AbstractMatureMedia):
+    """
+    Stores all audio tracks that have been flagged as 'mature'.
+
+    Do not create instances of this model manually. Create an ``AudioReport`` instance
+    instead.
+    """
+
+    media_class = Audio
+    es_index = settings.MEDIA_INDEX_MAPPING[AUDIO_TYPE]
+
+    media_obj = models.OneToOneField(
+        to="Audio",
+        to_field="identifier",
+        on_delete=models.DO_NOTHING,
+        primary_key=True,
+        db_constraint=False,
+        db_column="identifier",
+        related_name="mature_audio",
+        help_text="The reference to the mature audio.",
+    )
+
+    class Meta:
+        verbose_name_plural = "Mature audio"
+
+
 class AudioReport(AbstractMediaReport):
+    media_class = Audio
+    mature_class = MatureAudio
+    deleted_class = DeletedAudio
+
+    media_obj = models.ForeignKey(
+        to="Audio",
+        to_field="identifier",
+        on_delete=models.DO_NOTHING,
+        db_constraint=False,
+        db_column="identifier",
+        related_name="audio_report",
+        help_text="The reference to the audio being reported.",
+    )
+
     class Meta:
         db_table = "nsfw_reports_audio"
 
     @property
     def audio_url(self):
-        return super(AudioReport, self).url("audio")
-
-    def save(self, *args, **kwargs):
-        kwargs.update(
-            {
-                "index_name": "audio",
-                "media_class": Audio,
-                "mature_class": MatureAudio,
-                "deleted_class": DeletedAudio,
-            }
-        )
-        super(AudioReport, self).save(*args, **kwargs)
-
-
-class DeletedAudio(AbstractDeletedMedia):
-    pass
-
-
-class MatureAudio(AbstractMatureMedia):
-    """Stores all audios that have been flagged as 'mature'."""
-
-    def delete(self, *args, **kwargs):
-        es = settings.ES
-        aud = Audio.objects.get(identifier=self.identifier)
-        es_id = aud.id
-        es.update(index="audio", id=es_id, body={"doc": {"mature": False}})
-        super(MatureAudio, self).delete(*args, **kwargs)
+        return super().url("audio")
 
 
 class AudioList(AbstractMediaList):
@@ -269,4 +321,4 @@ class AudioList(AbstractMediaList):
 
     def save(self, *args, **kwargs):
         self.slug = uuslug(self.title, instance=self)
-        super(AudioList, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)

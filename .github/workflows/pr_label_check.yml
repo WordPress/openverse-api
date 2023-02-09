@@ -4,6 +4,12 @@ name: PR label check
 on:
   pull_request:
     types:
+      # Default types
+      # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request
+      - opened
+      - reopened
+      - synchronize
+      # Label is changed
       - labeled
       - unlabeled
 
@@ -13,24 +19,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check aspect label
-        uses: sugarshin/required-labels-action@v0.3.2
+        uses: docker://agilepathway/pull-request-label-checker:v1.2.13
         with:
-          required_oneof: "🚦 status: awaiting triage,💻 aspect: code,📄 aspect: text,🤖 aspect: dx,🕹 aspect: interface,♿️ aspect: a11y"
+          one_of: "💻 aspect: code,📄 aspect: text,🤖 aspect: dx,🕹 aspect: interface,♿️ aspect: a11y"
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
 
   check_goal_label:
     name: Check goal label
     runs-on: ubuntu-latest
     steps:
       - name: Check goal label
-        uses: sugarshin/required-labels-action@v0.3.2
+        uses: docker://agilepathway/pull-request-label-checker:v1.2.13
         with:
-          required_oneof: "🚦 status: awaiting triage,🌟 goal: addition,🛠 goal: fix,✨ goal: improvement,🧰 goal: internal improvement"
+          one_of: "🌟 goal: addition,🛠 goal: fix,✨ goal: improvement,🧰 goal: internal improvement"
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
 
   check_priority_label:
     name: Check priority label
     runs-on: ubuntu-latest
     steps:
       - name: Check priority label
-        uses: sugarshin/required-labels-action@v0.3.2
+        uses: docker://agilepathway/pull-request-label-checker:v1.2.13
         with:
-          required_oneof: "🚦 status: awaiting triage,🟩 priority: low,🟨 priority: medium,🟧 priority: high,🟥 priority: critical"
+          one_of: "🟩 priority: low,🟨 priority: medium,🟧 priority: high,🟥 priority: critical"
+          repo_token: ${{ secrets.GITHUB_TOKEN }}

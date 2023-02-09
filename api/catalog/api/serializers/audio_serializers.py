@@ -55,9 +55,24 @@ class AudioSearchRequestSerializer(
         enum_class=LENGTHS,
         required=False,
     )
+    peaks = serializers.BooleanField(
+        help_text="Whether to include the waveform peaks or not",
+        required=False,
+        default=False,
+    )
+
+    @property
+    def needs_db(self) -> bool:
+        return super().needs_db or self.data["peaks"]
 
 
 class AudioReportRequestSerializer(MediaReportRequestSerializer):
+    identifier = serializers.SlugRelatedField(
+        slug_field="identifier",
+        queryset=Audio.objects.all(),
+        source="media_obj",
+    )
+
     class Meta(MediaReportRequestSerializer.Meta):
         model = AudioReport
 
@@ -111,6 +126,8 @@ class AudioSerializer(AudioHyperlinksSerializer, MediaSerializer):
         used to generate Swagger documentation.
         """
 
+    needs_db = True  # for the 'thumbnail' field
+
     audio_set = AudioSetSerializer(
         allow_null=True,
         help_text="Reference to set of which this track is a part.",
@@ -129,8 +146,13 @@ class AudioSerializer(AudioHyperlinksSerializer, MediaSerializer):
         help_text="The list of peaks used to generate the waveform for the audio."
     )
 
-    @staticmethod
-    def get_peaks(obj) -> list[int]:
+    def __init__(self, *args, **kwargs):
+        # Includes the peaks only if requested via the `peaks` query param
+        if not kwargs.get("context", {}).get("validated_data", {}).get("peaks"):
+            del self.fields["peaks"]
+        super().__init__(*args, **kwargs)
+
+    def get_peaks(self, obj) -> list[int]:
         if isinstance(obj, Hit):
             obj = Audio.objects.get(identifier=obj.identifier)
         return obj.get_waveform()
@@ -153,8 +175,9 @@ class AudioSerializer(AudioHyperlinksSerializer, MediaSerializer):
 class AudioSearchSerializer(MediaSearchSerializer):
     """
     The full audio search response.
-    This serializer is purely representational and not actually used to
-    serialize the response.
+
+    This serializer is purely representational and not actually used to serialize the
+    response.
     """
 
     results = AudioSerializer(

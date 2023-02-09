@@ -2,6 +2,7 @@ import mimetypes
 
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.html import format_html
 
@@ -29,8 +30,9 @@ class AbstractMedia(
     IdentifierMixin, ForeignIdentifierMixin, MediaMixin, OpenLedgerModel
 ):
     """
-    Generic model from which to inherit all media classes. This class stores
-    information common to all media types indexed by Openverse.
+    Generic model from which to inherit all media classes.
+
+    This class stores information common to all media types indexed by Openverse.
     """
 
     watermarked = models.BooleanField(blank=True, null=True)
@@ -98,8 +100,10 @@ class AbstractMedia(
     @property
     def attribution(self) -> str:
         """
-        The plain-text English attribution for a media item. Use this to credit creators
-        for their work and fulfill legal attribution requirements.
+        The plain-text English attribution for a media item.
+
+        Use this to credit creators for their work and fulfill legal attribution
+        requirements.
         """
 
         return get_attribution_text(
@@ -112,8 +116,9 @@ class AbstractMedia(
 
     class Meta:
         """
-        Meta class for all media types indexed by Openverse. All concrete media
-        classes should inherit their Meta class from this.
+        Meta class for all media types indexed by Openverse.
+
+        All concrete media classes should inherit their Meta class from this.
         """
 
         ordering = ["-created_on"]
@@ -125,15 +130,33 @@ class AbstractMedia(
             ),
         ]
 
+    def __str__(self):
+        """
+        Return the string representation of the model, used in the Django admin site.
+
+        :return: the string representation of the model
+        """
+
+        return f"{self.__class__.__name__}: {self.identifier}"
+
 
 class AbstractMediaReport(models.Model):
     """
-    Generic model from which to inherit all reported media classes. 'Reported'
-    here refers to content reports such as mature, copyright-violating or
-    deleted content.
+    Generic model from which to inherit all reported media classes.
+
+    'Reported' here refers to content reports such as mature, copyright-violating or
+    deleted content. Subclasses must populate ``media_class``, ``mature_class`` and
+    ``deleted_class`` fields.
     """
 
-    BASE_URL = "https://search.creativecommons.org/"
+    media_class: type[models.Model] = None
+    """the model class associated with this media type e.g. ``Image`` or ``Audio``"""
+    mature_class: type[models.Model] = None
+    """the class storing mature media e.g. ``MatureImage`` or ``MatureAudio``"""
+    deleted_class: type[models.Model] = None
+    """the class storing deleted media e.g. ``DeletedImage`` or ``DeletedAudio``"""
+
+    BASE_URL = settings.BASE_URL
 
     REPORT_CHOICES = [(MATURE, MATURE), (DMCA, DMCA), (OTHER, OTHER)]
 
@@ -146,7 +169,21 @@ class AbstractMediaReport(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    identifier = models.UUIDField(help_text="The ID for media to be reported.")
+    media_obj = models.ForeignKey(
+        to="AbstractMedia",
+        to_field="identifier",
+        on_delete=models.DO_NOTHING,
+        db_constraint=False,
+        db_column="identifier",
+        related_name="abstract_media_report",
+        help_text="The reference to the media being reported.",
+    )
+    """
+    There can be many reports associated with a single media item, hence foreign key.
+    Sub-classes must override this field to point to a concrete sub-class of
+    ``AbstractMedia``.
+    """
+
     reason = models.CharField(
         max_length=20,
         choices=REPORT_CHOICES,
@@ -163,95 +200,179 @@ class AbstractMediaReport(models.Model):
     class Meta:
         abstract = True
 
+    def clean(self):
+        """Clean fields and raise errors that can be handled by Django Admin."""
+
+        if not self.media_class.objects.filter(
+            identifier=self.media_obj.identifier
+        ).exists():
+            raise ValidationError(
+                f"No '{self.media_class.__name__}' instance"
+                f"with identifier {self.media_obj.identifier}."
+            )
+
     def url(self, media_type):
-        url = f"{AbstractMediaReport.BASE_URL}" f"{media_type}/" f"{self.identifier}"
+        url = (
+            f"{AbstractMediaReport.BASE_URL}v1/{media_type}/{self.media_obj.identifier}"
+        )
         return format_html(f"<a href={url}>{url}</a>")
 
     def save(self, *args, **kwargs):
         """
-        Extend the ``save()`` functionality with Elastic Search integration to
-        update records and refresh indices.
+        Save changes to the DB and sync them with Elasticsearch.
+
+        Extend the built-in ``save()`` functionality of Django with Elasticsearch
+        integration to update records and refresh indices.
 
         Media marked as mature or deleted also leads to instantiation of their
         corresponding mature or deleted classes.
-
-        Additional kwargs:
-        index_name    : Name of ES index, eg. 'image'
-        media_class   : Class of the media, eg. ``Image``
-        mature_class  : Class that stores mature media, eg. ``MatureImage``
-        deleted_class : Class that stores deleted media, eg. ``DeletedImage``
         """
 
-        index_name = kwargs.pop("index_name")
-        media_class = kwargs.pop("media_class")
-        mature_class = kwargs.pop("mature_class")
-        deleted_class = kwargs.pop("deleted_class")
+        self.clean()
 
-        update_required = {MATURE_FILTERED, DEINDEXED}  # ES needs updating
-        if self.status in update_required:
-            es = settings.ES
-            try:
-                media = media_class.objects.get(identifier=self.identifier)
-            except media_class.DoesNotExist:
-                super(AbstractMediaReport, self).save(*args, **kwargs)
-                return
-            es_id = media.id
-            if self.status == MATURE_FILTERED:
-                # Create an instance of the mature class for this media
-                mature_class.objects.create(identifier=self.identifier)
-                # Mark as 'mature' in Elastic Search
-                es.update(index=index_name, id=es_id, body={"doc": {"mature": True}})
-            elif self.status == DEINDEXED:
-                # Delete from the API database, retaining the copy of the
-                # metadata upstream in the catalog
-                media.delete()
-                # Create an instance of the deleted class for this media,
-                # so that we don't reindex it later
-                deleted_class.objects.create(identifier=self.identifier)
-                # Remove from Elastic Search
-                es.delete(index=index_name, id=es_id)
-            es.indices.refresh(index=index_name)
+        super().save(*args, **kwargs)
+
+        if self.status == MATURE_FILTERED:
+            # Create an instance of the mature class for this media. This will
+            # automatically set the ``mature`` field in the ES document.
+            self.mature_class.objects.create(media_obj=self.media_obj)
+        elif self.status == DEINDEXED:
+            # Create an instance of the deleted class for this media, so that we don't
+            # reindex it later. This will automatically delete the ES document and the
+            # DB instance.
+            self.deleted_class.objects.create(media_obj=self.media_obj)
 
         same_reports = self.__class__.objects.filter(
-            identifier=self.identifier,
+            media_obj=self.media_obj,
             status=PENDING,
         )
         if self.status != DEINDEXED:
             same_reports = same_reports.filter(reason=self.reason)
         same_reports.update(status=self.status)
-        super(AbstractMediaReport, self).save(*args, **kwargs)
 
 
 class AbstractDeletedMedia(OpenLedgerModel):
     """
-    Generic model from which to inherit all deleted media classes. 'Deleted'
-    here refers to media which has been deleted at the source.
+    Generic model from which to inherit all deleted media classes.
+
+    'Deleted' here refers to media which has been deleted at the source or intentionally
+    de-indexed by us. Unlike mature reports, this action is irreversible. Subclasses
+    must populate ``media_class`` and ``es_index`` fields.
     """
 
-    identifier = models.UUIDField(
-        unique=True, primary_key=True, help_text="The identifier of the deleted media."
+    media_class: type[models.Model] = None
+    """the model class associated with this media type e.g. ``Image`` or ``Audio``"""
+    es_index: str = None
+    """the name of the ES index from ``settings.MEDIA_INDEX_MAPPING``"""
+
+    media_obj = models.OneToOneField(
+        to="AbstractMedia",
+        to_field="identifier",
+        on_delete=models.DO_NOTHING,
+        primary_key=True,
+        db_constraint=False,
+        db_column="identifier",
+        related_name="deleted_abstract_media",
+        help_text="The reference to the deleted media.",
     )
+    """
+    Sub-classes must override this field to point to a concrete sub-class of
+    ``AbstractMedia``.
+    """
 
     class Meta:
         abstract = True
+
+    def _update_es(self, raise_errors: bool) -> models.Model:
+        es = settings.ES
+        try:
+            obj = self.media_obj
+            es.delete(index=self.es_index, id=obj.id)
+            es.indices.refresh(index=self.es_index)
+            return obj
+        except self.media_class.DoesNotExist:
+            if raise_errors:
+                raise ValidationError(
+                    f"No '{self.media_class.__name__}' instance"
+                    f"with identifier {self.media_obj.identifier}."
+                )
+
+    def save(self, *args, **kwargs):
+        obj = self._update_es(True)
+        super().save(*args, **kwargs)
+        obj.delete()  # remove the actual model instance
 
 
 class AbstractMatureMedia(models.Model):
     """
     Generic model from which to inherit all mature media classes.
+
+    Subclasses must populate ``media_class`` and ``es_index`` fields.
     """
 
+    media_class: type[models.Model] = None
+    """the model class associated with this media type e.g. ``Image`` or ``Audio``"""
+    es_index: str = None
+    """the name of the ES index from ``settings.MEDIA_INDEX_MAPPING``"""
+
     created_on = models.DateTimeField(auto_now_add=True)
-    identifier = models.UUIDField(unique=True, primary_key=True)
+
+    media_obj = models.OneToOneField(
+        to="AbstractMedia",
+        to_field="identifier",
+        on_delete=models.DO_NOTHING,
+        primary_key=True,
+        db_constraint=False,
+        db_column="identifier",
+        related_name="mature_abstract_media",
+        help_text="The reference to the mature media.",
+    )
+    """
+    Sub-classes must override this field to point to a concrete sub-class of
+    ``AbstractMedia``.
+    """
 
     class Meta:
         abstract = True
 
+    def _update_es(self, is_mature: bool, raise_errors: bool):
+        """
+        Update the Elasticsearch document associated with the given model.
+
+        :param is_mature: whether to mark the media item as mature
+        :param raise_errors: whether to raise an error if the no media item is found
+        """
+
+        es = settings.ES
+        try:
+            es.update(
+                index=self.es_index,
+                id=self.media_obj.id,
+                body={"doc": {"mature": is_mature}},
+            )
+            es.indices.refresh(index=self.es_index)
+        except self.media_class.DoesNotExist:
+            if raise_errors:
+                raise ValidationError(
+                    f"No '{self.media_class.__name__}' instance"
+                    f"with identifier {self.media_obj.identifier}."
+                )
+
+    def save(self, *args, **kwargs):
+        self._update_es(True, True)
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self._update_es(False, False)
+        super().delete(*args, **kwargs)
+
 
 class AbstractMediaList(OpenLedgerModel):
     """
-    Generic model from which to inherit media lists. Each subclass should define
-    its own `ManyToManyField` to point to a subclass of `AbstractMedia`.
+    Generic model from which to inherit media lists.
+
+    Each subclass should define its own `ManyToManyField` to point to a subclass of
+    `AbstractMedia`.
     """
 
     title = models.CharField(max_length=2000, help_text="Display name")
@@ -301,6 +422,7 @@ class AbstractAltFile:
     def mime_type(self):
         """
         Get the MIME type of the file inferred from the extension of the file.
+
         :return: the inferred MIME type of the file
         """
 
