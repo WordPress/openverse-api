@@ -368,7 +368,8 @@ class MediaSerializer(BaseModelSerializer):
         source="identifier",
     )
 
-    created_on = serializers.DateField(
+    created_on = serializers.DateTimeField(
+        format="%Y-%m-%d",
         help_text="The timestamp of when the media was indexed by Openverse.",
     )
 
