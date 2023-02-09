@@ -13,9 +13,10 @@
       padding: 20px; /* same as other sidebar items */
     }
 
-    /* Highlight fields that are unstable and likely to change */
-    td[kind="field"][title^="unstable__"] {
-      color: rgb(229, 57, 53);
+    /* Hide fields that are unstable and likely to change */
+    td[kind="field"][title^="unstable__"],
+    td[kind="field"][title^="unstable__"] ~ td {
+      display: none
     }
   </style>
 {% endblock %}
