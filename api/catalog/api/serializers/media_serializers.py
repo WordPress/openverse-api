@@ -369,7 +369,7 @@ class MediaSerializer(BaseModelSerializer):
     )
 
     created_on = serializers.DateField(
-        help_text="The timestamp of when the media was added to Openverse.",
+        help_text="The timestamp of when the media was indexed by Openverse.",
     )
 
     tags = TagSerializer(
