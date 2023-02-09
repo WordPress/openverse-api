@@ -17,6 +17,7 @@ from elasticsearch_dsl.query import EMPTY_QUERY, MoreLikeThis, Query
 from elasticsearch_dsl.response import Hit, Response
 
 import catalog.api.models as models
+from catalog.api.constants.sorting import INDEXED_ON
 from catalog.api.utils import tallies
 from catalog.api.utils.dead_link_mask import get_query_hash, get_query_mask
 from catalog.api.utils.validate_images import validate_images
@@ -392,7 +393,8 @@ def search(
     s = s.params(preference=str(ip), request_timeout=7)
 
     # Sort by new
-    s = s.sort({"created_on": {"order": "desc"}})
+    if search_params.validated_data["sort_by"] == INDEXED_ON:
+        s = s.sort({"created_on": {"order": search_params.validated_data["sort_dir"]}})
 
     # Paginate
     start, end = _get_query_slice(s, page_size, page, filter_dead)

@@ -7,6 +7,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import NotAuthenticated
 
 from catalog.api.constants.licenses import LICENSE_GROUPS
+from catalog.api.constants.sorting import SORT_DIRECTIONS, SORT_FIELDS
 from catalog.api.controllers import search_controller
 from catalog.api.models.media import AbstractMedia
 from catalog.api.serializers.base import BaseModelSerializer
@@ -42,6 +43,8 @@ class MediaSearchRequestSerializer(serializers.Serializer):
         "extension",
         "mature",
         "qa",
+        # "unstable__sort_by",  # excluding unstable fields
+        # "unstable__sort_dir",  # excluding unstable fields
         "page_size",
         "page",
     ]
@@ -109,6 +112,25 @@ class MediaSearchRequestSerializer(serializers.Serializer):
         required=False,
         default=False,
     )
+
+    # The `unstable__` prefix is used in the query params.
+    # The validated data does not contain the `unstable__` prefix.
+    unstable__sort_by = serializers.ChoiceField(
+        source="sort_by",
+        help_text="The field which should be the basis for sorting results.",
+        choices=SORT_FIELDS,
+        required=False,
+        default=SORT_FIELDS[0][0],
+    )
+    unstable__sort_dir = serializers.ChoiceField(
+        source="sort_dir",
+        help_text="The direction of sorting. Cannot be applied when sorting by "
+        "`relevance`.",
+        choices=SORT_DIRECTIONS,
+        required=False,
+        default=SORT_DIRECTIONS[0][0],
+    )
+
     page_size = serializers.IntegerField(
         label="page_size",
         help_text="Number of results to return per page.",
