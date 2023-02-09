@@ -3,7 +3,7 @@ Base test cases for all media types.
 
 These are not tests and cannot be invoked.
 """
-import datetime
+
 import json
 from test.constants import API_URL
 
@@ -103,24 +103,14 @@ def search_consistency(
             results.add(media_id)
 
 
-def search_sort(media_type):
-    desc = requests.get(
-        f"{API_URL}/v1/{media_type}/?unstable__sort_by=indexed_on&unstable__sort_dir=desc",
+def search_sort(media_type, sort_dir, exp_created_on):
+    response = requests.get(
+        f"{API_URL}/v1/{media_type}/?page_size=1&unstable__sort_by=indexed_on&unstable__sort_dir={sort_dir}",
         verify=False,
     )
-    assert desc.status_code == 200
-    data = json.loads(desc.text)
-    newest = datetime.datetime.strptime(data["results"][0]["created_on"], "%Y-%m-%d")
-
-    asc = requests.get(
-        f"{API_URL}/v1/{media_type}/?unstable__sort_by=indexed_on&unstable__sort_dir=asc",
-        verify=False,
-    )
-    assert asc.status_code == 200
-    data = json.loads(asc.text)
-    oldest = datetime.datetime.strptime(data["results"][1]["created_on"], "%Y-%m-%d")
-
-    assert newest > oldest
+    assert response.status_code == 200
+    data = json.loads(response.text)
+    assert data["results"][0]["created_on"] == exp_created_on
 
 
 def detail(media_type, fixture):

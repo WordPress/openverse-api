@@ -119,8 +119,12 @@ def test_search_consistency():
     search_consistency("audio", n_pages)
 
 
-def test_search_sort():
-    search_sort("audio")
+def test_search_sort_asc():
+    search_sort("audio", "asc", "2022-01-01")  # oldest date in sample data
+
+
+def test_search_sort_desc():
+    search_sort("audio", "desc", "2022-12-31")  # newest date in sample data
 
 
 def test_audio_detail(audio_fixture):

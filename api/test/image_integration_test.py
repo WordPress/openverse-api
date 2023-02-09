@@ -71,8 +71,12 @@ def test_search_consistency():
     search_consistency("images", n_pages)
 
 
-def test_search_sort():
-    search_sort("images")
+def test_search_sort_asc():
+    search_sort("images", "asc", "2022-01-01")  # oldest date in sample data
+
+
+def test_search_sort_desc():
+    search_sort("images", "desc", "2022-12-31")  # newest date in sample data
 
 
 def test_image_detail(image_fixture):
