@@ -103,16 +103,6 @@ def search_consistency(
             results.add(media_id)
 
 
-def search_sort(media_type, sort_dir, exp_created_on):
-    response = requests.get(
-        f"{API_URL}/v1/{media_type}/?unstable__sort_by=indexed_on&unstable__sort_dir={sort_dir}",
-        verify=False,
-    )
-    assert response.status_code == 200
-    data = json.loads(response.text)
-    assert data["results"][0]["created_on"] == exp_created_on
-
-
 def detail(media_type, fixture):
     test_id = fixture["results"][0]["id"]
     response = requests.get(f"{API_URL}/v1/{media_type}/{test_id}", verify=False)
