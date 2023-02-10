@@ -105,7 +105,7 @@ def search_consistency(
 
 def search_sort(media_type, sort_dir, exp_created_on):
     response = requests.get(
-        f"{API_URL}/v1/{media_type}/?page_size=1&unstable__sort_by=indexed_on&unstable__sort_dir={sort_dir}",
+        f"{API_URL}/v1/{media_type}/?unstable__sort_by=indexed_on&unstable__sort_dir={sort_dir}",
         verify=False,
     )
     assert response.status_code == 200
