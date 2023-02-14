@@ -98,14 +98,14 @@ def test_auth_rate_limit_reporting(
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "sort_dir, exp_created_on",
+    "sort_dir, exp_indexed_on",
     [
         ("desc", "2022-12-31"),
         ("asc", "2022-01-01"),
     ],
 )
 def test_sorting_authed(
-    client, monkeypatch, test_auth_token_exchange, sort_dir, exp_created_on
+    client, monkeypatch, test_auth_token_exchange, sort_dir, exp_indexed_on
 ):
     # Prevent DB lookup for ES results because DB is empty.
     monkeypatch.setattr("catalog.api.views.image_views.ImageSerializer.needs_db", False)
@@ -117,8 +117,8 @@ def test_sorting_authed(
     assert res.status_code == 200
 
     res_data = res.json()
-    created_on = res_data["results"][0]["created_on"][:10]  # ``created_on`` is ISO.
-    assert created_on == exp_created_on
+    indexed_on = res_data["results"][0]["indexed_on"][:10]  # ``indexed_on`` is ISO.
+    assert indexed_on == exp_indexed_on
 
 
 @pytest.mark.django_db
