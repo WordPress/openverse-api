@@ -6,8 +6,8 @@ This leads to the JSON output being more suitable for human consumption.
 
 json_fields = [
     "id",
-    "created_on",
     "title",
+    "indexed_on",
     "foreign_landing_url",
     "url",
     "creator",

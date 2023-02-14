@@ -354,7 +354,7 @@ class MediaSerializer(BaseModelSerializer):
         model = AbstractMedia
         fields = [
             "id",
-            "created_on",
+            "indexed_on",
             "title",
             "foreign_landing_url",
             "url",
@@ -386,7 +386,8 @@ class MediaSerializer(BaseModelSerializer):
         source="identifier",
     )
 
-    created_on = serializers.DateTimeField(
+    indexed_on = serializers.DateTimeField(
+        source="created_on",
         format="%Y-%m-%d",
         help_text="The timestamp of when the media was indexed by Openverse.",
     )
