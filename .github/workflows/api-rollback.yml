@@ -6,7 +6,6 @@
 ### !!!
 
 name: openverse/api-rollback
-description: Update the task definition for a api deployment via a rollback
 
 on:
   workflow_dispatch:
