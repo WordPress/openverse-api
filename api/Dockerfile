@@ -80,6 +80,7 @@ COPY --from=awf /usr/local/bin/audiowaveform /usr/local/bin
 # - Install system packages needed for running Python dependencies
 #   - libexempi8: required for watermarking
 #   - libpq-dev: required by `psycopg2`
+#   - screen: used for executing long-running commands in production
 # - Create directory for dumping API logs
 RUN apt-get update \
       && apt-get install -y \
