@@ -3,6 +3,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from test.factory.models.image import ImageFactory
+from unittest.mock import patch
 
 import pytest
 from requests import Request, Response
@@ -56,3 +57,15 @@ def test_oembed_sends_ua_header(api_client, requests):
     assert len(requests.requests) > 0
     for r in requests.requests:
         assert r.headers == ImageViewSet.OEMBED_HEADERS
+
+
+@pytest.mark.django_db
+def test_thumbnail_uses_upstream_thumb(api_client):
+    image = ImageFactory.create()
+    with patch("catalog.api.views.media_views.photon.get") as photon_patch:
+        api_client.get(f"/v1/images/{image.identifier}/thumbnail/")
+
+        # This is throwing "Called 0 times."
+        photon_patch.assert_called_once()
+        # A photon_patch.assert_called_once_with(image_url=image.thumbnail, ...)
+        # or something similar should follow after the above call passes.
