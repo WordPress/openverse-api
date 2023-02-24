@@ -27,13 +27,13 @@ from catalog.api.utils.throttle import OneThousandPerMinute
 from catalog.api.views.media_views import MediaViewSet
 
 
-@method_decorator(swagger_auto_schema(**AudioSearch.swagger_setup), "list")
-@method_decorator(swagger_auto_schema(**AudioStats.swagger_setup), "stats")
-@method_decorator(swagger_auto_schema(**AudioDetail.swagger_setup), "retrieve")
-@method_decorator(swagger_auto_schema(**AudioRelated.swagger_setup), "related")
-@method_decorator(swagger_auto_schema(**AudioComplain.swagger_setup), "report")
-@method_decorator(swagger_auto_schema(**AudioThumbnail.swagger_setup), "thumbnail")
-@method_decorator(swagger_auto_schema(auto_schema=None), "waveform")
+# @method_decorator(swagger_auto_schema(**AudioSearch.swagger_setup), "list")
+# @method_decorator(swagger_auto_schema(**AudioStats.swagger_setup), "stats")
+# @method_decorator(swagger_auto_schema(**AudioDetail.swagger_setup), "retrieve")
+# @method_decorator(swagger_auto_schema(**AudioRelated.swagger_setup), "related")
+# @method_decorator(swagger_auto_schema(**AudioComplain.swagger_setup), "report")
+# @method_decorator(swagger_auto_schema(**AudioThumbnail.swagger_setup), "thumbnail")
+# @method_decorator(swagger_auto_schema(auto_schema=None), "waveform")
 class AudioViewSet(MediaViewSet):
     """Viewset for all endpoints pertaining to audio."""
 
@@ -92,3 +92,21 @@ class AudioViewSet(MediaViewSet):
     )
     def report(self, *args, **kwargs):
         return super().report(*args, **kwargs)
+
+    @staticmethod
+    def apply_swagger():
+        options = (
+            (AudioSearch.swagger_setup, "list"),
+            (AudioStats.swagger_setup, "stats"),
+            (AudioDetail.swagger_setup, "retrieve"),
+            (AudioRelated.swagger_setup, "related"),
+            (AudioComplain.swagger_setup, "report"),
+            (AudioThumbnail.swagger_setup, "thumbnail"),
+            ({"auto_schema": None}, "waveform"),
+        )
+
+        for decorator_kwargs, method_name in options:
+            nonlocal AudioViewSet
+            AudioViewSet = method_decorator(
+                swagger_auto_schema(**decorator_kwargs), method_name
+            )(AudioViewSet)

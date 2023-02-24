@@ -1,7 +1,8 @@
 import os
 
+from django.conf import settings
+from django.urls import reverse
 
-origin = os.getenv("AUDIO_REQ_ORIGIN", "https://api.openverse.engineering")
 
 identifier = "4bc43a04-ef46-4544-a0c1-63c63f56e276"
 
@@ -53,9 +54,9 @@ base_image = {
     "mature": False,
     "height": 4016,
     "width": 6016,
-    "thumbnail": f"{origin}/v1/images/{identifier}/thumb/",
-    "detail_url": f"{origin}/v1/images/{identifier}/",
-    "related_url": f"{origin}/v1/images/{identifier}/related/",
+    "thumbnail": f"{settings.BASE_URL}{reverse('image-thumbnail', identifier=identifier)}",
+    "detail_url": f"{settings.BASE_URL}{reverse('image-retrieve', identifier=identifier)}",
+    "related_url": f"{settings.BASE_URL}{reverse('image-related', identifier=identifier)}",
 }
 
 detailed_image = base_image | {
@@ -119,15 +120,15 @@ image_related_200_example = {
                 "creator_url": "https://www.flickr.com/photos/18090920@N07",
                 "tags": [{"name": "exam"}, {"name": "tactics"}],
                 "url": "https://live.staticflickr.com/4065/4459771899_07595dc42e.jpg",  # noqa: E501
-                "thumbnail": "https://api.openverse.engineering/v1/thumbs/610756ec-ae31-4d5e-8f03-8cc52f31b71d",  # noqa: E501
+                "thumbnail": f"{settings.BASE_URL}{reverse('image-thumbnail', identifier='610756ec-ae31-4d5e-8f03-8cc52f31b71d')}",  # noqa: E501
                 "provider": "flickr",
                 "source": "flickr",
                 "license": "by",
                 "license_version": "2.0",
                 "license_url": "https://creativecommons.org/licenses/by/2.0/",
                 "foreign_landing_url": "https://www.flickr.com/photos/18090920@N07/4459771899",  # noqa: E501
-                "detail_url": "http://api.openverse.engineering/v1/images/610756ec-ae31-4d5e-8f03-8cc52f31b71d",  # noqa: E501
-                "related_url": "http://api.openverse.engineering/v1/recommendations/images/610756ec-ae31-4d5e-8f03-8cc52f31b71d",  # noqa: E501
+                "detail_url": f"{settings.BASE_URL}{reverse('image-retrieve', identifier='610756ec-ae31-4d5e-8f03-8cc52f31b71d')}",  # noqa: E501
+                "related_url": f"{settings.BASE_URL}{reverse('image-related', identifier='610756ec-ae31-4d5e-8f03-8cc52f31b71d')}",  # noqa: E501
             }
         ],
     }

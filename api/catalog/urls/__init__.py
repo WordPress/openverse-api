@@ -16,6 +16,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from django.conf import settings
 from django.conf.urls import include
 from django.contrib import admin
 from django.urls import path, re_path
@@ -84,3 +85,6 @@ urlpatterns = [
     # API
     path("v1/", include(versioned_paths)),
 ]
+
+if settings.PATH_PREFIX:
+    urlpatterns = [path(f"{settings.PATH_PREFIX}/", include(urlpatterns))]

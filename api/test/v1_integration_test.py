@@ -8,6 +8,8 @@ Run with the `pytest -s` command from this directory.
 import json
 from test.constants import API_URL
 
+from django.urls import reverse
+
 import pytest
 import requests
 
@@ -18,7 +20,7 @@ from catalog.api.utils.watermark import watermark
 
 @pytest.fixture
 def image_fixture():
-    response = requests.get(f"{API_URL}/v1/images?q=dog", verify=False)
+    response = requests.get(f"{API_URL}{reverse('image-list')}?q=dog", verify=False)
     assert response.status_code == 200
     parsed = json.loads(response.text)
     return parsed
@@ -26,44 +28,15 @@ def image_fixture():
 
 def test_link_shortener_create():
     payload = {"full_url": "abcd"}
-    response = requests.post(f"{API_URL}/v1/link/", json=payload, verify=False)
+    response = requests.post(
+        f"{API_URL}{reverse('make-link')}", json=payload, verify=False
+    )
     assert response.status_code == 410
 
 
 def test_link_shortener_resolve():
-    response = requests.get(f"{API_URL}/v1/link/abc", verify=False)
+    response = requests.get(f"{API_URL}{reverse('make-link')}abc", verify=False)
     assert response.status_code == 410
-
-
-@pytest.mark.skip(reason="Disabled feature")
-@pytest.fixture
-def test_list_create(image_fixture):
-    payload = {
-        "title": "INTEGRATION TEST",
-        "images": [image_fixture["results"][0]["id"]],
-    }
-    response = requests.post(f"{API_URL}/list", json=payload, verify=False)
-    parsed_response = json.loads(response.text)
-    assert response.status_code == 201
-    return parsed_response
-
-
-@pytest.mark.skip(reason="Disabled feature")
-def test_list_detail(test_list_create):
-    list_slug = test_list_create["url"].split("/")[-1]
-    response = requests.get(f"{API_URL}/list/{list_slug}", verify=False)
-    assert response.status_code == 200
-
-
-@pytest.mark.skip(reason="Disabled feature")
-def test_list_delete(test_list_create):
-    list_slug = test_list_create["url"].split("/")[-1]
-    token = test_list_create["auth"]
-    headers = {"Authorization": f"Token {token}"}
-    response = requests.delete(
-        f"{API_URL}/list/{list_slug}", headers=headers, verify=False
-    )
-    assert response.status_code == 204
 
 
 def test_license_type_filtering():
@@ -73,7 +46,8 @@ def test_license_type_filtering():
     modification = LICENSE_GROUPS["modification"]
     commercial_and_modification = set.intersection(modification, commercial)
     response = requests.get(
-        f"{API_URL}/v1/images?q=dog&license_type=commercial,modification", verify=False
+        f"{API_URL}{reverse('image-list')}?q=dog&license_type=commercial,modification",
+        verify=False,
     )
     parsed = json.loads(response.text)
     for result in parsed["results"]:
@@ -83,7 +57,7 @@ def test_license_type_filtering():
 def test_single_license_type_filtering():
     commercial = LICENSE_GROUPS["commercial"]
     response = requests.get(
-        f"{API_URL}/v1/images?q=dog&license_type=commercial", verify=False
+        f"{API_URL}{reverse('image-list')}?q=dog&license_type=commercial", verify=False
     )
     parsed = json.loads(response.text)
     for result in parsed["results"]:
@@ -91,7 +65,9 @@ def test_single_license_type_filtering():
 
 
 def test_specific_license_filter():
-    response = requests.get(f"{API_URL}/v1/images?q=dog&license=by", verify=False)
+    response = requests.get(
+        f"{API_URL}{reverse('image-list')}?q=dog&license=by", verify=False
+    )
     parsed = json.loads(response.text)
     for result in parsed["results"]:
         assert result["license"] == "by"
@@ -101,11 +77,13 @@ def test_creator_quotation_grouping():
     """Test that quotation marks can be used to narrow down search results."""
 
     no_quotes = json.loads(
-        requests.get(f"{API_URL}/v1/images?creator=Steve%20Wedgwood", verify=False).text
+        requests.get(
+            f"{API_URL}{reverse('image-list')}?creator=Steve%20Wedgwood", verify=False
+        ).text
     )
     quotes = json.loads(
         requests.get(
-            f'{API_URL}/v1/images?creator="Steve%20Wedgwood"', verify=False
+            f'{API_URL}{reverse("image-list")}?creator="Steve%20Wedgwood"', verify=False
         ).text
     )
     # Did quotation marks actually narrow down the search?
@@ -201,7 +179,9 @@ def test_license_override():
 
 
 def test_source_search():
-    response = requests.get(f"{API_URL}/v1/images?source=flickr", verify=False)
+    response = requests.get(
+        f"{API_URL}{reverse('image-list')}?source=flickr", verify=False
+    )
     if response.status_code != 200:
         print(f"Request failed. Message: {response.body}")
     assert response.status_code == 200
@@ -210,7 +190,7 @@ def test_source_search():
 
 
 def test_extension_filter():
-    response = requests.get(f"{API_URL}/v1/images?q=dog&extension=jpg")
+    response = requests.get(f"{API_URL}{reverse('image-list')}?q=dog&extension=jpg")
     parsed = json.loads(response.text)
     for result in parsed["results"]:
         assert ".jpg" in result["url"]
@@ -222,7 +202,7 @@ def recommendation_factory():
 
     def _parameterized_search(identifier, **kwargs):
         response = requests.get(
-            f"{API_URL}/v1/recommendations?type=images&id={identifier}",
+            f"{API_URL}{reverse('related-images')}?type=images&id={identifier}",
             params=kwargs,
             verify=False,
         )

@@ -1,7 +1,8 @@
 import os
 
+from django.conf import settings
+from django.urls import reverse
 
-origin = os.getenv("AUDIO_REQ_ORIGIN", "https://api.openverse.engineering")
 
 identifier = "8624ba61-57f1-4f98-8a85-ece206c319cf"
 
@@ -50,10 +51,10 @@ base_audio = {
     "duration": 270000,
     "bit_rate": 128000,
     "sample_rate": 44100,
-    "thumbnail": f"{origin}/v1/audio/{identifier}/thumb/",
-    "detail_url": f"{origin}/v1/audio/{identifier}/",
-    "related_url": f"{origin}/v1/audio/{identifier}/related/",
-    "waveform": f"{origin}/v1/audio/{identifier}/waveform/",
+    "thumbnail": f"{settings.BASE_URL}{reverse('audio-thumbnail', identifier=idenfitier)}",
+    "detail_url": f"{settings.BASE_URL}{reverse('audio-retrieve', identifier=identifier)}",
+    "related_url": f"{settings.BASE_URL}{reverse('audio-related', identifier=identifier)}",
+    "waveform": f"{settings.BASE_URL}{reverse('audio-waveform', identifier=identifier)}",
 }
 
 audio_search_200_example = {
@@ -123,8 +124,8 @@ audio_related_200_example = {
                 "license_version": "2.0",
                 "license_url": "https://creativecommons.org/licenses/by-sa/2.0/",
                 "foreign_landing_url": "https://commons.wikimedia.org/w/index.php?curid=3536953",  # noqa: E501
-                "detail_url": "http://api.openverse.engineering/v1/audio/36537842-b067-4ca0-ad67-e00ff2e06b2e",  # noqa: E501
-                "related_url": "http://api.openverse.engineering/v1/recommendations/audio/36537842-b067-4ca0-ad67-e00ff2e06b2e",  # noqa: E501
+                "detail_url": f"{settings.BASE_URL}{reverse('audio-retrieve', identifier='36537842-b067-4ca0-ad67-e00ff2e06b2e')}",  # noqa: E501
+                "related_url": f"{settings.BASE_URL}{reverse('audio-related', identifier='36537842-b067-4ca0-ad67-e00ff2e06b2e')}",  # noqa: E501
                 "fields_matched": ["description", "title"],
                 "tags": [{"name": "exam"}, {"name": "tactics"}],
             }

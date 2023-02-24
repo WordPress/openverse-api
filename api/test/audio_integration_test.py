@@ -24,6 +24,8 @@ from test.media_integration import (
     uuid_validation,
 )
 
+from django.urls import reverse
+
 import pytest
 import requests
 from django_redis import get_redis_connection
@@ -52,7 +54,7 @@ def force_result_validity():
 
 @pytest.fixture
 def audio_fixture(force_result_validity):
-    res = requests.get(f"{API_URL}/v1/audio/", verify=False)
+    res = requests.get(f"{API_URL}{reverse('audio-list')}", verify=False)
     parsed = res.json()
     force_result_validity(parsed)
     assert res.status_code == 200
@@ -68,7 +70,7 @@ def jamendo_audio_fixture(force_result_validity):
     sample audio results do not have thumbnails.
     """
     res = requests.get(
-        f"{API_URL}/v1/audio/",
+        f"{API_URL}{reverse('audio-list')}",
         data={"source": "jamendo"},
         verify=False,
     )
@@ -127,7 +129,9 @@ def test_audio_stats():
 
 
 def test_audio_detail_without_thumb():
-    resp = requests.get(f"{API_URL}/v1/audio/44540200-91eb-483d-9e99-38ce86a52fb6")
+    resp = requests.get(
+        f"{API_URL}{reverse('audio-retrieve', identifier='44540200-91eb-483d-9e99-38ce86a52fb6')}"
+    )
     assert resp.status_code == 200
     parsed = json.loads(resp.text)
     assert parsed["thumbnail"] is None
@@ -135,7 +139,7 @@ def test_audio_detail_without_thumb():
 
 def test_audio_search_without_thumb():
     """The first audio of this search should not have a thumbnail."""
-    resp = requests.get(f"{API_URL}/v1/audio/?q=zaus")
+    resp = requests.get(f"{API_URL}{reverse('audio-list')}?q=zaus")
     assert resp.status_code == 200
     parsed = json.loads(resp.text)
     assert parsed["results"][0]["thumbnail"] is None

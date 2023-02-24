@@ -3,6 +3,7 @@ from unittest.mock import patch
 from uuid import uuid4
 
 from django.conf import settings
+from django.urls import reverse
 
 import pytest
 import requests
@@ -96,7 +97,7 @@ def patch_link_validation_dead_for_count(count):
 @pytest.mark.django_db
 @_patch_make_head_requests()
 def test_dead_link_filtering(mocked_map, client):
-    path = "/v1/images/"
+    path = reverse("image-list")
     query_params = {"q": "*", "page_size": 20}
 
     # Make a request that does not filter dead links...
@@ -147,7 +148,7 @@ def test_dead_link_filtering_all_dead_links(
     unique_query_hash,
     empty_validation_cache,
 ):
-    path = "/v1/images/"
+    path = reverse("image-list")
     query_params = {"q": "*", "page_size": page_size}
 
     with patch_link_validation_dead_for_count(page_size / DEAD_LINK_RATIO):
@@ -170,7 +171,9 @@ def search_factory(client):
     """Allow passing url parameters along with a search request."""
 
     def _parameterized_search(**kwargs):
-        response = requests.get(f"{API_URL}/v1/images", params=kwargs, verify=False)
+        response = requests.get(
+            f"{API_URL}{reverse('image-list')}", params=kwargs, verify=False
+        )
         assert response.status_code == 200
         parsed = response.json()
         return parsed
@@ -230,7 +233,7 @@ def test_page_consistency_removing_dead_links(search_without_dead_links):
 @pytest.mark.django_db
 def test_max_page_count():
     response = requests.get(
-        f"{API_URL}/v1/images",
+        f"{API_URL}{reverse('image-list')}",
         params={"page": settings.MAX_PAGINATION_DEPTH + 1},
         verify=False,
     )

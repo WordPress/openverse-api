@@ -298,7 +298,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
+PATH_PREFIX = config("PATH_PREFIX", default=None)
+
+if PATH_PREFIX and (PATH_PREFIX[0] == "/" or PATH_PREFIX[-1] == "/"):
+    raise ValueError("Path prefix must not start or end with `/`")
+
 STATIC_URL = "/static/"
+
+if PATH_PREFIX:
+    STATIC_URL = f"/{PATH_PREFIX}{STATIC_URL}"
 
 # Allow anybody to access the API from any domain
 CORS_ORIGIN_ALLOW_ALL = True
@@ -380,4 +388,4 @@ MAX_ANONYMOUS_PAGE_SIZE = 20
 MAX_AUTHED_PAGE_SIZE = 500
 MAX_PAGINATION_DEPTH = 20
 
-BASE_URL = config("BASE_URL", default="https://wordpress.org/openverse/")
+BASE_URL = config("BASE_URL", default="https://openverse.org/api")

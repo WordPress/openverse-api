@@ -208,9 +208,11 @@ ing-testlocal *args:
 _api-install:
     cd api && pipenv install --dev
 
+API_PATH_PREFIX := "/" + `(grep 'PATH_PREFIX' api/.env | awk -F= '{print $2}') || ""`
+
 # Check the health of the API
 @web-health:
-    -curl -s -o /dev/null -w '%{http_code}' 'http://localhost:50280/healthcheck/'
+    -curl -s -o /dev/null -w '%{http_code}' 'http://localhost:50280{{ API_PATH_PREFIX }}/healthcheck/'
 
 # Wait for the API to be healthy
 @wait-for-web:
@@ -220,7 +222,7 @@ _api-install:
 
 # Run smoke test for the API docs
 api-doctest: _api-up
-    curl --fail 'http://localhost:50280/v1/?format=openapi'
+    curl --fail 'http://localhost:50280{{ API_PATH_PREFIX }}/v1/?format=openapi'
 
 # Run API tests inside Docker
 api-test *args: _api-up
@@ -236,7 +238,7 @@ dj-local +args:
 
 # Make a test cURL request to the API
 stats media="images":
-    curl "http://localhost:50280/v1/{{ media }}/stats/"
+    curl "http://localhost:50280{{ API_PATH_PREFIX }}/v1/{{ media }}/stats/"
 
 # Get Django shell with IPython
 ipython:
